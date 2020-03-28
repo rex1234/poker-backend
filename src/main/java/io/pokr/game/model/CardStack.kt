@@ -1,5 +1,8 @@
 package io.pokr.game.model
 
+/**
+ * Shuffled stack from which cards can be drawn
+ */
 class CardStack private constructor(
     var stack: List<Card>
 ) {
