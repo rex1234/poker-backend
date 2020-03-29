@@ -2,6 +2,8 @@ package io.pokr.game
 
 import io.pokr.game.model.CardList
 
+import handeval.Hand as EvalHand
+
 class HandComparator {
 
     companion object {
@@ -39,6 +41,9 @@ class HandComparator {
 
         val CardList.highestHand
             get() = Hands.values().map { hand -> hand.evalFunction(this) }.lastIndexOf(true)
+
+        val CardList.evalHand
+            get() = EvalHand.evaluate(EvalHand.fromString(toString().replace("0", "T")))
     }
 
     enum class Hands(
@@ -58,15 +63,6 @@ class HandComparator {
     fun evaluateHand(cardList: CardList) =
         Hands.values()[cardList.highestHand]
 
-    fun compareHands(c1: CardList, c2: CardList): Int {
-        val c1Combination = c1.highestHand
-        val c2Combination = c2.highestHand
-
-        return if(c1Combination == c2Combination) {
-            // TODO: compare cards in same hands
-            c1.highCard.value.ordinal - c2.highCard.value.ordinal
-        } else {
-            c1Combination - c2Combination
-        }
-    }
+    fun compareHands(c1: CardList, c2: CardList) =
+        c2.evalHand - c1.evalHand
 }

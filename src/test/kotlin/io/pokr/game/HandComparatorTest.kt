@@ -17,15 +17,31 @@ class HandComparatorTest {
 
     val cardListTwoPair = CardList(listOf(
         Card(Card.Color.CLUBS, Card.Value.QUEEN),
-        Card(Card.Color.CLUBS, Card.Value.QUEEN),
+        Card(Card.Color.HEARTS, Card.Value.QUEEN),
         Card(Card.Color.DIAMONDS, Card.Value.N_4),
+        Card(Card.Color.HEARTS, Card.Value.N_4),
+        Card(Card.Color.HEARTS, Card.Value.ACE)
+    ))
+
+    val cardListTwoPair2 = CardList(listOf(
+        Card(Card.Color.CLUBS, Card.Value.KING),
+        Card(Card.Color.HEARTS, Card.Value.KING),
         Card(Card.Color.DIAMONDS, Card.Value.N_4),
+        Card(Card.Color.HEARTS, Card.Value.N_4),
+        Card(Card.Color.HEARTS, Card.Value.N_7)
+    ))
+
+    val cardListTwoPair3 = CardList(listOf(
+        Card(Card.Color.CLUBS, Card.Value.KING),
+        Card(Card.Color.HEARTS, Card.Value.KING),
+        Card(Card.Color.DIAMONDS, Card.Value.N_4),
+        Card(Card.Color.HEARTS, Card.Value.N_4),
         Card(Card.Color.HEARTS, Card.Value.ACE)
     ))
 
     val cardListThreeKind = CardList(listOf(
         Card(Card.Color.CLUBS, Card.Value.QUEEN),
-        Card(Card.Color.CLUBS, Card.Value.QUEEN),
+        Card(Card.Color.HEARTS, Card.Value.QUEEN),
         Card(Card.Color.DIAMONDS, Card.Value.N_4),
         Card(Card.Color.DIAMONDS, Card.Value.QUEEN),
         Card(Card.Color.HEARTS, Card.Value.ACE)
@@ -33,15 +49,15 @@ class HandComparatorTest {
 
     val cardListFourKind =  CardList(listOf(
         Card(Card.Color.CLUBS, Card.Value.QUEEN),
-        Card(Card.Color.CLUBS, Card.Value.QUEEN),
+        Card(Card.Color.HEARTS, Card.Value.QUEEN),
         Card(Card.Color.DIAMONDS, Card.Value.QUEEN),
-        Card(Card.Color.DIAMONDS, Card.Value.QUEEN),
+        Card(Card.Color.SPADES, Card.Value.QUEEN),
         Card(Card.Color.HEARTS, Card.Value.ACE)
     ))
 
     val cardListFullHouse = CardList(listOf(
         Card(Card.Color.CLUBS, Card.Value.QUEEN),
-        Card(Card.Color.CLUBS, Card.Value.QUEEN),
+        Card(Card.Color.SPADES, Card.Value.QUEEN),
         Card(Card.Color.DIAMONDS, Card.Value.QUEEN),
         Card(Card.Color.DIAMONDS, Card.Value.ACE),
         Card(Card.Color.HEARTS, Card.Value.ACE)
@@ -138,6 +154,8 @@ class HandComparatorTest {
 
     @Test
     fun highCardComparisonTest() {
-
+        Assert.assertTrue(handComparator.compareHands(cardListTwoPair3, cardListTwoPair2) > 0)
+        Assert.assertTrue(handComparator.compareHands(cardListTwoPair2, cardListTwoPair) > 0)
+        Assert.assertTrue(handComparator.compareHands(cardListTwoPair3, cardListTwoPair) > 0)
     }
 }
