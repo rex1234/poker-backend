@@ -9,8 +9,6 @@ class GameEngine(
 ) {
 
     val handComparator = HandComparator()
-    val players = mutableListOf<Player>()
-
     var gameStateUpdated: (Game) -> Unit = {}
 
     val game = Game.withConfig(
@@ -40,7 +38,7 @@ class GameEngine(
 
     fun nextAction() {
         if(game.round == 1) {
-            players.forEach {
+            game.players.forEach {
                 it.cards = it.cards.with(game.cardStack.drawCards(2))
             }
             game.midCards = game.midCards.with(game.cardStack.drawCards(3))
@@ -51,10 +49,10 @@ class GameEngine(
 
     fun evaluateRound() {
         val ranks = handComparator.evalPlayers(game.players, game.midCards)
-        val betsSum = players.sumBy { it.currentBet }
+        val betsSum = game.players.sumBy { it.currentBet }
 
         ranks[0].player.chips = 0
-        players.forEach { it.currentBet = 0 }
+        game.players.forEach { it.currentBet = 0 }
 
         gameStateUpdated(game)
     }

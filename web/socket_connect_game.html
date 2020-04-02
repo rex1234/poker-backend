@@ -1,3 +1,4 @@
+<html>
 <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
 
@@ -6,6 +7,7 @@
 
     socket.on('gameState', function (data) {
         console.log(data);
+        print(data);
         Cookies.set('player_uuid', data.user.uuid, { expires: 1 });
     });
 
@@ -18,4 +20,12 @@
         gameUUID: "12345",
         playerUUID: Cookies.get('player_uuid')
     });
+
+    function print(data) {
+        document.getElementById("content").innerHTML = JSON.stringify(data)
+    }
 </script>
+<body id="content">
+
+</body>
+</html>

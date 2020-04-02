@@ -6,14 +6,12 @@ import io.pokr.game.model.Player
 import io.pokr.network.model.GameSession
 import io.pokr.network.model.PlayerAction
 import io.pokr.network.model.PlayerSession
-import io.pokr.network.responses.GameResponse
 import io.pokr.network.util.TokenGenerator
-import java.util.*
 
 class GamePool {
 
     private val gameSessions: MutableList<GameSession> = mutableListOf()
-    private val games = mutableMapOf<GameSession, GameEngine>()
+    private val gameEngines = mutableMapOf<GameSession, GameEngine>()
 
     fun createGame(playerSession: String, playerName: String) {
         val playerSession = PlayerSession(playerSession, TokenGenerator.nextToken())
@@ -25,8 +23,8 @@ class GamePool {
 
         System.err.println("Created game session: ${gameSession.uuid}")
 
-        games[gameSession] = GameEngine(gameSession.uuid)
-        games[gameSession]!!.addPlayer(playerSession.uuid)
+        gameEngines[gameSession] = GameEngine(gameSession.uuid)
+        gameEngines[gameSession]!!.addPlayer(playerSession.uuid)
 
         System.err.println("Added player ${playerSession.uuid} to ${gameSession.uuid}")
 
@@ -47,12 +45,12 @@ class GamePool {
                 it.sessionId = session
             } ?: PlayerSession(session, TokenGenerator.nextToken()).also {
                 gameSession.playerSessions.add(it)
-                games[gameSession]!!.addPlayer(it.uuid)
+                gameEngines[gameSession]!!.addPlayer(it.uuid)
             }
 
             System.err.println("Added player ${playerSession.uuid} to ${gameSession.uuid}")
 
-            getGameDataForPlayerSession(session).second.connected = true
+            getGameDataForPlayerUuid(playerSession.uuid).second.connected = true
 
             executePlayerAction(playerSession.uuid, PlayerAction( // replace with UUID
                 action = PlayerAction.Action.CHANGE_NAME,
@@ -71,7 +69,9 @@ class GamePool {
     }
 
     fun playerDisconnected(session: String) {
-        getGameDataForPlayerSession(session).second.connected = false
+        gameSessions.map { it.playerSessions }.flatten().firstOrNull { it.sessionId == session }?.uuid?.let {
+            getGameDataForPlayerUuid(it).second.connected = false
+        }
     }
 
     fun executePlayerActionOnSession(session: String, action: PlayerAction) {
@@ -89,7 +89,7 @@ class GamePool {
 
         val playerSession = gameSession.playerSessions.first { it.uuid == playerUUID }
 
-        val game = games[gameSession]!!
+        val game = gameEngines[gameSession]!!
 
         System.err.println("Executing action {$action} on player ${playerSession.uuid}")
 
@@ -100,11 +100,14 @@ class GamePool {
     }
 
     // TODO refactor
-    fun getGameDataForPlayerSession(session: String): Pair<Game, Player> {
-        val gameSession = gameSessions.first { session in it.playerSessions.map { it.sessionId } }
-        val playerSession = gameSession.playerSessions.first { it.sessionId == session}
+    fun getGroupSessions(session: String) =
+        gameSessions.first { session in it.playerSessions.map { it.sessionId } }.playerSessions
 
-        val game = games[gameSession]!!.game
+    fun getGameDataForPlayerUuid(uuid: String): Pair<Game, Player> {
+        val gameSession = gameSessions.first { uuid in it.playerSessions.map { it.uuid } }
+        val playerSession = gameSession.playerSessions.first { it.uuid == uuid}
+
+        val game = gameEngines[gameSession]!!.game
         val player = game.players.first { it.uuid == playerSession.uuid }
 
         return Pair(game, player)

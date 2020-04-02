@@ -29,6 +29,8 @@ class SocketEngine(
         GAME_STATE("gameState")
     }
 
+    lateinit var server: SocketIOServer
+
     fun start() {
         val config = Configuration().apply {
             hostname = "127.0.0.1"
@@ -62,7 +64,7 @@ class SocketEngine(
 
         }
 
-        SocketIOServer(config).apply {
+        server = SocketIOServer(config).apply {
 
             addEventListener(Events.CONNECT.key, ConnectionRequest::class.java) { client, data, ackRequest ->
                 System.err.println("Connection request: " + data.name)
@@ -100,8 +102,9 @@ class SocketEngine(
                 client.sendEvent(Events.GAME_STATE.key, gameState)
             }
 
-            addDisconnectListener {
-                gamePool.playerDisconnected(it.sessionId.toString())
+            addDisconnectListener { client ->
+                gamePool.playerDisconnected(client.sessionId.toString())
+                respondGameState(client)
             }
 
             start()
@@ -110,8 +113,14 @@ class SocketEngine(
     }
 
     private fun respondGameState(client: SocketIOClient) {
-        val data = gamePool.getGameDataForPlayerSession(client.sessionId.toString())
-        client.sendEvent(Events.GAME_STATE.key, GameResponse.GameStateFactory.from(data.first, data.second))
+        gamePool.getGroupSessions(client.sessionId.toString()).forEach { playerSession ->
+
+            val data = gamePool.getGameDataForPlayerUuid(playerSession.uuid)
+
+            server.allClients.filter { it.sessionId == UUID.fromString(playerSession.sessionId) }.forEach {
+                it.sendEvent(Events.GAME_STATE.key, GameResponse.GameStateFactory.from(data.first, data.second))
+            }
+        }
     }
 
     // DEBUG
