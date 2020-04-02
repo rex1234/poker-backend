@@ -1,15 +1,25 @@
 package io.pokr.game.model
 
-class Game {
+class Game private constructor(
+    val gameConfig: GameConfig,
+    var gameState: State
+) {
 
-    lateinit var cardStack: CardStack
-    lateinit var players: MutableList<Player>
-    lateinit var midCards: CardList
-
-    var round = 1
-
-    enum class State {
-
+    companion object {
+        fun withConfig(config: GameConfig) =
+            Game(config, State.CREATED)
     }
 
+    enum class State {
+        CREATED,
+        ACTIVE,
+        FINISHED
+    }
+
+    val cardStack = CardStack.create()
+
+    var round = 1
+    var players = mutableListOf<Player>()
+
+    lateinit var midCards: CardList
 }

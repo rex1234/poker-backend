@@ -1,144 +1,74 @@
 package io.pokr.game
 
-import io.pokr.game.model.Card
 import io.pokr.game.model.CardList
 import org.junit.Assert
 import org.junit.Test
 
 class HandComparatorTest {
 
-    val cardListPair = CardList(listOf(
-        Card(Card.Color.CLUBS, Card.Value.QUEEN),
-        Card(Card.Color.CLUBS, Card.Value.KING),
-        Card(Card.Color.DIAMONDS, Card.Value.N_4),
-        Card(Card.Color.DIAMONDS, Card.Value.QUEEN),
-        Card(Card.Color.HEARTS, Card.Value.ACE)
-    ))
-
-    val cardListTwoPair = CardList(listOf(
-        Card(Card.Color.CLUBS, Card.Value.QUEEN),
-        Card(Card.Color.HEARTS, Card.Value.QUEEN),
-        Card(Card.Color.DIAMONDS, Card.Value.N_4),
-        Card(Card.Color.HEARTS, Card.Value.N_4),
-        Card(Card.Color.HEARTS, Card.Value.ACE)
-    ))
-
-    val cardListTwoPair2 = CardList(listOf(
-        Card(Card.Color.CLUBS, Card.Value.KING),
-        Card(Card.Color.HEARTS, Card.Value.KING),
-        Card(Card.Color.DIAMONDS, Card.Value.N_4),
-        Card(Card.Color.HEARTS, Card.Value.N_4),
-        Card(Card.Color.HEARTS, Card.Value.N_7)
-    ))
-
-    val cardListTwoPair3 = CardList(listOf(
-        Card(Card.Color.CLUBS, Card.Value.KING),
-        Card(Card.Color.HEARTS, Card.Value.KING),
-        Card(Card.Color.DIAMONDS, Card.Value.N_4),
-        Card(Card.Color.HEARTS, Card.Value.N_4),
-        Card(Card.Color.HEARTS, Card.Value.ACE)
-    ))
-
-    val cardListThreeKind = CardList(listOf(
-        Card(Card.Color.CLUBS, Card.Value.QUEEN),
-        Card(Card.Color.HEARTS, Card.Value.QUEEN),
-        Card(Card.Color.DIAMONDS, Card.Value.N_4),
-        Card(Card.Color.DIAMONDS, Card.Value.QUEEN),
-        Card(Card.Color.HEARTS, Card.Value.ACE)
-    ))
-
-    val cardListFourKind =  CardList(listOf(
-        Card(Card.Color.CLUBS, Card.Value.QUEEN),
-        Card(Card.Color.HEARTS, Card.Value.QUEEN),
-        Card(Card.Color.DIAMONDS, Card.Value.QUEEN),
-        Card(Card.Color.SPADES, Card.Value.QUEEN),
-        Card(Card.Color.HEARTS, Card.Value.ACE)
-    ))
-
-    val cardListFullHouse = CardList(listOf(
-        Card(Card.Color.CLUBS, Card.Value.QUEEN),
-        Card(Card.Color.SPADES, Card.Value.QUEEN),
-        Card(Card.Color.DIAMONDS, Card.Value.QUEEN),
-        Card(Card.Color.DIAMONDS, Card.Value.ACE),
-        Card(Card.Color.HEARTS, Card.Value.ACE)
-    ))
-
-    val cardListStraight = CardList(listOf(
-        Card(Card.Color.DIAMONDS, Card.Value.N_10),
-        Card(Card.Color.CLUBS, Card.Value.N_8),
-        Card(Card.Color.DIAMONDS, Card.Value.N_9),
-        Card(Card.Color.HEARTS, Card.Value.JACK),
-        Card(Card.Color.CLUBS, Card.Value.N_7)
-    ))
-
-    val cardListFlush = CardList(listOf(
-        Card(Card.Color.CLUBS, Card.Value.N_10),
-        Card(Card.Color.CLUBS, Card.Value.QUEEN),
-        Card(Card.Color.CLUBS, Card.Value.JACK),
-        Card(Card.Color.CLUBS, Card.Value.N_9),
-        Card(Card.Color.CLUBS, Card.Value.N_9)
-    ))
-
-    val cardListRoyalFlush = CardList(listOf(
-        Card(Card.Color.CLUBS, Card.Value.N_10),
-        Card(Card.Color.CLUBS, Card.Value.QUEEN),
-        Card(Card.Color.CLUBS, Card.Value.JACK),
-        Card(Card.Color.CLUBS, Card.Value.KING),
-        Card(Card.Color.CLUBS, Card.Value.N_9)
-    ))
+    val cardListPair = CardList.parse("QC QK 1D QD  AH")
+    val cardListTwoPair = CardList.parse("QC QH 4D 1H AH")
+    val cardListTwoPair2 = CardList.parse("KC KH 4D 4H 7H")
+    val cardListTwoPair3 = CardList.parse("KC KH 4D 4H AH")
+    val cardListThreeKind = CardList.parse("QC QH 4D QD AH")
+    val cardListFourKind =  CardList.parse("QC QH QD QS AH")
+    val cardListFullHouse = CardList.parse("QC QS QD AD AH")
+    val cardListStraight = CardList.parse("0D 8C 9D JH 7C")
+    val cardListFlush = CardList.parse("0C QC JC 9C 5C")
+    val cardListRoyalFlush = CardList.parse("0C QC JC KC 9C")
 
     val handComparator = HandComparator()
 
     @Test
     fun testPair() {
-        Assert.assertTrue(HandComparator.Hands.PAIR.evalFunction(cardListPair))
-        Assert.assertTrue(handComparator.evaluateHand(cardListPair) == HandComparator.Hands.PAIR)
+        Assert.assertTrue(HandComparator.Hand.PAIR.evalFunction(cardListPair))
+        Assert.assertTrue(handComparator.findHighestHand(cardListPair) == HandComparator.Hand.PAIR)
     }
 
     @Test
     fun testTwoPair() {
-        Assert.assertTrue(HandComparator.Hands.TWO_PAIR.evalFunction(cardListTwoPair))
-        Assert.assertTrue(handComparator.evaluateHand(cardListTwoPair) == HandComparator.Hands.TWO_PAIR)
+        Assert.assertTrue(HandComparator.Hand.TWO_PAIR.evalFunction(cardListTwoPair))
+        Assert.assertTrue(handComparator.findHighestHand(cardListTwoPair) == HandComparator.Hand.TWO_PAIR)
     }
 
     @Test
     fun testThreeKind() {
-        Assert.assertTrue(HandComparator.Hands.THREE_KIND.evalFunction(cardListThreeKind))
-        Assert.assertTrue(handComparator.evaluateHand(cardListThreeKind) == HandComparator.Hands.THREE_KIND)
+        Assert.assertTrue(HandComparator.Hand.THREE_KIND.evalFunction(cardListThreeKind))
+        Assert.assertTrue(handComparator.findHighestHand(cardListThreeKind) == HandComparator.Hand.THREE_KIND)
     }
 
     @Test
     fun testFourKind() {
-        Assert.assertTrue(HandComparator.Hands.FOUR_KIND.evalFunction(cardListFourKind))
-        Assert.assertTrue(handComparator.evaluateHand(cardListFourKind) == HandComparator.Hands.FOUR_KIND)
+        Assert.assertTrue(HandComparator.Hand.FOUR_KIND.evalFunction(cardListFourKind))
+        Assert.assertTrue(handComparator.findHighestHand(cardListFourKind) == HandComparator.Hand.FOUR_KIND)
     }
 
     @Test
     fun testFullHouse() {
-        Assert.assertTrue(HandComparator.Hands.FULL_HOUSE.evalFunction(cardListFullHouse))
-        Assert.assertFalse(HandComparator.Hands.FULL_HOUSE.evalFunction(cardListThreeKind))
-        Assert.assertFalse(HandComparator.Hands.FULL_HOUSE.evalFunction(cardListPair))
-        Assert.assertTrue(handComparator.evaluateHand(cardListFullHouse) == HandComparator.Hands.FULL_HOUSE)
+        Assert.assertTrue(HandComparator.Hand.FULL_HOUSE.evalFunction(cardListFullHouse))
+        Assert.assertFalse(HandComparator.Hand.FULL_HOUSE.evalFunction(cardListThreeKind))
+        Assert.assertFalse(HandComparator.Hand.FULL_HOUSE.evalFunction(cardListPair))
+        Assert.assertTrue(handComparator.findHighestHand(cardListFullHouse) == HandComparator.Hand.FULL_HOUSE)
     }
 
     @Test
     fun testStraight() {
-        Assert.assertTrue(HandComparator.Hands.STRAIGHT.evalFunction(cardListStraight))
-        Assert.assertFalse(HandComparator.Hands.STRAIGHT.evalFunction(cardListPair))
-        Assert.assertTrue(handComparator.evaluateHand(cardListStraight) == HandComparator.Hands.STRAIGHT)
+        Assert.assertTrue(HandComparator.Hand.STRAIGHT.evalFunction(cardListStraight))
+        Assert.assertFalse(HandComparator.Hand.STRAIGHT.evalFunction(cardListPair))
+        Assert.assertTrue(handComparator.findHighestHand(cardListStraight) == HandComparator.Hand.STRAIGHT)
     }
 
     @Test
     fun testFlush() {
-        Assert.assertTrue(HandComparator.Hands.FLUSH.evalFunction(cardListFlush))
-        Assert.assertFalse(HandComparator.Hands.FLUSH.evalFunction(cardListTwoPair))
-        Assert.assertTrue(handComparator.evaluateHand(cardListFlush) == HandComparator.Hands.FLUSH)
+        Assert.assertTrue(HandComparator.Hand.FLUSH.evalFunction(cardListFlush))
+        Assert.assertFalse(HandComparator.Hand.FLUSH.evalFunction(cardListTwoPair))
+        Assert.assertTrue(handComparator.findHighestHand(cardListFlush) == HandComparator.Hand.FLUSH)
     }
 
     @Test
     fun testStraightFlush() {
-        Assert.assertTrue(HandComparator.Hands.STRAIGHT_FLUSH.evalFunction(cardListRoyalFlush))
-        Assert.assertTrue(handComparator.evaluateHand(cardListRoyalFlush) == HandComparator.Hands.STRAIGHT_FLUSH)
+        Assert.assertTrue(HandComparator.Hand.STRAIGHT_FLUSH.evalFunction(cardListRoyalFlush))
+        Assert.assertTrue(handComparator.findHighestHand(cardListRoyalFlush) == HandComparator.Hand.STRAIGHT_FLUSH)
     }
 
     @Test
@@ -158,4 +88,10 @@ class HandComparatorTest {
         Assert.assertTrue(handComparator.compareHands(cardListTwoPair2, cardListTwoPair) > 0)
         Assert.assertTrue(handComparator.compareHands(cardListTwoPair3, cardListTwoPair) > 0)
     }
+
+    @Test
+    fun testEvalPlayers() {
+
+    }
+
 }
