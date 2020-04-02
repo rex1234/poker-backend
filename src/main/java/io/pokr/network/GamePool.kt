@@ -19,7 +19,10 @@ class GamePool {
         val gameSession = GameSession(/* UUID.randomUUID().toString() */ "12345").apply {
             playerSessions.add(playerSession)
         }
+        gameSessions.firstOrNull { it.uuid == gameSession.uuid }?.playerSessions?.clear()
+
         gameSessions.add(gameSession)
+
 
         System.err.println("Created game session: ${gameSession.uuid}")
 
