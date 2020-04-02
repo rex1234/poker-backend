@@ -7,7 +7,6 @@ import io.pokr.network.requests.ConnectionRequest
 import io.pokr.network.requests.PlayerActionRequest
 import io.pokr.network.responses.ErrorResponse
 import io.pokr.network.responses.GameResponse
-import java.beans.ExceptionListener
 import java.lang.Exception
 import java.lang.IllegalArgumentException
 
@@ -58,6 +57,9 @@ class SocketEngine(
                     return false
                 }
             }
+
+            pingTimeout
+
         }
 
         SocketIOServer(config).apply {
@@ -65,39 +67,51 @@ class SocketEngine(
             addEventListener(Events.CONNECT.key, ConnectionRequest::class.java) { client, data, ackRequest ->
                 System.err.println("Connection request: " + data.name)
 
-                if(data.gameUUID == null) {
-                    gamePool.createGame(
-                        client.sessionId.toString(), data.name
-                    )
-                } else {
-                    try {
-                        gamePool.connectToGame(
-                            data.gameUUID, client.sessionId.toString(), UUID.randomUUID().toString(), data.name
+                try {
+                    if(data.gameUUID == null) {
+                        gamePool.createGame(
+                            client.sessionId.toString(), data.name
                         )
-
-                        client.sendEvent(Events.GAME_STATE.key, gameState)
-                    } catch (e: IllegalArgumentException) {
-                        client.sendEvent(Events.ERROR.key, ErrorResponse(
-                            -100, "Failed to connect to the game"
-                        ))
+                    } else {
+                        gamePool.connectToGame(
+                            client.sessionId.toString(), data.gameUUID, data.playerUUID, data.name
+                        )
                     }
+
+                    respondGameState(client)
+                } catch (e: IllegalArgumentException) {
+                    client.sendEvent(Events.ERROR.key, ErrorResponse(
+                        -100, e.message.toString()
+                    ))
                 }
             }
 
 
             addEventListener(Events.ACTION.key, PlayerActionRequest::class.java) { client, data, ackRequest ->
                 System.err.println("Action request: ")
-                gamePool.executePlayerAction(client.sessionId.toString(), data.playerAction)
+                gamePool.executePlayerActionOnSession(client.sessionId.toString(), data.playerAction)
+
+                respondGameState(client)
             }
 
             addEventListener(Events.GAME_REQUEST.key, String::class.java) { client, data, ackRequest ->
                 System.err.println("Game state request")
+
                 client.sendEvent(Events.GAME_STATE.key, gameState)
+            }
+
+            addDisconnectListener {
+                gamePool.playerDisconnected(it.sessionId.toString())
             }
 
             start()
             println("socket.io server is running")
         }
+    }
+
+    private fun respondGameState(client: SocketIOClient) {
+        val data = gamePool.getGameDataForPlayerSession(client.sessionId.toString())
+        client.sendEvent(Events.GAME_STATE.key, GameResponse.GameStateFactory.from(data.first, data.second))
     }
 
     // DEBUG
@@ -107,6 +121,7 @@ class SocketEngine(
         1,
         GameResponse.PlayerState(
             UUID.randomUUID().toString(),
+            true,
             "Hadr",
             true,
             "KC QH",
@@ -116,6 +131,7 @@ class SocketEngine(
         listOf(
             GameResponse.PlayerState(
                 UUID.randomUUID().toString(),
+                true,
                 "Rex",
                 false,
                 null,
@@ -124,6 +140,7 @@ class SocketEngine(
             ),
             GameResponse.PlayerState(
                 UUID.randomUUID().toString(),
+                true,
                 "Gregor",
                 false,
                 null,

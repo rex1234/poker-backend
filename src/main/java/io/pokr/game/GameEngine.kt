@@ -3,20 +3,23 @@ package io.pokr.game
 import io.pokr.game.model.Game
 import io.pokr.game.model.GameConfig
 import io.pokr.game.model.Player
-import java.util.*
 
-class GameEngine {
+class GameEngine(
+    val gameUuid: String
+) {
 
     val handComparator = HandComparator()
     val players = mutableListOf<Player>()
 
     var gameStateUpdated: (Game) -> Unit = {}
 
-    val game = Game.withConfig(GameConfig(
-        10_000,
-        40,
-        300
-    ))
+    val game = Game.withConfig(
+        gameUuid,
+        GameConfig(
+            10_000,
+            40,
+            300
+        ))
 
     fun init() {
         game.players = mutableListOf()
@@ -38,9 +41,9 @@ class GameEngine {
     fun nextAction() {
         if(game.round == 1) {
             players.forEach {
-                it.cards = it.cards.with(game.cardStack.takeCards(2))
+                it.cards = it.cards.with(game.cardStack.drawCards(2))
             }
-            game.midCards = game.midCards.with(game.cardStack.takeCards(3))
+            game.midCards = game.midCards.with(game.cardStack.drawCards(3))
         }
 
         gameStateUpdated(game)

@@ -1,13 +1,20 @@
 package io.pokr.game.model
 
 class Game private constructor(
+    val uuid: String,
     val gameConfig: GameConfig,
-    var gameState: State
+    var gameState: State,
+    val gameStart: Long = System.currentTimeMillis()
 ) {
 
     companion object {
-        fun withConfig(config: GameConfig) =
-            Game(config, State.CREATED)
+        fun withConfig(uuid:String, config: GameConfig) =
+            Game(uuid, config, State.CREATED)
+    }
+
+    enum class RoundState {
+        ACTIVE,
+        FINISHED
     }
 
     enum class State {
@@ -19,7 +26,10 @@ class Game private constructor(
     val cardStack = CardStack.create()
 
     var round = 1
+    var roundState = RoundState.ACTIVE
     var players = mutableListOf<Player>()
+    var smallBlind = 20
+    var bigBlind = 40
 
-    lateinit var midCards: CardList
+    var midCards: CardList = cardStack.drawCards(3) // debug TODO remove
 }

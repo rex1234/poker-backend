@@ -16,7 +16,7 @@ class CardStack private constructor(
         )
     }
 
-    fun takeCards(n: Int = 1) = CardList(
+    fun drawCards(n: Int = 1) = CardList(
         stack.take(n).also {
             stack = stack.drop(n)
         })
