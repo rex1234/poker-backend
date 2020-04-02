@@ -3,10 +3,10 @@
 
 <script>
     var socket = io.connect('http://127.0.0.1:9092');
+
     socket.on('gameState', function (data) {
         console.log(data);
         Cookies.set('player_uuid', data.user.uuid, { expires: 1 });
-        Cookies.set('game_uuid', data.uuid, { expires: 1 });
     });
 
     socket.on('error', function (data) {
@@ -15,7 +15,6 @@
 
     socket.emit("connectGame", {
         name: "Rex",
-        // gameUUID: Cookies.get('game_uuid'),
         gameUUID: "12345",
         playerUUID: Cookies.get('player_uuid')
     });

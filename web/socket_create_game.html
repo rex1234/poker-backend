@@ -2,19 +2,20 @@
 <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
 
 <script>
-  var socket = io.connect('http://127.0.0.1:9092');
-  socket.on('gameState', function (data) {
-      console.log(data);
-      Cookies.set('player_uuid', data.user.uuid, { expires: 1 });
-      Cookies.set('game_uuid', data.uuid, { expires: 1 });
-  });
+    var socket = io.connect('http://127.0.0.1:9092');
 
-  socket.on('error', function (data) {
-      console.log(data);
-  });
+    socket.on('gameState', function (data) {
+        console.log(data);
+        Cookies.set('player_uuid', data.user.uuid, { expires: 1 });
+        Cookies.set('game_uuid', data.uuid, { expires: 1 });
+    });
 
-  socket.emit("connectGame", {
-      name: "Hadr",
-      playerUUID: Cookies.get('player_uuid')
-  });
+    socket.on('error', function (data) {
+        console.log(data);
+    });
+
+    socket.emit("connectGame", {
+        name: "Hadr",
+        playerUUID: Cookies.get('player_uuid')
+    });
 </script>
