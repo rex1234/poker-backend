@@ -1,13 +1,14 @@
 package io.pokr.network
 
 import com.corundumstudio.socketio.*
-import io.pokr.game.model.Player
-import io.pokr.network.model.PlayerSession
+import io.netty.channel.ChannelHandlerContext
 import io.pokr.network.requests.ConnectionRequest
 
-import io.pokr.network.requests.GameRequest
 import io.pokr.network.requests.PlayerActionRequest
+import io.pokr.network.responses.ErrorResponse
 import io.pokr.network.responses.GameResponse
+import java.beans.ExceptionListener
+import java.lang.Exception
 import java.lang.IllegalArgumentException
 
 import java.util.*
@@ -15,6 +16,91 @@ import java.util.*
 class SocketEngine(
     val gamePool: GamePool
 ) {
+
+    enum class Events(
+        val key: String
+    ) {
+        // inbound
+        ACTION("action"),
+        CONNECT("connectGame"),
+        ERROR("error"),
+
+        // outbound
+        GAME_REQUEST("gameRequest"),
+        GAME_STATE("gameState")
+    }
+
+    fun start() {
+        val config = Configuration().apply {
+            hostname = "127.0.0.1"
+            port = 9092
+            origin = "http://localhost:8080"
+
+            exceptionListener = object: com.corundumstudio.socketio.listener.ExceptionListener {
+                override fun onConnectException(e: Exception, client: SocketIOClient?) {
+                    e.printStackTrace()
+                }
+
+                override fun onEventException(e: Exception, args: MutableList<Any>?, client: SocketIOClient?) {
+                    e.printStackTrace()
+                }
+
+                override fun onPingException(e: Exception, client: SocketIOClient?) {
+                    e.printStackTrace()
+                }
+
+                override fun onDisconnectException(e: Exception, client: SocketIOClient?) {
+                    e.printStackTrace()
+                }
+
+                override fun exceptionCaught(ctx: ChannelHandlerContext?, e: Throwable): Boolean {
+                    e.printStackTrace()
+                    return false
+                }
+            }
+        }
+
+        SocketIOServer(config).apply {
+
+            addEventListener(Events.CONNECT.key, ConnectionRequest::class.java) { client, data, ackRequest ->
+                System.err.println("Connection request: " + data.name)
+
+                if(data.gameUUID == null) {
+                    gamePool.createGame(
+                        client.sessionId.toString(), data.name
+                    )
+                } else {
+                    try {
+                        gamePool.connectToGame(
+                            data.gameUUID, client.sessionId.toString(), UUID.randomUUID().toString(), data.name
+                        )
+
+                        client.sendEvent(Events.GAME_STATE.key, gameState)
+                    } catch (e: IllegalArgumentException) {
+                        client.sendEvent(Events.ERROR.key, ErrorResponse(
+                            -100, "Failed to connect to the game"
+                        ))
+                    }
+                }
+            }
+
+
+            addEventListener(Events.ACTION.key, PlayerActionRequest::class.java) { client, data, ackRequest ->
+                System.err.println("Action request: ")
+                gamePool.executePlayerAction(client.sessionId.toString(), data.playerAction)
+            }
+
+            addEventListener(Events.GAME_REQUEST.key, String::class.java) { client, data, ackRequest ->
+                System.err.println("Game state request")
+                client.sendEvent(Events.GAME_STATE.key, gameState)
+            }
+
+            start()
+            println("socket.io server is running")
+        }
+    }
+
+    // DEBUG
     val gameState = GameResponse.GameState(
         UUID.randomUUID().toString(),
         System.currentTimeMillis(),
@@ -23,7 +109,7 @@ class SocketEngine(
             UUID.randomUUID().toString(),
             "Hadr",
             true,
-            "KC QH 4D 5D 7D",
+            "KC QH",
             5000,
             200
         ),
@@ -50,45 +136,4 @@ class SocketEngine(
         80
     )
 
-    fun start() {
-        val config = Configuration().apply {
-            hostname = "127.0.0.1"
-            port = 9092
-            origin = "http://localhost:8080"
-        }
-
-        SocketIOServer(config).apply {
-
-
-            addEventListener("connect", ConnectionRequest::class.java) { client, data, ackRequest ->
-                if(data.gameUUID == null) {
-                    gamePool.createGame(
-                        PlayerSession(client.sessionId.toString(), UUID.randomUUID().toString())
-                    )
-                } else {
-                    try {
-                        gamePool.connectToGame(
-                            data.gameUUID, client.sessionId.toString(), UUID.randomUUID().toString()
-                        )
-                    } catch (e: IllegalArgumentException) {
-                        // reply error
-                    }
-                }
-                // reply ok
-            }
-
-
-            addEventListener("gameRequest", PlayerActionRequest::class.java) { client, data, ackRequest ->
-                gamePool.executePlayerAction(client.sessionId.toString(), data.playerAction)
-            }
-
-            addEventListener("gameState", String::class.java) { client, data, ackRequest ->
-                System.err.println("Game state request")
-                client.sendEvent("gameEvent", gameState)
-            }
-
-            start()
-            println("socket.io server is running")
-        }
-    }
 }

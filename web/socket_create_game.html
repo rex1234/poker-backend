@@ -1,0 +1,13 @@
+<script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
+<script>
+  var socket = io.connect('http://127.0.0.1:9092');  
+  socket.on('gameState', function (data) {
+   console.log(data);
+  });
+  socket.on('error', function (data) {
+      console.log(data);
+  });
+  socket.emit('connectGame', {
+      name: "Rex"
+  });
+</script>

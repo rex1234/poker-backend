@@ -57,9 +57,14 @@ class GameEngine {
     }
 
     fun changePlayerName(uuid: String, name: String) =
-        game.players.firstOrNull { it.uuid == uuid }?.let {
+        applyOnPlayer(uuid) {
             it.name = name
-        } ?: throw IllegalArgumentException("Invalid player UUID")
+        }
 
+    fun applyOnPlayer(uuid: String, action: (Player) -> Unit) {
+        game.players.firstOrNull { it.uuid == uuid }?.let {
+            action(it)
+        } ?: throw IllegalArgumentException("Invalid player UUID")
+    }
 
 }

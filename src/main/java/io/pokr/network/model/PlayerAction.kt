@@ -1,9 +1,9 @@
 package io.pokr.network.model
 
-class PlayerAction(
+data class PlayerAction(
     val action: Action,
-    val numericValue: Int?,
-    val textValue: String?
+    val numericValue: Int? = null,
+    val textValue: String? = null
 ) {
     enum class Action {
 
