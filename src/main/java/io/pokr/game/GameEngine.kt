@@ -120,15 +120,19 @@ class GameEngine(
                 if(game.tableCards.cards.size == 5) {
                     finishRound()
                 } else { // or we will draw a card and reset actions
-
                     drawCards()
 
                     game.players.forEach {
                         it.action = PlayerAction.Action.NONE
                     }
 
-                    nextPlayer()
+                    game.currentPlayerOnMove.isOnMove = false
+                    (game.activePlayers + game.activePlayers).apply {
+                        get(indexOf(game.currentDealer) + 1).isOnMove = true
+                    }
                 }
+            } else {
+                nextPlayer()
             }
         }
     }
