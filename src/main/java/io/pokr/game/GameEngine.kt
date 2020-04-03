@@ -82,7 +82,7 @@ class GameEngine(
                 val raiseAmount = playerAction.numericValue!!
                 if (raiseAmount > game.bigBlind) {// TODO: implement raise rules
                     if (player.chips - player.currentBet > raiseAmount) {
-                        player.currentBet = raiseAmount
+                        player.currentBet += raiseAmount
                         game.targetBet += raiseAmount
 
                         (game.players - player).forEach {
