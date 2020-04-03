@@ -109,7 +109,7 @@ class GamePool {
 
         val playerSession = gameSession.playerSessions.first { it.sessionId == session }
 
-        executePlayerActionOnSession(playerSession.uuid, action)
+        executePlayerAction(playerSession.uuid, action)
     }
 
     /**
@@ -128,6 +128,8 @@ class GamePool {
         when(action.action) {
             PlayerAction.Action.CHANGE_NAME ->
                 game.changePlayerName(playerSession.uuid, action.textValue!!)
+            PlayerAction.Action.START_GAME ->
+                game.startGame()
         }
     }
 

@@ -1,5 +1,6 @@
 package io.pokr.game
 
+import io.pokr.game.model.CardStack
 import io.pokr.game.model.Game
 import io.pokr.game.model.GameConfig
 import io.pokr.game.model.Player
@@ -31,17 +32,18 @@ class GameEngine(
 
     fun startGame() {
         game.gameState = Game.State.ACTIVE
-        nextAction()
+
+        game.players.forEach {
+            it.cards = it.cards.with(game.cardStack.drawCards(2))
+        }
+        game.midCards = game.midCards.with(game.cardStack.drawCards(3))
 
         gameStateUpdated(game)
     }
 
     fun nextAction() {
         if(game.round == 1) {
-            game.players.forEach {
-                it.cards = it.cards.with(game.cardStack.drawCards(2))
-            }
-            game.midCards = game.midCards.with(game.cardStack.drawCards(3))
+
         }
 
         gameStateUpdated(game)

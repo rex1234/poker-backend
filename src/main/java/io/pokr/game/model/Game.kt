@@ -31,5 +31,5 @@ class Game private constructor(
     var smallBlind = 20
     var bigBlind = 40
 
-    var midCards: CardList = cardStack.drawCards(3) // debug TODO remove
+    var midCards: CardList = CardList() // debug TODO remove
 }

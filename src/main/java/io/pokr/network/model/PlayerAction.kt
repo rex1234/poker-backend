@@ -5,19 +5,22 @@ data class PlayerAction(
     val numericValue: Int? = null,
     val textValue: String? = null
 ) {
-    enum class Action {
+    enum class Action(
+        val key: String
+    ) {
 
         // game actions
-        CALL,
-        CHECK,
-        FOLD,
-        RAISE,
+        CALL("call"),
+        CHECK("check"),
+        FOLD("fold"),
+        RAISE("rais"),
 
         // player actions
-        CHANGE_NAME,
+        CHANGE_NAME("changeName"),
 
         // admin actions
-        KICK,
-        DISCARD_GAME
+        START_GAME("startGame"),
+        KICK("kickPlayer"),
+        DISCARD_GAME("discardGame")
     }
 }

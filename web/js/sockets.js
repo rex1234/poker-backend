@@ -39,10 +39,6 @@ function connectToGame(nickname, gameUuid) {
     });
 }
 
-function startGame() {
-    socket.emit("startGame")
-}
-
 function requestGameState() {
     socket.emit("gameRequest");
 }
@@ -51,10 +47,14 @@ function requestGameState() {
 
 function sendAction(action, numericValue, textValue) {
     socket.emit("action", {
-        action: nickname,
+        action: action,
         numericValue: numericValue,
         textValue: textValue
     });
+}
+
+function startGame() {
+    sendAction("startGame", null, null)
 }
 
 function changeName(name) {

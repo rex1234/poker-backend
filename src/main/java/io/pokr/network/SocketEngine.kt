@@ -2,6 +2,7 @@ package io.pokr.network
 
 import com.corundumstudio.socketio.*
 import io.netty.channel.ChannelHandlerContext
+import io.pokr.network.model.PlayerAction
 import io.pokr.network.requests.ConnectionRequest
 
 import io.pokr.network.requests.PlayerActionRequest
@@ -93,10 +94,16 @@ class SocketEngine(
                 }
             }
 
-
             addEventListener(Events.ACTION.key, PlayerActionRequest::class.java) { client, data, ackRequest ->
                 System.err.println("Action request: ")
-                gamePool.executePlayerActionOnSession(client.sessionId.toString(), data.playerAction)
+                gamePool.executePlayerActionOnSession(
+                    client.sessionId.toString(),
+                    PlayerAction(
+                        PlayerAction.Action.values().first { it.key == data.action },
+                        data.numericValue,
+                        data.textValue
+                    )
+                )
 
                 sendGameState(client)
             }
