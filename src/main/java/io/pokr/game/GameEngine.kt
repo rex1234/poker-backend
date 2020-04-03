@@ -67,13 +67,10 @@ class GameEngine(
         val player = game.currentPlayerOnMove
 
         val passedMove = when(playerAction.action) {
-            PlayerAction.Action.CALL ->
-                if(player.chips - player.currentBet > game.targetBet) {
-                    player.currentBet = game.targetBet
-                    true
-                } else {
-                    false
-                }
+            PlayerAction.Action.CALL -> {
+                player.currentBet = kotlin.math.min(game.targetBet, player.chips)
+                true
+            }
 
             PlayerAction.Action.CHECK ->
                 player.currentBet == game.targetBet
