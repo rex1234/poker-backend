@@ -37,6 +37,7 @@ class GameEngine(
     }
 
     fun startNewRound() {
+        // init the round, set target bet to big blind, set players' blinds and draw cards
         game.round++
         game.cardStack = CardStack.create()
         game.targetBet = game.bigBlind
@@ -60,7 +61,6 @@ class GameEngine(
         }
 
         game.tableCards = CardList()
-        game.tableCards = game.tableCards.with(game.cardStack.drawCards(3))
     }
 
     fun nextPlayerMove(playerAction: PlayerAction) {
@@ -68,13 +68,16 @@ class GameEngine(
 
         val passedMove = when(playerAction.action) {
             PlayerAction.Action.CALL -> {
+                // call to the target bet or go all in
                 player.currentBet = kotlin.math.min(game.targetBet, player.chips)
                 true
             }
 
+            // we can check only if we match the target bet
             PlayerAction.Action.CHECK ->
                 player.currentBet == game.targetBet
 
+            // raise and reset other players' actions
             PlayerAction.Action.RAISE -> {
                 val raiseAmount = playerAction.numericValue!!
                 if (raiseAmount > game.bigBlind) {// TODO: implement raise rules
@@ -82,7 +85,7 @@ class GameEngine(
                         player.currentBet = raiseAmount
                         game.targetBet += raiseAmount
 
-                        game.players.forEach {
+                        (game.players - player).forEach {
                             it.action = PlayerAction.Action.NONE
                         }
 
@@ -95,6 +98,7 @@ class GameEngine(
                 }
             }
 
+            // just fold
             PlayerAction.Action.FOLD -> true
 
             else -> false
@@ -103,10 +107,20 @@ class GameEngine(
         if(passedMove) {
             player.action = playerAction.action
 
+            // all but one folded
+            if(game.players.count { it.action != PlayerAction.Action.FOLD } == 1) {
+                finishRound()
+                return
+            }
+
+            // everyone passed an action
             if(game.players.all { it.action == PlayerAction.Action.NONE }) {
+
+                // 5 cards already, we will finish the round
                 if(game.tableCards.cards.size == 5) {
                     finishRound()
-                } else {
+                } else { // or we will draw a card and reset actions
+
                     drawCards()
 
                     game.players.forEach {
