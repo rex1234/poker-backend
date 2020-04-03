@@ -12,6 +12,9 @@ import java.lang.IllegalArgumentException
 
 import java.util.*
 
+/**
+ * Class handling socket.io communication
+ */
 class SocketEngine(
     val gamePool: GamePool
 ) {
@@ -22,12 +25,16 @@ class SocketEngine(
         // inbound
         ACTION("action"),
         CONNECT("connectGame"),
+        GAME_REQUEST("gameRequest"),
         ERROR("error"),
-        GAME_DISBANDED("gameDisbanded"),
+
+        // inbound admin
+        GAME_START("startGame"),
+        KICK_PLAYER("kickPlayer"),
 
         // outbound
-        GAME_REQUEST("gameRequest"),
-        GAME_STATE("gameState")
+        GAME_STATE("gameState"),
+        GAME_DISBANDED("gameDisbanded"),
     }
 
     lateinit var server: SocketIOServer
@@ -36,7 +43,7 @@ class SocketEngine(
         val config = Configuration().apply {
             hostname = "127.0.0.1"
             port = 9092
-            origin = "http://localhost:8080"
+            origin = "http://localhost:8080" // site where the web is hosted
 
             exceptionListener = object: com.corundumstudio.socketio.listener.ExceptionListener {
                 override fun onConnectException(e: Exception, client: SocketIOClient?) {
@@ -67,21 +74,18 @@ class SocketEngine(
 
         server = SocketIOServer(config).apply {
 
+            // called when players connects to the server (after sending CONNECT event)
             addEventListener(Events.CONNECT.key, ConnectionRequest::class.java) { client, data, ackRequest ->
                 System.err.println("Connection request: " + data.name)
 
                 try {
                     if(data.gameUUID == null) {
-                        gamePool.createGame(
-                            client.sessionId.toString(), data.name
-                        )
+                        gamePool.createGame(client.sessionId.toString(), data.name                        )
                     } else {
-                        gamePool.connectToGame(
-                            client.sessionId.toString(), data.gameUUID, data.playerUUID, data.name
-                        )
+                        gamePool.connectToGame(client.sessionId.toString(), data.gameUUID, data.playerUUID, data.name)
                     }
 
-                    respondGameState(client)
+                    sendGameState(client)
                 } catch (e: IllegalArgumentException) {
                     client.sendEvent(Events.ERROR.key, ErrorResponse(
                         -100, e.message.toString()
@@ -94,7 +98,7 @@ class SocketEngine(
                 System.err.println("Action request: ")
                 gamePool.executePlayerActionOnSession(client.sessionId.toString(), data.playerAction)
 
-                respondGameState(client)
+                sendGameState(client)
             }
 
             addEventListener(Events.GAME_REQUEST.key, String::class.java) { client, data, ackRequest ->
@@ -105,7 +109,7 @@ class SocketEngine(
 
             addDisconnectListener { client ->
                 gamePool.playerDisconnected(client.sessionId.toString())
-                respondGameState(client)
+                sendGameState(client)
             }
 
             start()
@@ -114,12 +118,15 @@ class SocketEngine(
 
         gamePool.gameDisbandedListener = { sessions ->
             server.allClients.filter { it.sessionId.toString() in sessions.map { it.sessionId } }.forEach {
-                it.sendEvent(Events.GAME_STATE.key)
+                it.sendEvent(Events.GAME_DISBANDED.key)
             }
         }
     }
 
-    private fun respondGameState(client: SocketIOClient) {
+    /**
+     * Sends respective game states to all players in a game session
+     */
+    private fun sendGameState(client: SocketIOClient) {
         gamePool.getGroupSessions(client.sessionId.toString()).forEach { playerSession ->
             server.allClients.filter { it.sessionId == UUID.fromString(playerSession.sessionId) }.forEach {
                 val data = gamePool.getGameDataForPlayerUuid(playerSession.uuid)

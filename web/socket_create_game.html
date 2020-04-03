@@ -1,29 +1,10 @@
 <html>
-<script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
+<script src="js/js.cookie.min.js"></script>
+<script src="js/socket.io.js"></script>
+<script src="js/sockets.js"></script>
 
 <script>
-    var socket = io.connect('http://127.0.0.1:9092');
-
-    socket.on('gameState', function (data) {
-        console.log(data);
-        Cookies.set('player_uuid', data.user.uuid, { expires: 1 });
-        Cookies.set('game_uuid', data.uuid, { expires: 1 });
-        print(data)
-    });
-
-    socket.on('error', function (data) {
-        console.log(data);
-    });
-
-    socket.emit("connectGame", {
-        name: "Hadr",
-        playerUUID: Cookies.get('player_uuid')
-    });
-
-    function print(data) {
-        document.getElementById("content").innerHTML = JSON.stringify(data)
-    }
+    createGame("Hadr")
 </script>
 <body id="content">
 
