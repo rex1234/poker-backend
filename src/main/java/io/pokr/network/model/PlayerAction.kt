@@ -10,10 +10,11 @@ data class PlayerAction(
     ) {
 
         // game actions
+        NONE("none"),
         CALL("call"),
         CHECK("check"),
         FOLD("fold"),
-        RAISE("rais"),
+        RAISE("raise"),
 
         // player actions
         CHANGE_NAME("changeName"),

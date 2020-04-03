@@ -70,7 +70,7 @@ class GamePool {
 
             System.err.println("Added player ${playerSession.uuid} to ${gameSession.uuid}")
 
-            getGameDataForPlayerUuid(playerSession.uuid).second.connected = true
+            getGameDataForPlayerUuid(playerSession.uuid).second.isConnected = true
 
             executePlayerAction(playerSession.uuid, PlayerAction( // replace with UUID
                 action = PlayerAction.Action.CHANGE_NAME,
@@ -96,7 +96,7 @@ class GamePool {
      */
     fun playerDisconnected(session: String) {
         gameSessions.map { it.playerSessions }.flatten().firstOrNull { it.sessionId == session }?.uuid?.let {
-            getGameDataForPlayerUuid(it).second.connected = false
+            getGameDataForPlayerUuid(it).second.isConnected = false
         }
     }
 

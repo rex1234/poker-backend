@@ -2,7 +2,6 @@ package io.pokr.network.responses
 
 import io.pokr.game.model.Game
 import io.pokr.game.model.Player
-import java.util.*
 
 class GameResponse(
     val game: GameState
@@ -24,6 +23,7 @@ class GameResponse(
         val uuid: String?,
         val connected: Boolean,
         val name: String,
+        val isDealer: Boolean,
         val isOnMove: Boolean,
         val cards: String?,
         val chips: Int,
@@ -44,15 +44,16 @@ class GameResponse(
                     players = (game.players - player).map {
                         it.playerState(false, game)
                     },
-                    cards = if(game.gameState == Game.State.ACTIVE) game.cards.toString() else "",
+                    cards = if(game.gameState == Game.State.ACTIVE) game.tableCards.toString() else "",
                     smallBlind = game.smallBlind,
                     bigBlind = game.bigBlind
                 )
 
             fun Player.playerState(forSelf: Boolean, game: Game) = PlayerState(
                 uuid = if (forSelf) uuid else null,
-                connected = connected,
+                connected = isConnected,
                 name = name,
+                isDealer = isDealer,
                 isOnMove = isOnMove,
                 cards = if (forSelf || game.roundState == Game.RoundState.FINISHED || showCards) cards.toString() else null,
                 chips = chips,

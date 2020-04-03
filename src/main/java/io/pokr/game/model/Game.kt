@@ -23,21 +23,29 @@ class Game private constructor(
     }
 
     var players = mutableListOf<Player>()
+    var targetBet = 0
     var smallBlind = 20
     var bigBlind = 40
 
     var round = 0
     var gameStart: Long = 0
     var roundState = RoundState.ACTIVE
+
     lateinit var cardStack: CardStack
-    lateinit var cards: CardList
+    lateinit var tableCards: CardList
 
     val activePlayers
-        get() = players.filter { !it.finished }
+        get() = players.filter { !it.isFinished }
 
-    val playerOnMove
+    val currentDealer
+        get() = players.first { it.isDealer }
+
+    val nextDealer
+        get() = (activePlayers + activePlayers).run { get(indexOf(currentDealer) + 1) }
+
+    val currentPlayerOnMove
         get() = players.first { it.isOnMove }
 
-    val nextPlayer
-        get() = (activePlayers + activePlayers).drop(activePlayers.indexOf(playerOnMove) + 1).first()
+    val nextPlayerOnMove
+        get() = (activePlayers + activePlayers).run { get(indexOf(currentPlayerOnMove) + 1) }
 }

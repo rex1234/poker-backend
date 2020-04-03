@@ -29,10 +29,6 @@ class SocketEngine(
         GAME_REQUEST("gameRequest"),
         ERROR("error"),
 
-        // inbound admin
-        GAME_START("startGame"),
-        KICK_PLAYER("kickPlayer"),
-
         // outbound
         GAME_STATE("gameState"),
         GAME_DISBANDED("gameDisbanded"),
