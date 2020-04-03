@@ -47,12 +47,34 @@ function requestGameState() {
     socket.emit("gameRequest");
 }
 
+// player actions
+
 function sendAction(action, numericValue, textValue) {
-    socket.emit("connectGame", {
-        name: nickname,
-        gameUUID: gameUuid,
-        playerUUID: Cookies.get('player_uuid')
+    socket.emit("action", {
+        action: nickname,
+        numericValue: numericValue,
+        textValue: textValue
     });
+}
+
+function changeName(name) {
+    sendAction("changeName", null, name)
+}
+
+function gameCall() {
+    sendAction("call", null, null)
+}
+
+function gameCheck() {
+    sendAction("check", null, null)
+}
+
+function gameFold() {
+    sendAction("fold", null, null)
+}
+
+function gameRaise(amount) {
+    sendAction("raise", amount, null)
 }
 
 function print(data) {
