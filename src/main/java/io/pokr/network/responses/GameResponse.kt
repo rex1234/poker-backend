@@ -10,7 +10,8 @@ class GameResponse(
 
     class GameState(
         val uuid: String,
-        val gameStart: Long,
+        val state: Game.State,
+        val gameStart: Long?,
         val round: Int,
         val user: PlayerState,
         val players: List<PlayerState>,
@@ -36,13 +37,14 @@ class GameResponse(
             fun from(game: Game, player: Player) =
                 GameState(
                     uuid = game.uuid,
-                    gameStart = game.gameStart,
+                    state = game.gameState,
+                    gameStart =  if(game.gameState == Game.State.ACTIVE) game.gameStart else null,
                     round = game.round,
                     user = player.playerState(true, game),
                     players = (game.players - player).map {
                         it.playerState(false, game)
                     },
-                    cards = game.midCards.toString(),
+                    cards = if(game.gameState == Game.State.ACTIVE) game.cards.toString() else "",
                     smallBlind = game.smallBlind,
                     bigBlind = game.bigBlind
                 )
@@ -51,8 +53,8 @@ class GameResponse(
                 uuid = if (forSelf) uuid else null,
                 connected = connected,
                 name = name,
-                isOnMove = false,
-                cards = if (forSelf || game.roundState == Game.RoundState.FINISHED) cards.toString() else null,
+                isOnMove = isOnMove,
+                cards = if (forSelf || game.roundState == Game.RoundState.FINISHED || showCards) cards.toString() else null,
                 chips = chips,
                 currentBet = currentBet
             )

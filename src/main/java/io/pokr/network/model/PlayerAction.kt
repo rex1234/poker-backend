@@ -17,6 +17,7 @@ data class PlayerAction(
 
         // player actions
         CHANGE_NAME("changeName"),
+        SHOW_CARDS("showCards"),
 
         // admin actions
         START_GAME("startGame"),

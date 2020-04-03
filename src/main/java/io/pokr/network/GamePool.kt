@@ -121,15 +121,17 @@ class GamePool {
 
         val playerSession = gameSession.playerSessions.first { it.uuid == playerUuid }
 
-        val game = gameEngines[gameSession]!!
+        val gameEngine = gameEngines[gameSession]!!
 
         System.err.println("Executing action {$action} on player ${playerSession.uuid}")
 
         when(action.action) {
             PlayerAction.Action.CHANGE_NAME ->
-                game.changePlayerName(playerSession.uuid, action.textValue!!)
+                gameEngine.changeName(playerSession.uuid, action.textValue!!)
             PlayerAction.Action.START_GAME ->
-                game.startGame()
+                gameEngine.startGame()
+            PlayerAction.Action.SHOW_CARDS ->
+                gameEngine.showCards(playerSession.uuid)
         }
     }
 

@@ -1,9 +1,6 @@
 package io.pokr.game
 
-import io.pokr.game.model.CardStack
-import io.pokr.game.model.Game
-import io.pokr.game.model.GameConfig
-import io.pokr.game.model.Player
+import io.pokr.game.model.*
 
 class GameEngine(
     val gameUuid: String
@@ -20,10 +17,6 @@ class GameEngine(
             300
         ))
 
-    fun init() {
-        game.players = mutableListOf()
-    }
-
     fun addPlayer(playerUUID: String) {
         game.players.add(Player(playerUUID))
 
@@ -32,35 +25,61 @@ class GameEngine(
 
     fun startGame() {
         game.gameState = Game.State.ACTIVE
+        game.gameStart = System.currentTimeMillis()
 
-        game.players.forEach {
-            it.cards = it.cards.with(game.cardStack.drawCards(2))
-        }
-        game.midCards = game.midCards.with(game.cardStack.drawCards(3))
+        game.players.shuffle()
+        game.players[0].isOnMove = true
+
+        startNewRound()
 
         gameStateUpdated(game)
     }
 
-    fun nextAction() {
-        if(game.round == 1) {
+    fun startNewRound() {
+        game.round++
+        game.cardStack = CardStack.create()
 
+        game.players.forEach {
+            it.showCards = false
+            it.cards = it.cards.with(game.cardStack.drawCards(2))
         }
 
-        gameStateUpdated(game)
+        game.cards = CardList()
+        game.cards = game.cards.with(game.cardStack.drawCards(3))
+    }
+
+    fun onNextPlayer() {
+
     }
 
     fun evaluateRound() {
-        val ranks = handComparator.evalPlayers(game.players, game.midCards)
+        val ranks = handComparator.evalPlayers(game.players, game.cards)
         val betsSum = game.players.sumBy { it.currentBet }
 
-        ranks[0].player.chips = 0
+        // TODO sidepot
+        ranks[0].player.chips += betsSum
         game.players.forEach { it.currentBet = 0 }
+
+        game.players.filter { it.chips == 0 }.forEach { it.finished = true }
+
+        val currentPlayer = game.playerOnMove
+        val nextPlayer = game.nextPlayer
+
+        currentPlayer.isOnMove = false
+        nextPlayer.isOnMove = true
+
+        startNewRound()
 
         gameStateUpdated(game)
     }
 
-    fun changePlayerName(uuid: String, name: String) =
-        applyOnPlayer(uuid) {
+    fun showCards(playerUuid: String) =
+        applyOnPlayer(playerUuid) {
+            it.showCards = true
+        }
+
+    fun changeName(playerUuid: String, name: String) =
+        applyOnPlayer(playerUuid) {
             it.name = name
         }
 

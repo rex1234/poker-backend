@@ -77,6 +77,11 @@ function gameRaise(amount) {
     sendAction("raise", amount, null)
 }
 
+function showCards() {
+    sendAction("showCards", null, null)
+}
+
+
 function print(data) {
     document.getElementById("content").innerHTML = JSON.stringify(data)
 }

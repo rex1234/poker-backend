@@ -111,7 +111,7 @@ class SocketEngine(
             addEventListener(Events.GAME_REQUEST.key, String::class.java) { client, data, ackRequest ->
                 System.err.println("Game state request")
 
-                client.sendEvent(Events.GAME_STATE.key, gameState)
+                sendGameState(client)
             }
 
             addDisconnectListener { client ->
@@ -141,44 +141,4 @@ class SocketEngine(
             }
         }
     }
-
-    // DEBUG
-    val gameState = GameResponse.GameState(
-        UUID.randomUUID().toString(),
-        System.currentTimeMillis(),
-        1,
-        GameResponse.PlayerState(
-            UUID.randomUUID().toString(),
-            true,
-            "Hadr",
-            true,
-            "KC QH",
-            5000,
-            200
-        ),
-        listOf(
-            GameResponse.PlayerState(
-                UUID.randomUUID().toString(),
-                true,
-                "Rex",
-                false,
-                null,
-                5000,
-                200
-            ),
-            GameResponse.PlayerState(
-                UUID.randomUUID().toString(),
-                true,
-                "Gregor",
-                false,
-                null,
-                5000,
-                200
-            )
-        ),
-        "KD KH",
-        40,
-        80
-    )
-
 }
