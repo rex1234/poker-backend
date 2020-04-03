@@ -13,13 +13,21 @@
 
     socket.on('error', function (data) {
         console.log(data);
+        print(data);
     });
+
+    socket.on('gameDisbanded', function () {
+        Cookies.set('player_uuid', null);
+        print("game ended");
+    });
+
 
     socket.emit("connectGame", {
         name: "Rex",
         gameUUID: "12345",
         playerUUID: Cookies.get('player_uuid')
     });
+
 
     function print(data) {
         document.getElementById("content").innerHTML = JSON.stringify(data)

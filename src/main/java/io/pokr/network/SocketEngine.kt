@@ -23,6 +23,7 @@ class SocketEngine(
         ACTION("action"),
         CONNECT("connectGame"),
         ERROR("error"),
+        GAME_DISBANDED("gameDisbanded"),
 
         // outbound
         GAME_REQUEST("gameRequest"),
@@ -110,14 +111,18 @@ class SocketEngine(
             start()
             println("socket.io server is running")
         }
+
+        gamePool.gameDisbandedListener = { sessions ->
+            server.allClients.filter { it.sessionId.toString() in sessions.map { it.sessionId } }.forEach {
+                it.sendEvent(Events.GAME_STATE.key)
+            }
+        }
     }
 
     private fun respondGameState(client: SocketIOClient) {
         gamePool.getGroupSessions(client.sessionId.toString()).forEach { playerSession ->
-
-            val data = gamePool.getGameDataForPlayerUuid(playerSession.uuid)
-
             server.allClients.filter { it.sessionId == UUID.fromString(playerSession.sessionId) }.forEach {
+                val data = gamePool.getGameDataForPlayerUuid(playerSession.uuid)
                 it.sendEvent(Events.GAME_STATE.key, GameResponse.GameStateFactory.from(data.first, data.second))
             }
         }

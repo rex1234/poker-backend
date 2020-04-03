@@ -13,16 +13,19 @@ class GamePool {
     private val gameSessions: MutableList<GameSession> = mutableListOf()
     private val gameEngines = mutableMapOf<GameSession, GameEngine>()
 
+    var gameDisbandedListener: ((List<PlayerSession>) -> Unit)? = null
+
     fun createGame(playerSession: String, playerName: String) {
         val playerSession = PlayerSession(playerSession, TokenGenerator.nextToken())
 
         val gameSession = GameSession(/* UUID.randomUUID().toString() */ "12345").apply {
             playerSessions.add(playerSession)
         }
-        gameSessions.firstOrNull { it.uuid == gameSession.uuid }?.playerSessions?.clear()
+
+        //clear previous session, if any
+        discardGame(gameSession.uuid)
 
         gameSessions.add(gameSession)
-
 
         System.err.println("Created game session: ${gameSession.uuid}")
 
@@ -63,12 +66,12 @@ class GamePool {
     }
 
     fun discardGame(gameUUID: String) {
-        gameSessions.firstOrNull { it.uuid == gameUUID }?.let {
-            gameSessions.remove(it)
-            it.playerSessions.forEach {
-                // disconnect players
-            }
-        } ?: throw IllegalArgumentException("Invalid game UUID")
+        gameSessions.firstOrNull { it.uuid == gameUUID }?.apply {
+            playerSessions?.clear()
+            gameEngines.remove(this)
+            gameDisbandedListener?.invoke(playerSessions)
+            gameSessions.remove(this)
+        }
     }
 
     fun playerDisconnected(session: String) {
@@ -104,7 +107,8 @@ class GamePool {
 
     // TODO refactor
     fun getGroupSessions(session: String) =
-        gameSessions.first { session in it.playerSessions.map { it.sessionId } }.playerSessions
+        gameSessions.firstOrNull() { session in it.playerSessions.map { it.sessionId } }?.playerSessions
+            ?: listOf<PlayerSession>()
 
     fun getGameDataForPlayerUuid(uuid: String): Pair<Game, Player> {
         val gameSession = gameSessions.first { uuid in it.playerSessions.map { it.uuid } }
