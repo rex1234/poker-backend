@@ -46,26 +46,32 @@ class HandComparator {
         val CardList.evalHand
             get() = EvalHand.evaluate(EvalHand.fromString(toString().replace("0", "T")))
 
-        val CardList.allTriples
+        val CardList.allTriplesFromFour
+            get() = (0..3).map { i ->
+                CardList(cards - cards[i])
+            }
+
+        val CardList.allTriplesFromFive
             get() = (0..3).map { i ->
                 (i + 1..4).map { j -> Pair(i, j) } // indices of all pairs of cards
             }.flatten(). map {
-                CardList(cards - cards[it.first] - cards[it.second]) // substract the cards from the stack of 5
+                CardList(cards - cards[it.first] - cards[it.second]) // subtract the cards from the stack of 5
             }
     }
 
     enum class Hand(
+        val handName: String,
         val evalFunction: (CardList) -> Boolean
     ) {
-        HIGH({ true }),
-        PAIR({ it.hasPair }),
-        TWO_PAIR({ it.hasTwoPairs }),
-        THREE_KIND({ it.hasThreeKind }),
-        STRAIGHT({ it.hasStraight }),
-        FLUSH({ it.hasFlush }),
-        FULL_HOUSE({ it.hasFullHouse }),
-        FOUR_KIND({ it.hasFourKind }),
-        STRAIGHT_FLUSH({ it.hasStraightFlush })
+        HIGH("High card", { true }),
+        PAIR("Pair", { it.hasPair }),
+        TWO_PAIR("Two pairs", { it.hasTwoPairs }),
+        THREE_KIND("Three of a kind", { it.hasThreeKind }),
+        STRAIGHT("Straight", { it.hasStraight }),
+        FLUSH("Flush", { it.hasFlush }),
+        FULL_HOUSE("Full house", { it.hasFullHouse }),
+        FOUR_KIND("Four of a kind", { it.hasFourKind }),
+        STRAIGHT_FLUSH("Straight flush", { it.hasStraightFlush })
     }
 
     class PlayerHandComparisonResult(
@@ -81,9 +87,21 @@ class HandComparator {
     fun compareHands(c1: CardList, c2: CardList) =
         c2.evalHand - c1.evalHand
 
+    fun findHighestHand(playerCards: CardList, tableCards: CardList) =
+        when {
+            tableCards.cards.size == 3 -> findHighestHand(playerCards.with(tableCards))
+            tableCards.cards.size == 4 -> findHighestHand(
+                tableCards.allTriplesFromFour.minBy { playerCards.with(it).evalHand }!!.with(playerCards)
+            )
+            else -> findHighestHand(
+                tableCards.allTriplesFromFive.minBy { playerCards.with(it).evalHand }!!.with(playerCards)
+            )
+        }
+
+
     fun evalPlayers(players: List<Player>, tableCards: CardList) =
         players.map { player ->
-            tableCards.allTriples.maxBy { player.cards.with(it).evalHand }!!.let {
+            tableCards.allTriplesFromFive.minBy { player.cards.with(it).evalHand }!!.let {
                 PlayerHandComparisonResult(
                     rank = player.cards.with(it).evalHand,
                     player = player,
@@ -91,5 +109,5 @@ class HandComparator {
                     bestCards = it
                 )
             }
-        }.sortedByDescending { it.rank }
+        }.sortedBy { it.rank }
 }

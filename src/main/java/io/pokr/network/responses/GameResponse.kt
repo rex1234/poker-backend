@@ -15,17 +15,22 @@ class GameResponse(
         val user: PlayerState,
         val players: List<PlayerState>,
         val cards: String,
+        val nextBlinds: Long,
         val smallBlind: Int,
         val bigBlind: Int
     )
 
     class PlayerState(
         val uuid: String?,
+        val index: Int,
         val connected: Boolean,
         val name: String,
         val isDealer: Boolean,
         val isOnMove: Boolean,
+        val moveStart: Long,
+        val action: String,
         val cards: String?,
+        val hand: String?,
         val chips: Int,
         val currentBet: Int
     )
@@ -41,21 +46,26 @@ class GameResponse(
                     gameStart =  if(game.gameState == Game.State.ACTIVE) game.gameStart else null,
                     round = game.round,
                     user = player.playerState(true, game),
-                    players = (game.players - player).map {
-                        it.playerState(false, game)
-                    },
                     cards = if(game.gameState == Game.State.ACTIVE) game.tableCards.toString() else "",
                     smallBlind = game.smallBlind,
-                    bigBlind = game.bigBlind
+                    bigBlind = game.bigBlind,
+                    nextBlinds = game.nextBlinds,
+                    players = (game.players - player).map {
+                        it.playerState(false, game)
+                    }
                 )
 
             fun Player.playerState(forSelf: Boolean, game: Game) = PlayerState(
                 uuid = if (forSelf) uuid else null,
+                index = index,
                 connected = isConnected,
                 name = name,
                 isDealer = isDealer,
                 isOnMove = isOnMove,
-                cards = if (forSelf || game.roundState == Game.RoundState.FINISHED || showCards) cards.toString() else null,
+                moveStart = moveStart,
+                action = action.toString().toLowerCase(),
+                cards = if (forSelf || (game.roundState == Game.RoundState.FINISHED && showCards)) cards.toString() else null,
+                hand = if (forSelf || (game.roundState == Game.RoundState.FINISHED && showCards)) hand?.handName else null,
                 chips = chips,
                 currentBet = currentBet
             )

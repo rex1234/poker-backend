@@ -54,6 +54,8 @@ class SocketEngine(
                         client?.sendEvent(Events.ERROR.key, ErrorResponse(
                             e.code, e.message ?: ""
                         ))
+                    } else {
+                        e.printStackTrace()
                     }
                 }
 

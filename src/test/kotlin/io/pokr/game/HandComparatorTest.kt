@@ -6,8 +6,8 @@ import org.junit.Test
 
 class HandComparatorTest {
 
-    val cardListPair = CardList.parse("QC QK 1D QD  AH")
-    val cardListTwoPair = CardList.parse("QC QH 4D 1H AH")
+    val cardListPair = CardList.parse("QC QH 2D 3D AH")
+    val cardListTwoPair = CardList.parse("QC QH 4D 2H 4H")
     val cardListTwoPair2 = CardList.parse("KC KH 4D 4H 7H")
     val cardListTwoPair3 = CardList.parse("KC KH 4D 4H AH")
     val cardListThreeKind = CardList.parse("QC QH 4D QD AH")
@@ -90,8 +90,42 @@ class HandComparatorTest {
     }
 
     @Test
-    fun testEvalPlayers() {
+    fun highestHandFromTableOf3() {
+        val playerCards = CardList.parse("2C 5H")
+        val tableCards = CardList.parse("2D 3C 2H")
 
+        Assert.assertEquals(HandComparator.Hand.THREE_KIND, handComparator.findHighestHand(playerCards, tableCards))
+
+        val playerCards2 = CardList.parse("2C 5H")
+        val tableCards2 = CardList.parse("2D 5C 2H")
+
+        Assert.assertEquals(HandComparator.Hand.FULL_HOUSE, handComparator.findHighestHand(playerCards2, tableCards2))
+    }
+
+    @Test
+    fun highestHandFromTableOf4() {
+        val playerCards = CardList.parse("2C 5H")
+        val tableCards = CardList.parse("2D 3C 2H 2S")
+
+        Assert.assertEquals(HandComparator.Hand.FOUR_KIND, handComparator.findHighestHand(playerCards, tableCards))
+
+        val playerCards2 = CardList.parse("2C 3H")
+        val tableCards2 = CardList.parse("2D 3C 2H 5S")
+
+        Assert.assertEquals(HandComparator.Hand.FULL_HOUSE, handComparator.findHighestHand(playerCards2, tableCards2))
+    }
+
+    @Test
+    fun highestHandFromTableOf5() {
+        val playerCards = CardList.parse("2C AH")
+        val tableCards = CardList.parse("2D 3C 2H KC 2S")
+
+        Assert.assertEquals(HandComparator.Hand.FOUR_KIND, handComparator.findHighestHand(playerCards, tableCards))
+
+        val playerCards2 = CardList.parse("2C QC")
+        val tableCards2 = CardList.parse("KC 3C 2H AC")
+
+        Assert.assertEquals(HandComparator.Hand.FLUSH, handComparator.findHighestHand(playerCards2, tableCards2))
     }
 
 }

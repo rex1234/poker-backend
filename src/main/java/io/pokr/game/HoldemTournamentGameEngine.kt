@@ -38,6 +38,10 @@ class HoldemTournamentGameEngine(
     }
 
     fun startGame() {
+        if(game.gameState != Game.State.CREATED) {
+            throw GameException(17, "Game already started")
+        }
+
         if(game.players.size == 1) {
             throw GameException(12, "Cannot start a game with only 1 player")
         }
@@ -49,21 +53,27 @@ class HoldemTournamentGameEngine(
         game.players.sortBy { it.index }
         game.players.shuffled().first().isDealer = true
 
+        game.players.forEach {
+            it.chips = game.config.startingChips
+        }
+
         startNewRound()
 
         gameTimer.start()
     }
 
-    fun startNewRound() {
+    private fun startNewRound() {
         // init the round, set target bet to big blind, set players' blinds and draw cards
         game.round++
         game.cardStack = CardStack.create()
         game.targetBet = game.bigBlind
+        game.roundState = Game.RoundState.ACTIVE
 
         game.players.forEach {
             it.action = PlayerAction.Action.NONE
             it.showCards = false
             it.isOnMove = false
+            it.hand = null
             it.cards = it.cards.with(game.cardStack.drawCards(2))
         }
 
@@ -86,8 +96,7 @@ class HoldemTournamentGameEngine(
         val player = game.currentPlayerOnMove
 
         if(player.uuid != playerUuid) {
-            System.err.println("Player is not on move")
-            return
+            throw GameException(16, "Player is not on move")
         }
 
         val passedMove = when(playerAction.action) {
@@ -138,7 +147,7 @@ class HoldemTournamentGameEngine(
             }
 
             // everyone passed an action
-            if(game.players.all { it.action == PlayerAction.Action.NONE }) {
+            if(game.players.none { it.action == PlayerAction.Action.NONE }) {
 
                 // 5 cards already, we will finish the round
                 if(game.tableCards.cards.size == 5) {
@@ -148,6 +157,7 @@ class HoldemTournamentGameEngine(
 
                     game.players.forEach {
                         it.action = PlayerAction.Action.NONE
+                        it.hand = handComparator.findHighestHand(it.cards, game.tableCards)
                     }
 
                     game.currentPlayerOnMove.isOnMove = false
@@ -180,12 +190,24 @@ class HoldemTournamentGameEngine(
     }
 
     private fun finishRound() {
-        val ranks = handComparator.evalPlayers(game.players, game.tableCards)
+        val winners = if(game.players.count { it.action != PlayerAction.Action.FOLD } == 1) {
+            listOf(game.players.first { it.action != PlayerAction.Action.FOLD })
+        } else {
+            val ranks = handComparator.evalPlayers(game.players, game.tableCards)
+            ranks.filter { it.rank == ranks[0].rank }.map { it.player }
+        }
+
         val betsSum = game.players.sumBy { it.currentBet }
 
         // TODO sidepot
-        ranks[0].player.chips += betsSum
-        game.players.forEach { it.currentBet = 0 }
+        winners.forEach {
+            it.chips += betsSum / winners.size
+        }
+
+        game.players.forEach {
+            it.chips -= it.currentBet
+            it.currentBet = 0
+        }
 
         game.players.filter { it.chips == 0 }.forEach { it.isFinished = true }
 
@@ -195,10 +217,14 @@ class HoldemTournamentGameEngine(
         currentDealer.isDealer = false
         nextPlayer.isDealer = true
 
+        game.roundState == Game.RoundState.FINISHED
+
         startNewRound()
     }
 
     private fun gameTick() {
+        return //disabled for now
+
         // player ran out of time limit
         val currentPlayerOnMove = game.currentPlayerOnMove
         if(System.currentTimeMillis() - currentPlayerOnMove.moveStart > game.config.playerMoveTime * 1000) {
@@ -239,7 +265,7 @@ class HoldemTournamentGameEngine(
     private fun applyOnPlayer(uuid: String, action: (Player) -> Unit) {
         game.players.firstOrNull { it.uuid == uuid }?.let {
             action(it)
-        } ?: throw IllegalArgumentException("Invalid player UUID")
+        } ?: throw GameException(13, "Invalid player UUID")
     }
 
 }

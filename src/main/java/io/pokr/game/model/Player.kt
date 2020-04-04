@@ -1,5 +1,6 @@
 package io.pokr.game.model
 
+import io.pokr.game.HandComparator
 import io.pokr.network.model.PlayerAction
 
 /**
@@ -17,6 +18,7 @@ class Player(
     var moveStart = 0L
     var action = PlayerAction.Action.NONE
     var cards = CardList()
+    var hand: HandComparator.Hand? = null
     var currentBet = 0
     var chips = 0
 
