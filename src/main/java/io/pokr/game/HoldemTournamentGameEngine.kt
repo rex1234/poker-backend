@@ -71,7 +71,7 @@ class HoldemTournamentGameEngine(
             it.showCards = false
             it.isOnMove = false
             it.hand = null
-            it.cards = it.cards.with(game.cardStack.drawCards(2))
+            it.cards = game.cardStack.drawCards(2)
         }
 
         (game.activePlayers + game.activePlayers + game.activePlayers).apply {
