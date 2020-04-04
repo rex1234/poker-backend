@@ -6,8 +6,6 @@ import io.pokr.network.model.PlayerAction
 class GameEngine(
     gameUuid: String
 ) {
-    var gameStateUpdated: (Game) -> Unit = {}
-
     private val handComparator = HandComparator()
 
     val game = Game.withConfig(
@@ -26,7 +24,7 @@ class GameEngine(
     fun addPlayer(playerUUID: String) {
         game.players.add(Player(playerUUID))
 
-        gameStateUpdated(game)
+        
     }
 
     fun startGame() {
@@ -34,14 +32,13 @@ class GameEngine(
         game.gameStart = System.currentTimeMillis()
         game.nextBlinds = game.gameStart + game.config.blindIncreaseTime * 1000
 
-        gameTimer.start()
 
         game.players.shuffle()
         game.players[0].isDealer = true
 
         startNewRound()
 
-        gameStateUpdated(game)
+        gameTimer.start()
     }
 
     fun startNewRound() {
@@ -186,8 +183,6 @@ class GameEngine(
         nextPlayer.isDealer = true
 
         startNewRound()
-
-        gameStateUpdated(game)
     }
 
     private fun gameTick() {
