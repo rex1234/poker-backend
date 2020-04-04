@@ -1,7 +1,9 @@
 package io.pokr.network
 
 import com.corundumstudio.socketio.*
+import com.corundumstudio.socketio.listener.EventInterceptor
 import io.netty.channel.ChannelHandlerContext
+import io.pokr.network.exceptions.GameException
 import io.pokr.network.model.PlayerAction
 import io.pokr.network.requests.ConnectionRequest
 
@@ -48,7 +50,11 @@ class SocketEngine(
                 }
 
                 override fun onEventException(e: Exception, args: MutableList<Any>?, client: SocketIOClient?) {
-                    e.printStackTrace()
+                    if(e is GameException) {
+                        client?.sendEvent(Events.ERROR.key, ErrorResponse(
+                            e.code, e.message ?: ""
+                        ))
+                    }
                 }
 
                 override fun onPingException(e: Exception, client: SocketIOClient?) {
@@ -64,9 +70,6 @@ class SocketEngine(
                     return false
                 }
             }
-
-            pingTimeout
-
         }
 
         server = SocketIOServer(config).apply {
@@ -74,20 +77,13 @@ class SocketEngine(
             // called when players connects to the server (after sending CONNECT event)
             addEventListener(Events.CONNECT.key, ConnectionRequest::class.java) { client, data, ackRequest ->
                 System.err.println("Connection request: " + data.name)
-
-                try {
-                    if(data.gameUUID == null) {
-                        gamePool.createGame(client.sessionId.toString(), data.name                        )
-                    } else {
-                        gamePool.connectToGame(client.sessionId.toString(), data.gameUUID, data.playerUUID, data.name)
-                    }
-
-                    sendGameState(client)
-                } catch (e: IllegalArgumentException) {
-                    client.sendEvent(Events.ERROR.key, ErrorResponse(
-                        -100, e.message.toString()
-                    ))
+                if(data.gameUUID == null) {
+                    gamePool.createGame(client.sessionId.toString(), data.name                        )
+                } else {
+                    gamePool.connectToGame(client.sessionId.toString(), data.gameUUID, data.playerUUID, data.name)
                 }
+
+                sendGameState(client)
             }
 
             addEventListener(Events.ACTION.key, PlayerActionRequest::class.java) { client, data, ackRequest ->

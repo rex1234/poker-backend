@@ -8,6 +8,7 @@ import io.pokr.network.model.PlayerAction
 class Player(
     val uuid: String
 ) {
+    var index: Int = 0
     var name: String = "Player " + System.currentTimeMillis()
     var isConnected = true
     var isFinished = false

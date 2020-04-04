@@ -32,6 +32,8 @@ class Game private constructor(
     var gameStart: Long = 0
     var roundState = RoundState.ACTIVE
 
+    var lateRegistrationEnabled = true
+
     lateinit var cardStack: CardStack
     lateinit var tableCards: CardList
 

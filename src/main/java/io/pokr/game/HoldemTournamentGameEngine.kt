@@ -1,9 +1,11 @@
 package io.pokr.game
 
 import io.pokr.game.model.*
+import io.pokr.network.exceptions.GameException
 import io.pokr.network.model.PlayerAction
+import java.util.*
 
-class GameEngine(
+class HoldemTournamentGameEngine(
     gameUuid: String
 ) {
     private val handComparator = HandComparator()
@@ -22,19 +24,30 @@ class GameEngine(
     }
 
     fun addPlayer(playerUUID: String) {
-        game.players.add(Player(playerUUID))
+        if(game.players.size == 9) {
+            throw GameException(10, "Game is already full")
+        }
 
-        
+        if(!game.lateRegistrationEnabled) {
+            throw GameException(11, "Late registration is not possible")
+        }
+
+        game.players.add(Player(playerUUID).apply {
+            index = ((1..9).toList() - game.players.map { it.index }).shuffled().first()
+        })
     }
 
     fun startGame() {
+        if(game.players.size == 1) {
+            throw GameException(12, "Cannot start a game with only 1 player")
+        }
+
         game.gameState = Game.State.ACTIVE
         game.gameStart = System.currentTimeMillis()
         game.nextBlinds = game.gameStart + game.config.blindIncreaseTime * 1000
 
-
-        game.players.shuffle()
-        game.players[0].isDealer = true
+        game.players.sortBy { it.index }
+        game.players.shuffled().first().isDealer = true
 
         startNewRound()
 

@@ -1,8 +1,9 @@
 package io.pokr.network
 
-import io.pokr.game.GameEngine
+import io.pokr.game.HoldemTournamentGameEngine
 import io.pokr.game.model.Game
 import io.pokr.game.model.Player
+import io.pokr.network.exceptions.GameException
 import io.pokr.network.model.GameSession
 import io.pokr.network.model.PlayerAction
 import io.pokr.network.model.PlayerSession
@@ -14,7 +15,7 @@ import io.pokr.network.util.TokenGenerator
 class GamePool {
 
     private val gameSessions: MutableList<GameSession> = mutableListOf()
-    private val gameEngines = mutableMapOf<GameSession, GameEngine>()
+    private val gameEngines = mutableMapOf<GameSession, HoldemTournamentGameEngine>()
 
     /**
      * Called when a game should be discarded
@@ -39,7 +40,7 @@ class GamePool {
 
         System.err.println("Created game session: ${gameSession.uuid}")
 
-        gameEngines[gameSession] = GameEngine(gameSession.uuid)
+        gameEngines[gameSession] = HoldemTournamentGameEngine(gameSession.uuid)
         gameEngines[gameSession]!!.addPlayer(playerSession.uuid)
 
         System.err.println("Added player ${playerSession.uuid} to ${gameSession.uuid}")
@@ -51,7 +52,7 @@ class GamePool {
     }
 
     /**
-     * Connects a player session to a game with given gameUUID. Throws IllegalArgumentException if the game does not exist.
+     * Connects a player session to a game with given gameUUID. Throws GameException if the game does not exist.
      * If playerUUID is given it will try to reconnect a player to a previous session
      */
     fun connectToGame(
@@ -76,7 +77,7 @@ class GamePool {
                 action = PlayerAction.Action.CHANGE_NAME,
                 textValue = playerName
             ))
-        } ?: throw IllegalArgumentException("Invalid game UUID")
+        } ?: throw GameException(20, "Invalid game UUID")
     }
 
     /**
@@ -105,7 +106,7 @@ class GamePool {
      */
     fun executePlayerActionOnSession(session: String, action: PlayerAction) {
         val gameSession = gameSessions.firstOrNull { session in it.playerSessions.map { it.sessionId } }
-            ?: throw IllegalArgumentException("No such player in any game session")
+            ?: throw GameException(21, "No such player in any game session")
 
         val playerSession = gameSession.playerSessions.first { it.sessionId == session }
 
@@ -117,7 +118,7 @@ class GamePool {
      */
     fun executePlayerAction(playerUuid: String, action: PlayerAction) {
         val gameSession = gameSessions.firstOrNull { playerUuid in it.playerSessions.map { it.uuid } }
-            ?: throw IllegalArgumentException("No such player in any game session")
+            ?: throw GameException(21, "No such player in any game session")
 
         val playerSession = gameSession.playerSessions.first { it.uuid == playerUuid }
 
