@@ -28,10 +28,10 @@ class GamePool {
      * Created a new game game discarding any previous games with the same UUID (should not happen outside of debugging).
      * It contains the starting player as an admin.
      */
-    fun createGame(gameConfig: GameConfig, playerSession: String, playerName: String) {
-        val playerSession = PlayerSession(playerSession, TokenGenerator.nextToken())
+    fun createGame(gameConfig: GameConfig, session: String, playerName: String) {
+        val playerSession = PlayerSession(session, TokenGenerator.nextPlayerToken())
 
-        val gameSession = GameSession(UUID.randomUUID().toString()).apply {
+        val gameSession = GameSession(TokenGenerator.nextGameToken()).apply {
             playerSessions.add(playerSession)
         }
 
@@ -68,7 +68,7 @@ class GamePool {
         gameSessions.firstOrNull { it.uuid == gameUuid }?.let { gameSession ->
             val playerSession = gameSession.playerSessions.firstOrNull { it.uuid == playerUuid }?.also {
                 it.sessionId = session
-            } ?: PlayerSession(session, TokenGenerator.nextToken()).also {
+            } ?: PlayerSession(session, TokenGenerator.nextPlayerToken()).also {
                 gameSession.playerSessions.add(it)
                 gameEngines[gameSession]!!.addPlayer(it.uuid)
             }
