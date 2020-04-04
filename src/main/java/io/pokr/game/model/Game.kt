@@ -2,7 +2,7 @@ package io.pokr.game.model
 
 class Game private constructor(
     val uuid: String,
-    val gameConfig: GameConfig,
+    val config: GameConfig,
     var gameState: State
 ) {
 
@@ -26,6 +26,7 @@ class Game private constructor(
     var targetBet = 0
     var smallBlind = 20
     var bigBlind = 40
+    var nextBlinds = 0L
 
     var round = 0
     var gameStart: Long = 0

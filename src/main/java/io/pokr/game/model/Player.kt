@@ -13,6 +13,7 @@ class Player(
     var isFinished = false
     var isDealer = false
     var isOnMove = false
+    var moveStart = 0L
     var action = PlayerAction.Action.NONE
     var cards = CardList()
     var currentBet = 0

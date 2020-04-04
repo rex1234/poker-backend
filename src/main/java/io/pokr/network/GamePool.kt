@@ -132,6 +132,12 @@ class GamePool {
                 gameEngine.startGame()
             PlayerAction.Action.SHOW_CARDS ->
                 gameEngine.showCards(playerSession.uuid)
+            PlayerAction.Action.KICK ->
+                TODO()
+            PlayerAction.Action.DISCARD_GAME ->
+                TODO()
+            else ->
+                gameEngine.nextPlayerMove(playerSession.uuid, action)
         }
     }
 

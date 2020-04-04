@@ -6,17 +6,22 @@ import io.pokr.network.model.PlayerAction
 class GameEngine(
     gameUuid: String
 ) {
-
-    val handComparator = HandComparator()
     var gameStateUpdated: (Game) -> Unit = {}
+
+    private val handComparator = HandComparator()
 
     val game = Game.withConfig(
         gameUuid,
         GameConfig(
-            10_000,
-            40,
-            300
+            startingChips = 25_000,
+            startingBlinds = 20,
+            blindIncreaseTime = 720,
+            playerMoveTime = 12
         ))
+
+    val gameTimer = GameTimer {
+        gameTick()
+    }
 
     fun addPlayer(playerUUID: String) {
         game.players.add(Player(playerUUID))
@@ -27,6 +32,9 @@ class GameEngine(
     fun startGame() {
         game.gameState = Game.State.ACTIVE
         game.gameStart = System.currentTimeMillis()
+        game.nextBlinds = game.gameStart + game.config.blindIncreaseTime * 1000
+
+        gameTimer.start()
 
         game.players.shuffle()
         game.players[0].isDealer = true
@@ -57,14 +65,20 @@ class GameEngine(
             get(indexOf(game.currentDealer) + 2).apply {
                 currentBet = kotlin.math.min(chips, game.smallBlind)
                 isOnMove = true
+                moveStart = System.currentTimeMillis()
             }
         }
 
         game.tableCards = CardList()
     }
 
-    fun nextPlayerMove(playerAction: PlayerAction) {
+    fun nextPlayerMove(playerUuid: String, playerAction: PlayerAction) {
         val player = game.currentPlayerOnMove
+
+        if(player.uuid != playerUuid) {
+            System.err.println("Player is not on move")
+            return
+        }
 
         val passedMove = when(playerAction.action) {
             PlayerAction.Action.CALL -> {
@@ -129,6 +143,7 @@ class GameEngine(
                     game.currentPlayerOnMove.isOnMove = false
                     (game.activePlayers + game.activePlayers).apply {
                         get(indexOf(game.currentDealer) + 1).isOnMove = true
+                        get(indexOf(game.currentDealer) + 1).moveStart = System.currentTimeMillis()
                     }
                 }
             } else {
@@ -137,7 +152,7 @@ class GameEngine(
         }
     }
 
-    fun drawCards() {
+    private fun drawCards() {
         if(game.tableCards.cards.size == 0) {
             game.tableCards = game.tableCards.with(game.cardStack.drawCards(3))
         } else if(game.tableCards.cards.size < 5) {
@@ -145,15 +160,16 @@ class GameEngine(
         }
     }
 
-    fun nextPlayer() {
+    private fun nextPlayer() {
         val playerOnMove = game.currentPlayerOnMove
         val nextPlayerOnMove = game.nextPlayerOnMove
 
         playerOnMove.isOnMove = false
         nextPlayerOnMove.isOnMove = true
+        nextPlayerOnMove.moveStart = System.currentTimeMillis()
     }
 
-    fun finishRound() {
+    private fun finishRound() {
         val ranks = handComparator.evalPlayers(game.players, game.tableCards)
         val betsSum = game.players.sumBy { it.currentBet }
 
@@ -174,6 +190,34 @@ class GameEngine(
         gameStateUpdated(game)
     }
 
+    private fun gameTick() {
+        // player ran out of time limit
+        val currentPlayerOnMove = game.currentPlayerOnMove
+        if(System.currentTimeMillis() - currentPlayerOnMove.moveStart > game.config.playerMoveTime * 1000) {
+            nextPlayerMove(
+                currentPlayerOnMove.uuid,
+                if(currentPlayerOnMove.currentBet == game.targetBet)
+                    PlayerAction(PlayerAction.Action.CHECK, null, null)
+                else {
+                    PlayerAction(PlayerAction.Action.FOLD, null, null)
+                }
+            )
+        }
+
+        if(System.currentTimeMillis() > game.nextBlinds) {
+            increaseBlinds()
+            game.nextBlinds = System.currentTimeMillis() + game.config.blindIncreaseTime * 1000
+        }
+    }
+
+    // TODO: Implement blind calculation
+    private fun increaseBlinds() {
+        val smallBlinds = listOf(10, 20, 30, 50, 75, 100, 200, 400, 600, 800, 1000)
+
+        game.smallBlind = smallBlinds.firstOrNull { it > game.smallBlind } ?: game.smallBlind * 2
+        game.bigBlind = game.smallBlind * 2
+    }
+
     fun showCards(playerUuid: String) =
         applyOnPlayer(playerUuid) {
             it.showCards = true
@@ -184,7 +228,7 @@ class GameEngine(
             it.name = name
         }
 
-    fun applyOnPlayer(uuid: String, action: (Player) -> Unit) {
+    private fun applyOnPlayer(uuid: String, action: (Player) -> Unit) {
         game.players.firstOrNull { it.uuid == uuid }?.let {
             action(it)
         } ?: throw IllegalArgumentException("Invalid player UUID")
