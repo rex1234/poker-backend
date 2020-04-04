@@ -28,7 +28,16 @@ socket.on('gameDisbanded', function () {
 // outbound events
 
 function createGame(nickname) {
-    connectToGame(nickname, null)
+    socket.emit("connectGame", {
+        name: nickname,
+        playerUUID: Cookies.get('player_uuid'),
+        gameConfig: {
+            startingChips: 25000,
+            startingBlinds: 20,
+            blindIncreaseTime: 720,
+            playerMoveTime: 12,
+        }
+    });
 }
 
 function connectToGame(nickname, gameUuid) {
