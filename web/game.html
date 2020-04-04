@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pokid-19</title>
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/js.cookie.min.js"></script>
+    <script src="js/socket.io.js"></script>
+    <script src="js/sockets.js"></script>
+    <link rel="stylesheet" type="text/css" href="styles/game.css">
+</head>
+<body>
+<button onclick="requestGameState()">Check</button><br><br><br>
+<div id="controls">
+Nick: <input type="text" id="userid">
+
+<div id="joinGame">
+    Game ID: <input type="text" id="gameid" value="12345"><br>
+    <button>Join Game</button>
+</div>
+
+<div id="createGame">
+    <label for="startingChips">Starting chips</label><input type="number" id="startingChips" name="startingChips" min="200" max="100000" value="2500"><br>
+    <label for="startingBlinds">Starting blinds</label><input type="number" id="startingBlinds" name="startingBlinds" min="1" max="100"  value="20"><br>
+    <label for="blindIncreaseTime">Blinds level duration (s)</label><input type="number" id="blindIncreaseTime" name="blindIncreaseTime" min="60" max="3600" value="900"><br>
+    <label for="playerMoveTime">Time to action</label><input type="number" id="playerMoveTime" name="playerMoveTime" min="3" max="60" value="10"><br>
+    <button>Create Game</button>
+</div>
+</div>
+Pot: <span id="pot"></span><br>
+Dealt cards: <span id="dealtCards"></span> <br>
+
+<table class="tg">
+    <tr>
+        <th class="position">Position</th>
+        <th class="name">Name</th>
+        <th class="chips">Chip count</th>
+        <th class="bet">Current bet</th>
+        <th class="cards">Cards</th>
+    </tr>
+    <tr class="player1">
+        <td class="position">1</td>
+        <td class="name"></td>
+        <td class="chips"></td>
+        <td class="bet"></td>
+        <td class="cards"></td>
+    </tr>
+    <tr class="player2">
+        <td class="position">2</td>
+        <td class="name"></td>
+        <td class="chips"></td>
+        <td class="bet"></td>
+        <td class="cards"></td>
+    </tr>
+    <tr class="player3">
+        <td class="position">3</td>
+        <td class="name"></td>
+        <td class="chips"></td>
+        <td class="bet"></td>
+        <td class="cards"></td>
+    </tr>
+    <tr class="player4">
+        <td class="position">4</td>
+        <td class="name"></td>
+        <td class="chips"></td>
+        <td class="bet"></td>
+        <td class="cards"></td>
+    </tr>
+    <tr class="player5">
+        <td class="position">5</td>
+        <td class="name"></td>
+        <td class="chips"></td>
+        <td class="bet"></td>
+        <td class="cards"></td>
+    </tr>
+    <tr class="player6">
+        <td class="position">6</td>
+        <td class="name"></td>
+        <td class="chips"></td>
+        <td class="bet"></td>
+        <td class="cards"></td>
+    </tr>
+    <tr class="player7">
+        <td class="position">7</td>
+        <td class="name"></td>
+        <td class="chips"></td>
+        <td class="bet"></td>
+        <td class="cards"></td>
+    </tr>
+    <tr class="player8">
+        <td class="position">8</td>
+        <td class="name"></td>
+        <td class="chips"></td>
+        <td class="bet"></td>
+        <td class="cards"></td>
+    </tr>
+    <tr class="player9">
+        <td class="position">9</td>
+        <td class="name"></td>
+        <td class="chips"></td>
+        <td class="bet"></td>
+        <td class="cards"></td>
+    </tr>
+</table>
+<button onclick="gameFold()">Fold</button>
+<button onclick="gameCheck()">Check</button>
+<button onclick="gameCall()">Call</button>
+<button onclick="Bet(200)">Bet</button>
+
+<div id="content">
+</div>
+
+<script src="js/game.js"></script>
+</body>
+</html>

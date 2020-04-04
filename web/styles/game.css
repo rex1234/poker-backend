@@ -1,0 +1,21 @@
+.tg {
+    margin: 30px;
+}
+
+.name, .cards {
+    width: 160px;
+    text-align: left;
+}
+
+.name, .chips, .bet, .cards {
+    width: 160px;
+    text-align: left;
+}
+
+.tg td {
+    height: 40px;
+}
+
+.onMove {
+    font-weight: bold;
+}

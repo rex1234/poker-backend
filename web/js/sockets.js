@@ -5,10 +5,12 @@ var socket = io.connect('http://127.0.0.1:9092');
 socket.on('gameState', function (data) {
     Cookies.set('player_uuid', data.user.uuid, { expires: 1 });
 
+    printPlayers(data);
     print(data);
     console.log(data);
 
     // TODO: redraw game board
+
 });
 
 socket.on('error', function (data) {
@@ -29,6 +31,17 @@ socket.on('gameDisbanded', function () {
 
 function createGame(nickname) {
     connectToGame(nickname, null)
+    socket.emit("connectGame", {
+        name: nickname,
+        gameUUID: gameUuid,
+        gameConfig: {
+            startingChips,
+            startingBlinds,
+            blindIncreaseTime,
+            playerMoveTime,
+        },
+        playerUUID: Cookies.get('player_uuid')
+    });
 }
 
 function connectToGame(nickname, gameUuid) {
@@ -84,4 +97,38 @@ function showCards() {
 
 function print(data) {
     document.getElementById("content").innerHTML = JSON.stringify(data)
+}
+
+function printPlayers(data) {
+    var pot = data.user.currentBet;
+    $(".player1 .name").html(data.user.name);
+    if(data.user.onMove) {
+        $(".player1 .name").addClass("onMove");
+    } else {
+        $(".player1 .name").removeClass("onMove");
+    }
+    $(".player1 .chips").html(data.user.chips);
+    $(".player1 .bet").html(data.user.currentBet);
+    $(".player1 .cards").html(data.user.cards);
+    for(i = 0; i < data.players.length; i++) {
+        var position;
+        if(data.user.index < data.players[i].index) {
+            position = data.players[i].index - data.user.index + 1;
+         } else {
+            position = data.players[i].index - data.user.index + 10;
+         }
+         if(data.players[i].onMove) {
+                $(".player"+ position +" .name").addClass("onMove");
+         } else {
+                $(".player"+ position +" .name").removeClass("onMove");
+         }
+        $(".player"+ position +" .name").html(data.players[i].name);
+        $(".player"+ position +" .chips").html(data.players[i].chips);
+        $(".player"+ position +" .bet").html(data.players[i].currentBet);
+        $(".player"+ position +" .cards").html(data.players[i].cards);
+        pot += data.players[i].currentBet;
+    }
+
+     $("#dealtCards").html(data.cards);
+     $("#pot").html(pot);
 }
