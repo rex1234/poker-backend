@@ -3,7 +3,7 @@ package io.pokr.network.requests
 import io.pokr.game.model.GameConfig
 import java.beans.ConstructorProperties
 
-class ConnectionRequest @ConstructorProperties("gameUUID", "playerUUID", "name") constructor(
+class ConnectionRequest @ConstructorProperties("gameUUID", "playerUUID", "name", "gameConfig") constructor(
     val gameUUID: String?,
     val playerUUID: String?,
     val name: String,

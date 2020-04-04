@@ -81,7 +81,7 @@ class SocketEngine(
                 System.err.println("Connection request: " + data.name)
                 if(data.gameUUID == null) {
                     if(data.gameConfig == null) {
-                        throw GameException(30, "Missing game config params")
+                        throw GameException(30, "Missing game config param")
                     }
 
                     gamePool.createGame(data.gameConfig!!, client.sessionId.toString(), data.name                        )
