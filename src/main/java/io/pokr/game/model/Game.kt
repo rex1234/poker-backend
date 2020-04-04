@@ -1,15 +1,8 @@
 package io.pokr.game.model
 
-class Game private constructor(
-    val uuid: String,
-    val config: GameConfig,
-    var gameState: State
+class Game constructor(
+    val uuid: String
 ) {
-
-    companion object {
-        fun withConfig(uuid:String, config: GameConfig) =
-            Game(uuid, config, State.CREATED)
-    }
 
     enum class RoundState {
         ACTIVE,
@@ -22,6 +15,7 @@ class Game private constructor(
         FINISHED
     }
 
+    var gameState: State = State.CREATED
     var players = mutableListOf<Player>()
     var targetBet = 0
     var smallBlind = 20
@@ -34,6 +28,7 @@ class Game private constructor(
 
     var lateRegistrationEnabled = true
 
+    lateinit var config: GameConfig
     lateinit var cardStack: CardStack
     lateinit var tableCards: CardList
 

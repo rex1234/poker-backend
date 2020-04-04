@@ -80,7 +80,11 @@ class SocketEngine(
             addEventListener(Events.CONNECT.key, ConnectionRequest::class.java) { client, data, ackRequest ->
                 System.err.println("Connection request: " + data.name)
                 if(data.gameUUID == null) {
-                    gamePool.createGame(client.sessionId.toString(), data.name                        )
+                    if(data.gameConfig == null) {
+                        throw GameException(30, "Missing game config params")
+                    }
+
+                    gamePool.createGame(data.gameConfig!!, client.sessionId.toString(), data.name                        )
                 } else {
                     gamePool.connectToGame(client.sessionId.toString(), data.gameUUID, data.playerUUID, data.name)
                 }

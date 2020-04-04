@@ -10,17 +10,14 @@ class HoldemTournamentGameEngine(
 ) {
     private val handComparator = HandComparator()
 
-    val game = Game.withConfig(
-        gameUuid,
-        GameConfig(
-            startingChips = 25_000,
-            startingBlinds = 20,
-            blindIncreaseTime = 720,
-            playerMoveTime = 12
-        ))
+    val game = Game(gameUuid)
 
     val gameTimer = GameTimer {
         gameTick()
+    }
+
+    fun initGame(config: GameConfig) {
+        game.config = config
     }
 
     fun addPlayer(playerUUID: String) {

@@ -2,12 +2,14 @@ package io.pokr.network
 
 import io.pokr.game.HoldemTournamentGameEngine
 import io.pokr.game.model.Game
+import io.pokr.game.model.GameConfig
 import io.pokr.game.model.Player
 import io.pokr.network.exceptions.GameException
 import io.pokr.network.model.GameSession
 import io.pokr.network.model.PlayerAction
 import io.pokr.network.model.PlayerSession
 import io.pokr.network.util.TokenGenerator
+import java.util.*
 
 /**
  * Class holding player and game sessions and their respective mappings to Game objects
@@ -26,10 +28,10 @@ class GamePool {
      * Created a new game game discarding any previous games with the same UUID (should not happen outside of debugging).
      * It contains the starting player as an admin.
      */
-    fun createGame(playerSession: String, playerName: String) {
+    fun createGame(gameConfig: GameConfig, playerSession: String, playerName: String) {
         val playerSession = PlayerSession(playerSession, TokenGenerator.nextToken())
 
-        val gameSession = GameSession(/* UUID.randomUUID().toString() */ "12345").apply {
+        val gameSession = GameSession(UUID.randomUUID().toString()).apply {
             playerSessions.add(playerSession)
         }
 
@@ -40,7 +42,9 @@ class GamePool {
 
         System.err.println("Created game session: ${gameSession.uuid}")
 
-        gameEngines[gameSession] = HoldemTournamentGameEngine(gameSession.uuid)
+        gameEngines[gameSession] = HoldemTournamentGameEngine(gameSession.uuid).apply {
+            initGame(gameConfig)
+        }
         gameEngines[gameSession]!!.addPlayer(playerSession.uuid)
 
         System.err.println("Added player ${playerSession.uuid} to ${gameSession.uuid}")
