@@ -98,15 +98,19 @@ function print(data) {
 
 function printPlayers(data) {
     var pot = data.user.currentBet;
+    var players = [[1, data.user.currentBet === data.smallBlind]];
+
     $(".player1 .name").html(data.user.name);
-    if(data.user.onMove) {
-        $(".player1 .name").addClass("onMove");
-    } else {
-        $(".player1 .name").removeClass("onMove");
-    }
     $(".player1 .chips").html(data.user.chips);
     $(".player1 .bet").html(data.user.currentBet);
     $(".player1 .cards").html(data.user.cards);
+    if(data.user.onMove) {
+        $(".player1 .name").addClass("onMove");
+    } else {
+         $(".player1 .name").removeClass("onMove");
+    }
+
+
     for(i = 0; i < data.players.length; i++) {
         var position;
         if(data.user.index < data.players[i].index) {
@@ -114,6 +118,7 @@ function printPlayers(data) {
          } else {
             position = data.players[i].index - data.user.index + 10;
          }
+         players.push([position, data.players[i].currentBet === data.smallBlind]);
          if(data.players[i].onMove) {
                 $(".player"+ position +" .name").addClass("onMove");
          } else {
@@ -123,8 +128,26 @@ function printPlayers(data) {
         $(".player"+ position +" .chips").html(data.players[i].chips);
         $(".player"+ position +" .bet").html(data.players[i].currentBet);
         $(".player"+ position +" .cards").html(data.players[i].cards);
+
         pot += data.players[i].currentBet;
+
     }
+
+    //Determine, who is the Dealer
+    players.sort();
+    var dealer;
+    for(i = 0; i < players.length; i++) {
+        if(i+1 >= players.length && players[i][1] === true) {
+              dealer = players[0][0];
+         } else if(players[i][1] === true) {
+              dealer = players[i+1][0];
+         }
+        if(players[i][1] === true) {
+            $(".player"+ players[i][0] +" .dealer").html("");
+        }
+    }
+    $(".player"+ dealer +" .dealer").html("D");
+
 
      $("#dealtCards").html(data.cards);
      $("#pot").html(pot);

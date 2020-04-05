@@ -19,3 +19,7 @@
 .onMove {
     font-weight: bold;
 }
+
+.game {
+    display: none;
+}
