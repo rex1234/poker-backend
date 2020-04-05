@@ -2,6 +2,7 @@ package io.pokr.game
 
 import io.pokr.game.model.CardList
 import io.pokr.game.model.Player
+import io.pokr.network.model.PlayerAction
 
 import handeval.Hand as EvalHand
 
@@ -75,10 +76,10 @@ class HandComparator {
     }
 
     class PlayerHandComparisonResult(
-        val rank: Int,
-        val player: Player,
-        val hand: Hand,
-        val bestCards: CardList
+        var rank: Int,
+        var player: Player,
+        var hand: Hand? = null,
+        var bestCards: CardList? = null
     )
 
     fun findHighestHand(cardList: CardList) =
@@ -103,7 +104,7 @@ class HandComparator {
         players.map { player ->
             tableCards.allTriplesFromFive.minBy { player.cards.with(it).evalHand }!!.let {
                 PlayerHandComparisonResult(
-                    rank = player.cards.with(it).evalHand,
+                    rank = if(player.action == PlayerAction.Action.FOLD) Integer.MAX_VALUE else player.cards.with(it).evalHand,
                     player = player,
                     hand = findHighestHand(it.with(player.cards)),
                     bestCards = it

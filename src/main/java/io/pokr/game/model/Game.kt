@@ -34,6 +34,8 @@ class Game constructor(
     lateinit var cardStack: CardStack
     lateinit var tableCards: CardList
 
+    var winningCards: CardList? = null
+
     val activePlayers
         get() = players.filter { !it.isFinished && it.action != PlayerAction.Action.FOLD && it.chips > 0 }
 

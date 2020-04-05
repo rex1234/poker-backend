@@ -1,12 +1,16 @@
 package io.pokr.game
 
 import io.pokr.game.model.*
+import io.pokr.game.util.BlindCalculator
 import io.pokr.network.exceptions.GameException
 import io.pokr.network.model.PlayerAction
 import java.util.*
+import kotlin.concurrent.thread
 
 class HoldemTournamentGameEngine(
-    gameUuid: String
+    gameUuid: String,
+    val updateStateListener: (HoldemTournamentGameEngine) -> Unit,
+    val gameFinishedListener: (HoldemTournamentGameEngine) -> Unit
 ) {
     private val handComparator = HandComparator()
 
@@ -31,6 +35,11 @@ class HoldemTournamentGameEngine(
 
         game.players.add(Player(playerUUID).apply {
             index = ((1..9).toList() - game.players.map { it.index }).shuffled().first()
+
+            if(game.gameState == Game.State.ACTIVE) {
+                isFinished = true
+                isRebuyNextRound = true
+            }
         })
     }
 
@@ -65,8 +74,15 @@ class HoldemTournamentGameEngine(
         game.cardStack = CardStack.create()
         game.targetBet = game.bigBlind
         game.roundState = Game.RoundState.ACTIVE
+        game.winningCards = null
 
-        game.players.forEach {
+        game.players.filter { it.isRebuyNextRound }.forEach {
+            it.isFinished = false
+            it.isRebuyNextRound = false
+            it.chips = game.config.startingChips
+        }
+
+        game.activePlayers.forEach {
             it.action = PlayerAction.Action.NONE
             it.showCards = false
             it.isOnMove = false
@@ -74,18 +90,29 @@ class HoldemTournamentGameEngine(
             it.cards = game.cardStack.drawCards(2)
         }
 
-        (game.activePlayers + game.activePlayers + game.activePlayers).apply {
-            get(indexOf(game.currentDealer) + 1).apply {
-                currentBet = kotlin.math.min(chips, game.smallBlind)
-            }
+        (game.activePlayers + game.activePlayers).apply {
+            if(game.activePlayers.size == 2) {
+                game.currentDealer.apply {
+                    currentBet = kotlin.math.min(game.currentDealer.chips, game.bigBlind)
+                    isOnMove = true
+                }
 
-            get(indexOf(game.currentDealer) + 2).apply {
-                currentBet = kotlin.math.min(chips, game.bigBlind)
-            }
+                get(indexOf(game.currentDealer) + 1).apply {
+                    currentBet = kotlin.math.min(game.currentDealer.chips, game.smallBlind)
+                }
+            } else {
+                get(indexOf(game.currentDealer) + 1).apply {
+                    currentBet = kotlin.math.min(chips, game.smallBlind)
+                }
 
-            get(indexOf(game.currentDealer) + 3).apply {
-                isOnMove = true
-                moveStart = System.currentTimeMillis()
+                get(indexOf(game.currentDealer) + 2).apply {
+                    currentBet = kotlin.math.min(chips, game.bigBlind)
+                }
+
+                get(indexOf(game.currentDealer) + 3).apply {
+                    isOnMove = true
+                    moveStart = System.currentTimeMillis()
+                }
             }
         }
 
@@ -93,6 +120,10 @@ class HoldemTournamentGameEngine(
     }
 
     fun nextPlayerMove(playerUuid: String, playerAction: PlayerAction) {
+        if(game.roundState != Game.RoundState.ACTIVE) {
+            throw GameException(18, "Round is not in an active state")
+        }
+
         val player = game.currentPlayerOnMove
 
         if(player.uuid != playerUuid) {
@@ -190,23 +221,19 @@ class HoldemTournamentGameEngine(
     }
 
     private fun finishRound() {
-        val winners = if(game.players.count { it.action != PlayerAction.Action.FOLD } == 1) {
-            listOf(game.players.first { it.action != PlayerAction.Action.FOLD })
-        } else {
+        // calculate winnings before round ended (all folded)
+        if(game.players.count { it.action != PlayerAction.Action.FOLD } == 1) {
+            val winner = game.players.first { it.action != PlayerAction.Action.FOLD }
+            val pot = game.players.sumBy { it.currentBet }
+            game.players.forEach {
+                it.chips -= it.currentBet
+                it.currentBet = 0
+            }
+            winner.chips += pot
+        } else { // calculate winning after regular round
             val ranks = handComparator.evalPlayers(game.players, game.tableCards)
-            ranks.filter { it.rank == ranks[0].rank }.map { it.player }
-        }
-
-        val betsSum = game.players.sumBy { it.currentBet }
-
-        // TODO sidepot
-        winners.forEach {
-            it.chips += betsSum / winners.size
-        }
-
-        game.players.forEach {
-            it.chips -= it.currentBet
-            it.currentBet = 0
+            game.winningCards = ranks[0].bestCards
+            WinningsCalculator.calculateWinnings(ranks)
         }
 
         game.players.filter { it.chips == 0 }.forEach { it.isFinished = true }
@@ -217,40 +244,63 @@ class HoldemTournamentGameEngine(
         currentDealer.isDealer = false
         nextPlayer.isDealer = true
 
-        game.roundState == Game.RoundState.FINISHED
+        game.roundState = Game.RoundState.FINISHED
 
-        startNewRound()
+        if(game.players.count { it.chips > 0 } == 1) {
+            finishGame()
+        } else {
+            thread {
+                Thread.sleep(7_000)
+                startNewRound()
+                updateStateListener(this)
+            }
+        }
+    }
+
+    private fun finishGame() {
+        // TODO: add player ranks
+        game.gameState = Game.State.FINISHED
+        updateStateListener(this)
+        gameFinishedListener(this)
     }
 
     private fun gameTick() {
-        return //disabled for now
-
-        // player ran out of time limit
-        val currentPlayerOnMove = game.currentPlayerOnMove
-        if(System.currentTimeMillis() - currentPlayerOnMove.moveStart > game.config.playerMoveTime * 1000) {
-            nextPlayerMove(
-                currentPlayerOnMove.uuid,
-                if(currentPlayerOnMove.currentBet == game.targetBet)
-                    PlayerAction(PlayerAction.Action.CHECK, null, null)
-                else {
-                    PlayerAction(PlayerAction.Action.FOLD, null, null)
-                }
-            )
-        }
-
         if(System.currentTimeMillis() > game.nextBlinds) {
             increaseBlinds()
-            game.nextBlinds = System.currentTimeMillis() + game.config.blindIncreaseTime * 1000
         }
+
+        //disabled for now
+        // player ran out of time limit
+//        val currentPlayerOnMove = game.currentPlayerOnMove
+//        if(System.currentTimeMillis() - currentPlayerOnMove.moveStart > game.config.playerMoveTime * 1000) {
+//            nextPlayerMove(
+//                currentPlayerOnMove.uuid,
+//                if(currentPlayerOnMove.currentBet == game.targetBet)
+//                    PlayerAction(PlayerAction.Action.CHECK, null, null)
+//                else {
+//                    PlayerAction(PlayerAction.Action.FOLD, null, null)
+//                }
+//            )
+//        }
     }
 
-    // TODO: Implement blind calculation
-    private fun increaseBlinds() {
-        val smallBlinds = listOf(10, 20, 30, 50, 75, 100, 200, 400, 600, 800, 1000)
+    private fun increaseBlinds() =
+        game.apply {
+            nextBlinds = System.currentTimeMillis() + config.blindIncreaseTime * 1000
+            smallBlind = BlindCalculator.nextBlind(smallBlind)
+            bigBlind = smallBlind * 2
 
-        game.smallBlind = smallBlinds.firstOrNull { it > game.smallBlind } ?: game.smallBlind * 2
-        game.bigBlind = game.smallBlind * 2
-    }
+            updateStateListener(this@HoldemTournamentGameEngine)
+        }
+
+    fun rebuy(playerUuid: String) =
+        applyOnPlayer(playerUuid) {
+            if(it.isFinished) {
+                it.isRebuyNextRound = true
+            } else {
+                throw GameException(19, "Player has not finished yet")
+            }
+        }
 
     fun showCards(playerUuid: String) =
         applyOnPlayer(playerUuid) {
@@ -262,10 +312,9 @@ class HoldemTournamentGameEngine(
             it.name = name
         }
 
-    private fun applyOnPlayer(uuid: String, action: (Player) -> Unit) {
+    private fun applyOnPlayer(uuid: String, action: (Player) -> Unit) =
         game.players.firstOrNull { it.uuid == uuid }?.let {
             action(it)
         } ?: throw GameException(13, "Invalid player UUID")
-    }
 
 }
