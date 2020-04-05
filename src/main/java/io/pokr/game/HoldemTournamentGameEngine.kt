@@ -232,12 +232,7 @@ class HoldemTournamentGameEngine(
             winner.chips += pot
         } else { // calculate winning after regular round
             val ranks = handComparator.evalPlayers(game.players, game.tableCards)
-            ranks.filter { it.rank == ranks[0].rank }
-                .map { it.player }
-                .also {
-                    game.winningCards = ranks[0].bestCards
-                }
-
+            game.winningCards = ranks[0].bestCards
             WinningsCalculator.calculateWinnings(ranks)
         }
 
