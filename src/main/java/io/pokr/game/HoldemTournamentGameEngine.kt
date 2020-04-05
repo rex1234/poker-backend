@@ -221,25 +221,24 @@ class HoldemTournamentGameEngine(
     }
 
     private fun finishRound() {
-        val winners = if(game.players.count { it.action != PlayerAction.Action.FOLD } == 1) {
-            listOf(game.players.first { it.action != PlayerAction.Action.FOLD })
-        } else {
-            val ranks = handComparator.evalPlayers(game.players, game.tableCards)
-            ranks.filter { it.rank == ranks[0].rank }.map { it.player }.also {
-                game.winningCards = ranks[0].bestCards
+        // calculate winnings before round ended (all folded)
+        if(game.players.count { it.action != PlayerAction.Action.FOLD } == 1) {
+            val winner = game.players.first { it.action != PlayerAction.Action.FOLD }
+            val pot = game.players.sumBy { it.currentBet }
+            game.players.forEach {
+                it.chips -= it.currentBet
+                it.currentBet = 0
             }
-        }
+            winner.chips += pot
+        } else { // calculate winning after regular round
+            val ranks = handComparator.evalPlayers(game.players, game.tableCards)
+            ranks.filter { it.rank == ranks[0].rank }
+                .map { it.player }
+                .also {
+                    game.winningCards = ranks[0].bestCards
+                }
 
-        val betsSum = game.players.sumBy { it.currentBet }
-
-        // TODO sidepot
-        winners.forEach {
-            it.chips += betsSum / winners.size
-        }
-
-        game.players.forEach {
-            it.chips -= it.currentBet
-            it.currentBet = 0
+            WinningsCalculator.calculateWinnings(ranks)
         }
 
         game.players.filter { it.chips == 0 }.forEach { it.isFinished = true }
