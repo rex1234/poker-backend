@@ -1,5 +1,7 @@
 package io.pokr.game.model
 
+import io.pokr.network.model.PlayerAction
+
 class Game constructor(
     val uuid: String
 ) {
@@ -33,7 +35,7 @@ class Game constructor(
     lateinit var tableCards: CardList
 
     val activePlayers
-        get() = players.filter { !it.isFinished }
+        get() = players.filter { !it.isFinished && it.action != PlayerAction.Action.FOLD && it.chips > 0 }
 
     val currentDealer
         get() = players.first { it.isDealer }
