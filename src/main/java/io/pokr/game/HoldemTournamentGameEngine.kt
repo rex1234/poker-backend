@@ -35,6 +35,11 @@ class HoldemTournamentGameEngine(
 
         game.players.add(Player(playerUUID).apply {
             index = ((1..9).toList() - game.players.map { it.index }).shuffled().first()
+
+            if(game.gameState == Game.State.ACTIVE) {
+                isFinished = true
+                isRebuyNextRound = true
+            }
         })
     }
 
@@ -70,6 +75,12 @@ class HoldemTournamentGameEngine(
         game.targetBet = game.bigBlind
         game.roundState = Game.RoundState.ACTIVE
         game.winningCards = null
+
+        game.players.filter { it.isRebuyNextRound }.forEach {
+            it.isFinished = false
+            it.isRebuyNextRound = false
+            it.chips = game.config.startingChips
+        }
 
         game.activePlayers.forEach {
             it.action = PlayerAction.Action.NONE
@@ -262,8 +273,6 @@ class HoldemTournamentGameEngine(
     private fun gameTick() {
         if(System.currentTimeMillis() > game.nextBlinds) {
             increaseBlinds()
-            game.nextBlinds = System.currentTimeMillis() + game.config.blindIncreaseTime * 1000
-            updateStateListener(this)
         }
 
         //disabled for now
@@ -283,8 +292,20 @@ class HoldemTournamentGameEngine(
 
     private fun increaseBlinds() =
         game.apply {
+            nextBlinds = System.currentTimeMillis() + config.blindIncreaseTime * 1000
             smallBlind = BlindCalculator.nextBlind(smallBlind)
             bigBlind = smallBlind * 2
+
+            updateStateListener(this@HoldemTournamentGameEngine)
+        }
+
+    fun rebuy(playerUuid: String) =
+        applyOnPlayer(playerUuid) {
+            if(it.isFinished) {
+                it.isRebuyNextRound = true
+            } else {
+                throw GameException(19, "Player has not finished yet")
+            }
         }
 
     fun showCards(playerUuid: String) =

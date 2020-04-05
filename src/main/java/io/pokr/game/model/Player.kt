@@ -21,6 +21,7 @@ class Player(
     var hand: HandComparator.Hand? = null
     var currentBet = 0
     var chips = 0
+    var isRebuyNextRound = false
 
     var showCards = false
 

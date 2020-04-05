@@ -156,6 +156,8 @@ class GamePool {
                 TODO()
             PlayerAction.Action.DISCARD_GAME ->
                 TODO()
+            PlayerAction.Action.REBUY ->
+                gameEngine.rebuy(playerUuid)
             else ->
                 gameEngine.nextPlayerMove(playerSession.uuid, action)
         }
