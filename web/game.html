@@ -7,10 +7,11 @@
     <script src="js/js.cookie.min.js"></script>
     <script src="js/socket.io.js"></script>
     <script src="js/sockets.js"></script>
+    <script src="js/rangeslider.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="styles/game.css">
 </head>
 <body>
-<button onclick="requestGameState()">Check</button><br><br><br>
 <div id="controls">
 Nick: <input type="text" id="userid">
 
@@ -18,7 +19,7 @@ Nick: <input type="text" id="userid">
     Game ID: <input type="text" id="gameid" value="12345"><br>
     <button>Join Game</button>
 </div>
-
+<br><br><br>
 <div id="createGame">
     <label for="startingChips">Starting chips</label><input type="number" id="startingChips" name="startingChips" min="200" max="100000" value="2500"><br>
     <label for="startingBlinds">Starting blinds</label><input type="number" id="startingBlinds" name="startingBlinds" min="1" max="100"  value="20"><br>
@@ -26,93 +27,209 @@ Nick: <input type="text" id="userid">
     <label for="playerMoveTime">Time to action</label><input type="number" id="playerMoveTime" name="playerMoveTime" min="3" max="60" value="10"><br>
     <button>Create Game</button>
 </div>
-</div>
-Pot: <span id="pot"></span><br>
-Dealt cards: <span id="dealtCards"></span> <br>
 
-<div class="game">
-    <button id="start">Shuffle up and deal!</button>
-<table class="tg">
-    <tr>
-        <th class="dealer">Dealer</th>
-        <th class="name">Name</th>
-        <th class="chips">Chip count</th>
-        <th class="bet">Current bet</th>
-        <th class="cards">Cards</th>
-    </tr>
-    <tr class="player1">
-        <td class="dealer"></td>
-        <td class="name"></td>
-        <td class="chips"></td>
-        <td class="bet"></td>
-        <td class="cards"></td>
-    </tr>
-    <tr class="player2">
-        <td class="dealer"></td>
-        <td class="name"></td>
-        <td class="chips"></td>
-        <td class="bet"></td>
-        <td class="cards"></td>
-    </tr>
-    <tr class="player3">
-        <td class="dealer"></td>
-        <td class="name"></td>
-        <td class="chips"></td>
-        <td class="bet"></td>
-        <td class="cards"></td>
-    </tr>
-    <tr class="player4">
-        <td class="dealer"></td>
-        <td class="name"></td>
-        <td class="chips"></td>
-        <td class="bet"></td>
-        <td class="cards"></td>
-    </tr>
-    <tr class="player5">
-        <td class="dealer"></td>
-        <td class="name"></td>
-        <td class="chips"></td>
-        <td class="bet"></td>
-        <td class="cards"></td>
-    </tr>
-    <tr class="player6">
-        <td class="dealer"></td>
-        <td class="name"></td>
-        <td class="chips"></td>
-        <td class="bet"></td>
-        <td class="cards"></td>
-    </tr>
-    <tr class="player7">
-        <td class="dealer"></td>
-        <td class="name"></td>
-        <td class="chips"></td>
-        <td class="bet"></td>
-        <td class="cards"></td>
-    </tr>
-    <tr class="player8">
-        <td class="dealer"></td>
-        <td class="name"></td>
-        <td class="chips"></td>
-        <td class="bet"></td>
-        <td class="cards"></td>
-    </tr>
-    <tr class="player9">
-        <td class="dealer"></td>
-        <td class="name"></td>
-        <td class="chips"></td>
-        <td class="bet"></td>
-        <td class="cards"></td>
-    </tr>
-</table>
-<button onclick="gameFold()">Fold</button>
-<button onclick="gameCheck()">Check</button>
-<button onclick="gameCall()">Call</button>
-<button onclick="Bet(200)">Bet</button>
 </div>
+<button id="start" style="display:none;">Shuffle up and deal!</button>
 
-<div id="content">
-</div>
+    <div class="game-container" style="display:none;">
+        <div class="players">
+            <div id="player1">
+                <div class="bet"></div>
+                <div class="cards">
+                    <div class="card-1"></div>
+                    <div class="card-2"></div>
+                    <div class="card-crop"></div>
+                </div>
+                <div class="info-box">
+                    <div class="player-timer-bg"></div>
+                    <div class="player-timer-running"></div>
+                    <div class="player-name"></div>
+                    <div class="player-chips"></div>
+                    <div class="rebuy-info">
+                        <div class="player-addons">A</div>
+                        <div class="player-rebuys">2</div>
+                    </div>
+                </div>
+            </div>
+            <div id="player2">
+                <div class="bet"></div>
+                <div class="cards">
+                    <div class="card-1"></div>
+                    <div class="card-2"></div>
+                    <div class="card-crop"></div>
+                </div>
+                <div class="info-box">
+                    <div class="player-timer-bg"></div>
+                    <div class="player-timer-running"></div>
+                    <div class="player-name"></div>
+                    <div class="player-chips"></div>
+                    <div class="rebuy-info">
+                        <div class="player-addons">A</div>
+                        <div class="player-rebuys">2</div>
+                    </div>
+                </div>
+            </div>
+            <div id="player3">
+                <div class="bet"></div>
+                <div class="cards">
+                    <div class="card-1"></div>
+                    <div class="card-2"></div>
+                    <div class="card-crop"></div>
+                </div>
+                <div class="info-box">
+                    <div class="player-timer-bg"></div>
+                    <div class="player-timer-running"></div>
+                    <div class="player-name"></div>
+                    <div class="player-chips"></div>
+                    <div class="rebuy-info">
+                        <div class="player-addons">A</div>
+                        <div class="player-rebuys">2</div>
+                    </div>
+                </div>
+            </div>
+            <div id="player4">
+                <div class="bet"></div>
+                <div class="cards">
+                    <div class="card-1"></div>
+                    <div class="card-2"></div>
+                    <div class="card-crop"></div>
+                </div>
+                <div class="info-box">
+                    <div class="player-timer-bg"></div>
+                    <div class="player-timer-running"></div>
+                    <div class="player-name"></div>
+                    <div class="player-chips"></div>
+                    <div class="rebuy-info">
+                        <div class="player-addons">A</div>
+                        <div class="player-rebuys">2</div>
+                    </div>
+                </div>
+            </div>
+            <div id="player5">
+                <div class="bet"></div>
+                <div class="cards">
+                    <div class="card-1"></div>
+                    <div class="card-2"></div>
+                    <div class="card-crop"></div>
+                </div>
+                <div class="info-box">
+                    <div class="player-timer-bg"></div>
+                    <div class="player-timer-running"></div>
+                    <div class="player-name"></div>
+                    <div class="player-chips"></div>
+                    <div class="rebuy-info">
+                        <div class="player-addons">A</div>
+                        <div class="player-rebuys">2</div>
+                    </div>
+                </div>
+            </div>
+            <div id="player6">
+                <div class="bet"></div>
+                <div class="cards">
+                    <div class="card-1"></div>
+                    <div class="card-2"></div>
+                    <div class="card-crop"></div>
+                </div>
+                <div class="info-box">
+                    <div class="player-timer-bg"></div>
+                    <div class="player-timer-running"></div>
+                    <div class="player-name"></div>
+                    <div class="player-chips"></div>
+                    <div class="rebuy-info">
+                        <div class="player-addons">A</div>
+                        <div class="player-rebuys">2</div>
+                    </div>
+                </div>
+            </div>
+            <div id="player7">
+                <div class="bet"></div>
+                <div class="cards">
+                    <div class="card-1"></div>
+                    <div class="card-2"></div>
+                    <div class="card-crop"></div>
+                </div>
+                <div class="info-box">
+                    <div class="player-timer-bg"></div>
+                    <div class="player-timer-running"></div>
+                    <div class="player-name"></div>
+                    <div class="player-chips"></div>
+                    <div class="rebuy-info">
+                        <div class="player-addons">A</div>
+                        <div class="player-rebuys">2</div>
+                    </div>
+                </div>
+            </div>
+            <div id="player8">
+                <div class="bet"></div>
+                <div class="cards">
+                    <div class="card-1"></div>
+                    <div class="card-2"></div>
+                    <div class="card-crop"></div>
+                </div>
+                <div class="info-box">
+                    <div class="player-timer-bg"></div>
+                    <div class="player-timer-running"></div>
+                    <div class="player-name"></div>
+                    <div class="player-chips"></div>
+                    <div class="rebuy-info">
+                        <div class="player-addons">A</div>
+                        <div class="player-rebuys">2</div>
+                    </div>
+                </div>
+            </div>
+            <div id="player9">
+                <div class="bet"></div>
+                <div class="cards">
+                    <div class="card-1"></div>
+                    <div class="card-2"></div>
+                    <div class="card-crop"></div>
+                </div>
+                <div class="info-box">
+                    <div class="player-timer-bg"></div>
+                    <div class="player-timer-running"></div>
+                    <div class="player-name"></div>
+                    <div class="player-chips"></div>
+                    <div class="rebuy-info">
+                        <div class="player-addons">A</div>
+                        <div class="player-rebuys">2</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-<script src="js/game.js"></script>
+        <div class="table">
+            <div class="pot">Pot: 600</div>
+            <div class="dealt-cards">
+                <div class="dealt-cards-1"></div>
+                <div class="dealt-cards-2"></div>
+                <div class="dealt-cards-3"></div>
+                <div class="dealt-cards-4"></div>
+                <div class="dealt-cards-5"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="fold" onclick="gameFold()" class="disabled">Fold</button>
+            <button id="call" onclick="gameCall()" class="disabled">Call<br>160</button>
+            <button id="check" onclick="gameCheck()" class="disabled">Check</button>
+            <button id="raise"  class="disabled">Raise to<br>280</button>
+
+            <div class="raise-slider disabled" >
+                <input type="number" min="1" max="100" value="10" class="raise-input">
+                <div class="slider">
+
+
+                    <input type="range" min="1" max="100" value="10" role="input-range" data-rangeslider>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+
+    </script>
+
+    <script src="js/game.js"></script>
 </body>
 </html>
