@@ -14,10 +14,7 @@ fun main() {
 
     println("Initializing Web")
 
-    thread {
-        WebEngine().start()
-    }
+    WebEngine().start()
 
-    println("Create game at http://localhost:8080/socket_create_game.html")
-    println("Connect to game at http://localhost:8080/socket_connect_game.html")
+    println("Server deployed at http://localhost:8080/")
 }

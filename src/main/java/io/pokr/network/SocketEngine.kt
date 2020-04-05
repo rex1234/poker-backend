@@ -38,6 +38,7 @@ class SocketEngine(
 
     lateinit var server: SocketIOServer
 
+
     fun start() {
         val config = Configuration().apply {
             hostname = "127.0.0.1"
@@ -124,6 +125,13 @@ class SocketEngine(
         gamePool.gameDisbandedListener = { sessions ->
             server.allClients.filter { it.sessionId.toString() in sessions.map { it.sessionId } }.forEach {
                 it.sendEvent(Events.GAME_DISBANDED.key)
+            }
+        }
+
+        // TODO: merge with sendGameState
+        gamePool.updateStateListener = { sessions ->
+            server.allClients.filter { it.sessionId.toString() in sessions.map { it.sessionId } }.first().also {
+                sendGameState(it)
             }
         }
     }

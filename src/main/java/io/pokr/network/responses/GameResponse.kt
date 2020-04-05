@@ -16,6 +16,7 @@ class GameResponse(
         val players: List<PlayerState>,
         val pot: Int?,
         val cards: String,
+        val winningCards: String?,
         val nextBlinds: Long,
         val smallBlind: Int,
         val bigBlind: Int
@@ -48,6 +49,7 @@ class GameResponse(
                     round = game.round,
                     user = player.playerState(true, game),
                     cards = if(game.gameState == Game.State.ACTIVE) game.tableCards.toString() else "",
+                    winningCards = game.winningCards?.toString(),
                     pot = game.players.sumBy { it.currentBet },
                     smallBlind = game.smallBlind,
                     bigBlind = game.bigBlind,

@@ -25,6 +25,11 @@ class GamePool {
     var gameDisbandedListener: ((List<PlayerSession>) -> Unit)? = null
 
     /**
+     * Called when game state should by synced
+     */
+    var updateStateListener: ((List<PlayerSession>) -> Unit)? = null
+
+    /**
      * Created a new game game discarding any previous games with the same UUID (should not happen outside of debugging).
      * It contains the starting player as an admin.
      */
@@ -42,9 +47,19 @@ class GamePool {
 
         System.err.println("Created game session: ${gameSession.uuid}")
 
-        gameEngines[gameSession] = HoldemTournamentGameEngine(gameSession.uuid).apply {
-            initGame(gameConfig)
-        }
+        gameEngines[gameSession] =
+            HoldemTournamentGameEngine(
+                gameUuid = gameSession.uuid,
+                updateStateListener = {
+                    updateStateListener?.invoke(gameSession.playerSessions)
+                },
+                gameFinishedListener = {
+                    discardGame(it.game.uuid)
+                }
+            ).apply {
+                initGame(gameConfig)
+            }
+
         gameEngines[gameSession]!!.addPlayer(playerSession.uuid)
 
         System.err.println("Added player ${playerSession.uuid} to ${gameSession.uuid}")
