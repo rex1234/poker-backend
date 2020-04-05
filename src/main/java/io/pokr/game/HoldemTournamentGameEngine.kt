@@ -76,11 +76,14 @@ class HoldemTournamentGameEngine(
 
         (game.activePlayers + game.activePlayers + game.activePlayers).apply {
             get(indexOf(game.currentDealer) + 1).apply {
-                currentBet = kotlin.math.min(chips, game.bigBlind)
+                currentBet = kotlin.math.min(chips, game.smallBlind)
             }
 
             get(indexOf(game.currentDealer) + 2).apply {
-                currentBet = kotlin.math.min(chips, game.smallBlind)
+                currentBet = kotlin.math.min(chips, game.bigBlind)
+            }
+
+            get(indexOf(game.currentDealer) + 3).apply {
                 isOnMove = true
                 moveStart = System.currentTimeMillis()
             }
