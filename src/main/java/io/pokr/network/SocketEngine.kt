@@ -1,17 +1,15 @@
 package io.pokr.network
 
 import com.corundumstudio.socketio.*
-import com.corundumstudio.socketio.listener.EventInterceptor
 import io.netty.channel.ChannelHandlerContext
-import io.pokr.network.exceptions.GameException
-import io.pokr.network.model.PlayerAction
+import io.pokr.game.exceptions.GameException
+import io.pokr.game.model.PlayerAction
 import io.pokr.network.requests.ConnectionRequest
 
 import io.pokr.network.requests.PlayerActionRequest
 import io.pokr.network.responses.ErrorResponse
 import io.pokr.network.responses.GameResponse
 import java.lang.Exception
-import java.lang.IllegalArgumentException
 
 import java.util.*
 

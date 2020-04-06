@@ -25,8 +25,9 @@ class GameResponse(
     class PlayerState(
         val uuid: String?,
         val index: Int,
-        val connected: Boolean,
+        val isConnected: Boolean,
         val name: String,
+        val isAdmin: Boolean,
         val isDealer: Boolean,
         val isOnMove: Boolean,
         val moveStart: Long,
@@ -62,7 +63,8 @@ class GameResponse(
             fun Player.playerState(forSelf: Boolean, game: Game) = PlayerState(
                 uuid = if (forSelf) uuid else null,
                 index = index,
-                connected = isConnected,
+                isConnected = isConnected,
+                isAdmin = isAdmin,
                 name = name,
                 isDealer = isDealer,
                 isOnMove = isOnMove,

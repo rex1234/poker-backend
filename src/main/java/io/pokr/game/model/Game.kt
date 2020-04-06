@@ -1,7 +1,5 @@
 package io.pokr.game.model
 
-import io.pokr.network.model.PlayerAction
-
 class Game constructor(
     val uuid: String
 ) {
@@ -14,6 +12,7 @@ class Game constructor(
     enum class State {
         CREATED,
         ACTIVE,
+        PAUSED,
         FINISHED
     }
 
@@ -28,7 +27,14 @@ class Game constructor(
     var gameStart: Long = 0
     var roundState = RoundState.ACTIVE
 
-    var lateRegistrationEnabled = true
+    var pauseStart = 0L
+    var totalPauseTime = 0L
+
+    val lateRegistrationEnabled
+        get() = System.currentTimeMillis() - gameStart < config.rebuyTime * 1000
+
+    val gameTime
+        get() = System.currentTimeMillis() - gameStart - totalPauseTime
 
     lateinit var config: GameConfig
     lateinit var cardStack: CardStack
@@ -37,7 +43,7 @@ class Game constructor(
     var winningCards: CardList? = null
 
     val activePlayers
-        get() = players.filter { !it.isFinished && it.action != PlayerAction.Action.FOLD && it.chips > 0 }
+        get() = players.filter { !it.isFinished && it.action != PlayerAction.Action.FOLD && it.chips - it.currentBet > 0 }
 
     val currentDealer
         get() = players.first { it.isDealer }
@@ -50,4 +56,14 @@ class Game constructor(
 
     val nextPlayerOnMove
         get() = (activePlayers + activePlayers).run { get(indexOf(currentPlayerOnMove) + 1) }
+
+    fun pause(pause: Boolean) {
+        if(pause) {
+            pauseStart = System.currentTimeMillis()
+        } else {
+            val pauseTime = System.currentTimeMillis() - pauseStart
+            totalPauseTime += pauseTime
+            nextBlinds += pauseTime
+        }
+    }
 }

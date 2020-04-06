@@ -1,4 +1,4 @@
-package io.pokr.network.model
+package io.pokr.game.model
 
 data class PlayerAction(
     val action: Action,
@@ -22,8 +22,9 @@ data class PlayerAction(
         SHOW_CARDS("showCards"),
 
         // admin actions
-        START_GAME("startGame"),
+        DISCARD_GAME("discardGame"),
         KICK("kickPlayer"),
-        DISCARD_GAME("discardGame")
+        PAUSE("pause"),
+        START_GAME("startGame")
     }
 }

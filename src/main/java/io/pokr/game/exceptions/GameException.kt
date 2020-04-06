@@ -1,4 +1,4 @@
-package io.pokr.network.exceptions
+package io.pokr.game.exceptions
 
 import java.lang.Exception
 

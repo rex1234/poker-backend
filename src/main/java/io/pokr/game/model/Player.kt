@@ -1,7 +1,6 @@
 package io.pokr.game.model
 
 import io.pokr.game.HandComparator
-import io.pokr.network.model.PlayerAction
 
 /**
  * Class containing player data (uuid, name) and his state in the game (cards, chips, etc.)
@@ -11,6 +10,7 @@ class Player(
 ) {
     var index: Int = 0
     var name: String = "Player " + System.currentTimeMillis()
+    var isAdmin = false
     var isConnected = true
     var isFinished = false
     var isDealer = false

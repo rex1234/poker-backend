@@ -63,10 +63,6 @@ function sendAction(action, numericValue, textValue) {
     });
 }
 
-function startGame() {
-    sendAction("startGame", null, null)
-}
-
 function changeName(name) {
     sendAction("changeName", null, name)
 }
@@ -87,8 +83,30 @@ function gameRaise(amount) {
     sendAction("raise", amount, null)
 }
 
+function rebuy() {
+    sendAction("rebuy", null, null)
+}
+
 function showCards() {
     sendAction("showCards", null, null)
+}
+
+// Admin actions
+
+function startGame() {
+    sendAction("startGame", null, null)
+}
+
+function kick(playerIndex) {
+    sendAction("kick", playerIndex, null)
+}
+
+function pause() {
+    sendAction("pause", 1, null)
+}
+
+function unpause() {
+    sendAction("pause", 0, null)
 }
 
 

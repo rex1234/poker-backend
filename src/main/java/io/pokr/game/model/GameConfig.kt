@@ -6,5 +6,6 @@ class GameConfig @ConstructorProperties("startingChips", "startingBlinds", "blin
     val startingChips: Int,
     val startingBlinds: Int,
     val blindIncreaseTime: Int,
-    val playerMoveTime: Int
+    val playerMoveTime: Int,
+    val rebuyTime: Int
 )

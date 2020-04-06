@@ -2,7 +2,7 @@ package io.pokr.game
 
 import io.pokr.game.model.CardList
 import io.pokr.game.model.Player
-import io.pokr.network.model.PlayerAction
+import io.pokr.game.model.PlayerAction
 
 import handeval.Hand as EvalHand
 

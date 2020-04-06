@@ -4,12 +4,11 @@ import io.pokr.game.HoldemTournamentGameEngine
 import io.pokr.game.model.Game
 import io.pokr.game.model.GameConfig
 import io.pokr.game.model.Player
-import io.pokr.network.exceptions.GameException
+import io.pokr.game.model.PlayerAction
+import io.pokr.game.exceptions.GameException
 import io.pokr.network.model.GameSession
-import io.pokr.network.model.PlayerAction
 import io.pokr.network.model.PlayerSession
 import io.pokr.network.util.TokenGenerator
-import java.util.*
 
 /**
  * Class holding player and game sessions and their respective mappings to Game objects
@@ -67,7 +66,8 @@ class GamePool {
         executePlayerAction(playerSession.uuid, PlayerAction(
             action = PlayerAction.Action.CHANGE_NAME,
             textValue = playerName
-        ))
+        )
+        )
     }
 
     /**
@@ -92,10 +92,12 @@ class GamePool {
 
             getGameDataForPlayerUuid(playerSession.uuid).second.isConnected = true
 
-            executePlayerAction(playerSession.uuid, PlayerAction( // replace with UUID
-                action = PlayerAction.Action.CHANGE_NAME,
-                textValue = playerName
-            ))
+            executePlayerAction(playerSession.uuid,
+                PlayerAction( // replace with UUID
+                    action = PlayerAction.Action.CHANGE_NAME,
+                    textValue = playerName
+                )
+            )
         } ?: throw GameException(20, "Invalid game UUID")
     }
 
@@ -149,15 +151,17 @@ class GamePool {
             PlayerAction.Action.CHANGE_NAME ->
                 gameEngine.changeName(playerSession.uuid, action.textValue!!)
             PlayerAction.Action.START_GAME ->
-                gameEngine.startGame()
+                gameEngine.startGame(playerSession.uuid)
             PlayerAction.Action.SHOW_CARDS ->
                 gameEngine.showCards(playerSession.uuid)
             PlayerAction.Action.KICK ->
-                TODO()
+                gameEngine.kickPlayer(playerSession.uuid, action.numericValue!!)
             PlayerAction.Action.DISCARD_GAME ->
-                TODO()
+                null // TODO
             PlayerAction.Action.REBUY ->
                 gameEngine.rebuy(playerUuid)
+            PlayerAction.Action.PAUSE ->
+                gameEngine.pause(playerSession.uuid, action.numericValue == 1)
             else ->
                 gameEngine.nextPlayerMove(playerSession.uuid, action)
         }

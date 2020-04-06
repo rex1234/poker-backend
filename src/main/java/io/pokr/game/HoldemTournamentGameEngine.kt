@@ -2,9 +2,8 @@ package io.pokr.game
 
 import io.pokr.game.model.*
 import io.pokr.game.util.BlindCalculator
-import io.pokr.network.exceptions.GameException
-import io.pokr.network.model.PlayerAction
-import java.util.*
+import io.pokr.game.exceptions.GameException
+import io.pokr.game.model.PlayerAction
 import kotlin.concurrent.thread
 
 class HoldemTournamentGameEngine(
@@ -36,6 +35,10 @@ class HoldemTournamentGameEngine(
         game.players.add(Player(playerUUID).apply {
             index = ((1..9).toList() - game.players.map { it.index }).shuffled().first()
 
+            if(game.players.isEmpty()) {
+                isAdmin = true
+            }
+
             if(game.gameState == Game.State.ACTIVE) {
                 isFinished = true
                 isRebuyNextRound = true
@@ -43,7 +46,13 @@ class HoldemTournamentGameEngine(
         })
     }
 
-    fun startGame() {
+    fun startGame(playerUuid: String) {
+        applyOnPlayer(playerUuid) {
+            if(!it.isAdmin) {
+                throw GameException(5, "Only admin can perform this action")
+            }
+        }
+
         if(game.gameState != Game.State.CREATED) {
             throw GameException(17, "Game already started")
         }
@@ -69,6 +78,10 @@ class HoldemTournamentGameEngine(
     }
 
     private fun startNewRound() {
+        if(game.gameState == Game.State.PAUSED) {
+            return
+        }
+
         // init the round, set target bet to big blind, set players' blinds and draw cards
         game.round++
         game.cardStack = CardStack.create()
@@ -89,6 +102,12 @@ class HoldemTournamentGameEngine(
             it.hand = null
             it.cards = game.cardStack.drawCards(2)
         }
+
+        val currentDealer = game.currentDealer
+        val nextDealer = game.nextDealer
+
+        currentDealer.isDealer = false
+        nextDealer.isDealer = true
 
         (game.activePlayers + game.activePlayers).apply {
             if(game.activePlayers.size == 2) {
@@ -238,12 +257,6 @@ class HoldemTournamentGameEngine(
 
         game.players.filter { it.chips == 0 }.forEach { it.isFinished = true }
 
-        val currentDealer = game.currentDealer
-        val nextPlayer = game.nextDealer
-
-        currentDealer.isDealer = false
-        nextPlayer.isDealer = true
-
         game.roundState = Game.RoundState.FINISHED
 
         if(game.players.count { it.chips > 0 } == 1) {
@@ -265,6 +278,10 @@ class HoldemTournamentGameEngine(
     }
 
     private fun gameTick() {
+        if(game.gameState == Game.State.PAUSED) {
+            return
+        }
+
         if(System.currentTimeMillis() > game.nextBlinds) {
             increaseBlinds()
         }
@@ -295,6 +312,9 @@ class HoldemTournamentGameEngine(
 
     fun rebuy(playerUuid: String) =
         applyOnPlayer(playerUuid) {
+            if(!game.lateRegistrationEnabled) {
+                throw GameException(11, "Rebuy is not possible")
+            }
             if(it.isFinished) {
                 it.isRebuyNextRound = true
             } else {
@@ -311,6 +331,43 @@ class HoldemTournamentGameEngine(
         applyOnPlayer(playerUuid) {
             it.name = name
         }
+
+    fun pause(playerUuid: String, pause: Boolean) =
+        applyOnPlayer(playerUuid) {
+            if(!it.isAdmin) {
+                throw GameException(5, "Only admin can perform this action")
+            }
+
+            if (pause) {
+                if (game.gameState == Game.State.ACTIVE && game.roundState == Game.RoundState.FINISHED) {
+                    game.pause(true)
+                } else {
+                    throw GameException(15, "Game can be paused only when a round is finished")
+                }
+            } else {
+                if (game.gameState == Game.State.PAUSED) {
+                    game.pause(false)
+                    startNewRound()
+                }
+            }
+        }
+
+    fun kickPlayer(playerUuid: String, playerIndex: Int) =
+        applyOnPlayer(playerUuid) {
+            if(!it.isAdmin) {
+                throw GameException(5, "Only admin can perform this action")
+            }
+
+            if (game.gameState == Game.State.ACTIVE && game.roundState == Game.RoundState.FINISHED) {
+                game.players.firstOrNull { it.index == playerIndex }?.apply {
+                    isFinished = true
+                    chips = 0
+                }
+            } else {
+                throw GameException(15, "Player can be kicked a round is finished")
+            }
+        }
+
 
     private fun applyOnPlayer(uuid: String, action: (Player) -> Unit) =
         game.players.firstOrNull { it.uuid == uuid }?.let {
