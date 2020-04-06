@@ -1,6 +1,4 @@
-package io.pokr.game
-
-import io.pokr.game.model.Player
+package io.pokr.game.tools
 
 class WinningsCalculator {
 

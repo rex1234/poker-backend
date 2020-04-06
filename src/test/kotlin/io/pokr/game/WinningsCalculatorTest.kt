@@ -1,7 +1,8 @@
 package io.pokr.game
 
-import io.pokr.game.model.CardList
 import io.pokr.game.model.Player
+import io.pokr.game.tools.HandComparator
+import io.pokr.game.tools.WinningsCalculator
 import org.junit.Assert
 import org.junit.Test
 

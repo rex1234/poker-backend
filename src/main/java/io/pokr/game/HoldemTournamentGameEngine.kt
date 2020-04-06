@@ -1,9 +1,12 @@
 package io.pokr.game
 
 import io.pokr.game.model.*
-import io.pokr.game.util.BlindCalculator
+import io.pokr.game.tools.BlindCalculator
 import io.pokr.game.exceptions.GameException
 import io.pokr.game.model.PlayerAction
+import io.pokr.game.tools.GameTimer
+import io.pokr.game.tools.HandComparator
+import io.pokr.game.tools.WinningsCalculator
 import kotlin.concurrent.thread
 
 class HoldemTournamentGameEngine(

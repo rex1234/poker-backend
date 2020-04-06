@@ -1,4 +1,4 @@
-package io.pokr.game
+package io.pokr.game.tools
 
 import io.pokr.game.model.CardList
 import io.pokr.game.model.Player
@@ -104,7 +104,7 @@ class HandComparator {
         players.map { player ->
             tableCards.allTriplesFromFive.minBy { player.cards.with(it).evalHand }!!.let {
                 PlayerHandComparisonResult(
-                    rank = if(player.action == PlayerAction.Action.FOLD) Integer.MAX_VALUE else player.cards.with(it).evalHand,
+                    rank = if (player.action == PlayerAction.Action.FOLD) Integer.MAX_VALUE else player.cards.with(it).evalHand,
                     player = player,
                     hand = findHighestHand(it.with(player.cards)),
                     bestCards = it

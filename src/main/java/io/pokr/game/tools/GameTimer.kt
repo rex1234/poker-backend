@@ -1,4 +1,4 @@
-package io.pokr.game
+package io.pokr.game.tools
 
 import kotlin.concurrent.thread
 

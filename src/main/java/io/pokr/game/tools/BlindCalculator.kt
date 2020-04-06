@@ -1,4 +1,4 @@
-package io.pokr.game.util
+package io.pokr.game.tools
 
 class BlindCalculator {
 

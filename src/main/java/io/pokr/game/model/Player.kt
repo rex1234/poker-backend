@@ -1,6 +1,6 @@
 package io.pokr.game.model
 
-import io.pokr.game.HandComparator
+import io.pokr.game.tools.HandComparator
 
 /**
  * Class containing player data (uuid, name) and his state in the game (cards, chips, etc.)
