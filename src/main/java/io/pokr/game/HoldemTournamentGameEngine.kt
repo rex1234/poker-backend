@@ -31,7 +31,7 @@ class HoldemTournamentGameEngine(
             throw GameException(10, "Game is already full")
         }
 
-        if(game.gameState != Game.State.CREATED && !game.lateRegistrationEnabled) {
+        if(game.gameState != Game.State.CREATED && !game.isLateRegistrationEnabled) {
             throw GameException(11, "Late registration is not possible")
         }
 
@@ -314,7 +314,7 @@ class HoldemTournamentGameEngine(
 
     fun rebuy(playerUuid: String) =
         applyOnPlayer(playerUuid) {
-            if(!game.lateRegistrationEnabled) {
+            if(!game.isLateRegistrationEnabled) {
                 throw GameException(11, "Rebuy is not possible")
             }
 

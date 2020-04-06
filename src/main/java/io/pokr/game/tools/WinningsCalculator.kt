@@ -6,6 +6,10 @@ class WinningsCalculator {
 
         // TODO: add remaining chip to SB / BB (in case of 1 chip split)
         fun calculateWinnings(results_: List<HandComparator.PlayerHandComparisonResult>) {
+            results_.map { it.player }.forEach {
+                it.chips -= it.currentBet
+            }
+
             val results = results_.sortedBy { it.player.currentBet }
             var pot = results.sumBy { it.player.currentBet }
 

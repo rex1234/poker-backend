@@ -30,7 +30,7 @@ class Game constructor(
     var pauseStart = 0L
     var totalPauseTime = 0L
 
-    val lateRegistrationEnabled
+    val isLateRegistrationEnabled
         get() = System.currentTimeMillis() - gameStart < config.rebuyTime * 1000
 
     val gameTime
