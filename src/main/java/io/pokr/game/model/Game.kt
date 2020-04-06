@@ -19,6 +19,7 @@ class Game constructor(
     var gameState: State = State.CREATED
     var players = mutableListOf<Player>()
     var targetBet = 0
+    var previousTargetBet = 0 // FOR FE purposes
     var smallBlind = 0
     var bigBlind = 0
     var nextBlinds = 0L

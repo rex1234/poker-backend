@@ -87,11 +87,14 @@ class HoldemTournamentGameEngine(
         }
 
         // init the round, set target bet to big blind, set players' blinds and draw cards
-        game.round++
-        game.cardStack = CardStack.create()
-        game.targetBet = game.bigBlind
-        game.roundState = Game.RoundState.ACTIVE
-        game.winningCards = null
+        game.apply {
+            round++
+            cardStack = CardStack.create()
+            targetBet = game.bigBlind
+            previousTargetBet = 0
+            roundState = Game.RoundState.ACTIVE
+            winningCards = null
+        }
 
         game.players.filter { it.isRebuyNextRound }.forEach {
             it.isFinished = false
@@ -212,7 +215,9 @@ class HoldemTournamentGameEngine(
                 } else { // or we will draw a card and reset actions
                     drawCards()
 
-                    game.players.forEach {
+                    game.previousTargetBet = game.targetBet
+
+                    game.activePlayers.forEach {
                         it.action = PlayerAction.Action.NONE
                         it.hand = handComparator.findHighestHand(it.cards, game.tableCards)
                     }
