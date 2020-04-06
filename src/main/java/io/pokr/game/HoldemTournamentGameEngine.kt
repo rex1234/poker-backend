@@ -282,6 +282,8 @@ class HoldemTournamentGameEngine(
 
         System.err.println("Game ${game.uuid} finished")
 
+        gameTimer.stop()
+
         game.gameState = Game.State.FINISHED
         updateStateListener(this)
         gameFinishedListener(this)

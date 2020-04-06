@@ -128,7 +128,7 @@ class SocketEngine(
 
         // TODO: merge with sendGameState
         gamePool.updateStateListener = { sessions ->
-            server.allClients.filter { it.sessionId.toString() in sessions.map { it.sessionId } }.first().also {
+            server.allClients.filter { it.sessionId.toString() in sessions.map { it.sessionId } }.firstOrNull()?.also {
                 sendGameState(it)
             }
         }
