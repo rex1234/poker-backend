@@ -186,7 +186,7 @@ function printPlayers(data) {
         //show raise if can TODO
         if(currentBet < data.user.chips) {
              $("#raise").removeClass("disabled");
-             var minRaise = currentBet*2;
+             var minRaise = getMinRaiseValue(data);
              $("#raise").attr("onclick", "gameRaise("+ (minRaise - data.user.currentBet) +")");
              $("#raise").html("Raise to<br>"+minRaise);
              $(".raise-slider").removeClass("disabled");
@@ -244,6 +244,7 @@ function printPlayers(data) {
      $(".pot").html(pot);
 }
 
+//checks current bet on a street
 function checkCurrentBet(data) {
     var result = 0;
     for(i = 0; i < data.players.length; i++) {
@@ -251,3 +252,24 @@ function checkCurrentBet(data) {
     }
     return result;
 }
+
+//calculates min-raise
+function getMinRaiseValue(data) {
+    var arr = [data.user.currentBet];
+    for(i = 0; i < data.players.length; i++) {
+        arr.push(data.players[i].currentBet);
+    }
+    arr.sort();
+    return arr[arr.length-1] - arr[arr.length-2];
+}
+
+//returns 0 if preflop
+//returns bet on the previous street per player still in the game
+function previousStreetBet(data) {
+    var result = 0;
+    for(i = 0; i < data.players.length; i++) {
+        data.players[i].
+        result = Math.max(result, data.players[i].currentBet);
+    }
+}
+

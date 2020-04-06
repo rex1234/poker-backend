@@ -1,16 +1,22 @@
 
 
 $( "#joinGame button" ).click(function() {
-  connectToGame($('#userid').val(), '12345');
+  connectToGame($('#userid').val(), $('#gameid').val());
   $("#controls").hide();
   $(".game-container").show();
   $("#start").hide();
 });
 
 $( "#createGame button" ).click(function() {
-  createGame(
-        $('#userid').val()
-  );
+    var gameConfig = {
+        startingChips: $("#startingChips").val(),
+        startingBlinds: $("#startingBlinds").val(),
+        blindIncreaseTime: $("#blindIncreaseTime").val(),
+        playerMoveTime: $("#playerMoveTime").val(),
+        rebuyTime: 720
+   }
+  createGame($('#userid').val(), gameConfig);
+
   $("#controls").hide();
   $(".game-container").show();
   $("#start").show();

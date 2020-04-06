@@ -12,7 +12,6 @@ class TokenGenerator {
 
         fun nextGameToken(length: Int = 10): String {
             val allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXTZ123456789"
-            return "12345"
             return (1..length)
                 .map { allowedChars.random() }
                 .joinToString("")
