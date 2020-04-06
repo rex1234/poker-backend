@@ -59,6 +59,9 @@ class HoldemTournamentGameEngine(
 
         game.gameState = Game.State.ACTIVE
         game.gameStart = System.currentTimeMillis()
+
+        game.smallBlind = game.config.startingBlinds
+        game.bigBlind = game.smallBlind * 2
         game.nextBlinds = game.gameStart + game.config.blindIncreaseTime * 1000
 
         game.players.sortBy { it.index }

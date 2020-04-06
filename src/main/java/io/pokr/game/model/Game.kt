@@ -19,8 +19,8 @@ class Game constructor(
     var gameState: State = State.CREATED
     var players = mutableListOf<Player>()
     var targetBet = 0
-    var smallBlind = 20
-    var bigBlind = 40
+    var smallBlind = 0
+    var bigBlind = 0
     var nextBlinds = 0L
 
     var round = 0
