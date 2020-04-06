@@ -35,7 +35,8 @@ class GameResponse(
         val cards: String?,
         val hand: String?,
         val chips: Int,
-        val currentBet: Int
+        val currentBet: Int,
+        val rebuyCount: Int
     )
 
     class GameStateFactory {
@@ -68,6 +69,7 @@ class GameResponse(
                 name = name,
                 isDealer = isDealer,
                 isOnMove = isOnMove,
+                rebuyCount = rebuyCount,
                 moveStart = moveStart,
                 action = action.toString().toLowerCase(),
                 cards = if (forSelf || (game.roundState == Game.RoundState.FINISHED && showCards)) cards.toString() else null,

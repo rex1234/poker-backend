@@ -22,6 +22,7 @@ class Player(
     var currentBet = 0
     var chips = 0
     var isRebuyNextRound = false
+    var rebuyCount = 0
 
     var showCards = false
 

@@ -47,11 +47,7 @@ class HoldemTournamentGameEngine(
     }
 
     fun startGame(playerUuid: String) {
-        applyOnPlayer(playerUuid) {
-            if(!it.isAdmin) {
-                throw GameException(5, "Only admin can perform this action")
-            }
-        }
+        applyOnAdminPlayer(playerUuid) {}
 
         if(game.gameState != Game.State.CREATED) {
             throw GameException(17, "Game already started")
@@ -315,7 +311,9 @@ class HoldemTournamentGameEngine(
             if(!game.lateRegistrationEnabled) {
                 throw GameException(11, "Rebuy is not possible")
             }
+
             if(it.isFinished) {
+                it.rebuyCount++
                 it.isRebuyNextRound = true
             } else {
                 throw GameException(19, "Player has not finished yet")
@@ -333,11 +331,7 @@ class HoldemTournamentGameEngine(
         }
 
     fun pause(playerUuid: String, pause: Boolean) =
-        applyOnPlayer(playerUuid) {
-            if(!it.isAdmin) {
-                throw GameException(5, "Only admin can perform this action")
-            }
-
+        applyOnAdminPlayer(playerUuid) {
             if (pause) {
                 if (game.gameState == Game.State.ACTIVE && game.roundState == Game.RoundState.FINISHED) {
                     game.pause(true)
@@ -353,11 +347,7 @@ class HoldemTournamentGameEngine(
         }
 
     fun kickPlayer(playerUuid: String, playerIndex: Int) =
-        applyOnPlayer(playerUuid) {
-            if(!it.isAdmin) {
-                throw GameException(5, "Only admin can perform this action")
-            }
-
+        applyOnAdminPlayer(playerUuid) {
             if (game.gameState == Game.State.ACTIVE && game.roundState == Game.RoundState.FINISHED) {
                 game.players.firstOrNull { it.index == playerIndex }?.apply {
                     isFinished = true
@@ -368,10 +358,18 @@ class HoldemTournamentGameEngine(
             }
         }
 
-
     private fun applyOnPlayer(uuid: String, action: (Player) -> Unit) =
         game.players.firstOrNull { it.uuid == uuid }?.let {
             action(it)
         } ?: throw GameException(13, "Invalid player UUID")
+
+    private fun applyOnAdminPlayer(playerUuid: String, action: (Player) -> Unit) =
+        applyOnPlayer(playerUuid) {
+            if(!it.isAdmin) {
+                throw GameException(5, "Only admin can perform this action")
+            }
+
+            action(it)
+        }
 
 }
