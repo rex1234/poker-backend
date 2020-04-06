@@ -95,13 +95,16 @@ class HoldemTournamentGameEngine(
             it.isFinished = false
             it.isRebuyNextRound = false
             it.chips = game.config.startingChips
+        }
+
+        game.players.forEach {
+            it.showCards = false
+            it.isOnMove = false
+            it.hand = null
             it.action = PlayerAction.Action.NONE
         }
 
         game.activePlayers.forEach {
-            it.showCards = false
-            it.isOnMove = false
-            it.hand = null
             it.cards = game.cardStack.drawCards(2)
         }
 
