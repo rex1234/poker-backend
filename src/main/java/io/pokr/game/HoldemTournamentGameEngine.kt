@@ -93,12 +93,12 @@ class HoldemTournamentGameEngine(
         (game.activePlayers + game.activePlayers).apply {
             if(game.activePlayers.size == 2) {
                 game.currentDealer.apply {
-                    currentBet = kotlin.math.min(game.currentDealer.chips, game.bigBlind)
+                    currentBet = kotlin.math.min(game.currentDealer.chips, game.smallBlind)
                     isOnMove = true
                 }
 
                 get(indexOf(game.currentDealer) + 1).apply {
-                    currentBet = kotlin.math.min(game.currentDealer.chips, game.smallBlind)
+                    currentBet = kotlin.math.min(game.currentDealer.chips, game.bigBlind)
                 }
             } else {
                 get(indexOf(game.currentDealer) + 1).apply {
