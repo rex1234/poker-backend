@@ -60,6 +60,8 @@ class HoldemTournamentGameEngine(
             throw GameException(12, "Cannot start a game with only 1 player")
         }
 
+        System.err.println("Game ${game.uuid} started")
+
         game.gameState = Game.State.ACTIVE
         game.gameStart = System.currentTimeMillis()
 
@@ -277,6 +279,9 @@ class HoldemTournamentGameEngine(
 
     private fun finishGame() {
         // TODO: add player ranks
+
+        System.err.println("Game ${game.uuid} finished")
+
         game.gameState = Game.State.FINISHED
         updateStateListener(this)
         gameFinishedListener(this)

@@ -88,7 +88,7 @@ class GamePool {
                 gameEngines[gameSession]!!.addPlayer(it.uuid)
             }
 
-            System.err.println("Added player ${playerSession.uuid} to ${gameSession.uuid}")
+            System.err.println("Added player ${playerName} to ${gameSession.uuid}")
 
             getGameDataForPlayerUuid(playerSession.uuid).second.isConnected = true
 
@@ -145,7 +145,8 @@ class GamePool {
 
         val gameEngine = gameEngines[gameSession]!!
 
-        System.err.println("Executing action {$action} on player ${playerSession.uuid}")
+        val player = gameEngine.game.players.firstOrNull { it.uuid == playerSession.uuid }
+        System.err.println("Executing action {$action} on player ${player?.name} [${gameSession.uuid}]")
 
         when(action.action) {
             PlayerAction.Action.CHANGE_NAME ->
