@@ -9,8 +9,9 @@ class GameResponse(
 
     class GameState(
         val uuid: String,
-        val state: Game.State,
+        val state: String,
         val gameStart: Long?,
+        val roundState: String,
         val round: Int,
         val user: PlayerState,
         val players: List<PlayerState>,
@@ -46,9 +47,10 @@ class GameResponse(
             fun from(game: Game, player: Player) =
                 GameState(
                     uuid = game.uuid,
-                    state = game.gameState,
+                    state = game.gameState.toString().toLowerCase(),
                     gameStart =  if(game.gameState == Game.State.ACTIVE) game.gameStart else null,
                     round = game.round,
+                    roundState = game.roundState.toString().toLowerCase(),
                     user = player.playerState(true, game),
                     cards = if(game.gameState == Game.State.ACTIVE) game.tableCards.toString() else "",
                     winningCards = game.winningCards?.toString(),
