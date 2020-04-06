@@ -31,7 +31,7 @@ class HoldemTournamentGameEngine(
             throw GameException(10, "Game is already full")
         }
 
-        if(!game.lateRegistrationEnabled) {
+        if(game.gameState != Game.State.CREATED && !game.lateRegistrationEnabled) {
             throw GameException(11, "Late registration is not possible")
         }
 
