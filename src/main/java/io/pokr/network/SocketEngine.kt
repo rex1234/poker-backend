@@ -1,6 +1,7 @@
 package io.pokr.network
 
 import com.corundumstudio.socketio.*
+import io.github.cdimascio.dotenv.dotenv
 import io.netty.channel.ChannelHandlerContext
 import io.pokr.game.exceptions.GameException
 import io.pokr.game.model.PlayerAction
@@ -40,8 +41,8 @@ class SocketEngine(
     fun start() {
         val config = Configuration().apply {
             hostname = "127.0.0.1"
-            port = 9092
-            origin = "http://localhost:8080" // site where the web is hosted
+            port = dotenv()["SOCKETS_PORT"]!!.toInt()
+            origin = dotenv()["WEB_URL"]!!
 
             exceptionListener = object: com.corundumstudio.socketio.listener.ExceptionListener {
                 override fun onConnectException(e: Exception, client: SocketIOClient?) {

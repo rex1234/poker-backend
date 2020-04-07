@@ -1,4 +1,4 @@
-var socket = io.connect('http://127.0.0.1:9092');
+var socket = io.connect('http://' + window.location.hostname + ':9092');
 
 // inbound events
 

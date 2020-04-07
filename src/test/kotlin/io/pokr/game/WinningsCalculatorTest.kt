@@ -18,8 +18,8 @@ class WinningsCalculatorTest {
                 HandComparator.PlayerHandComparisonResult(100 - 0 , Player("1").apply { currentBet = 20; name = "Picka" }),
                 HandComparator.PlayerHandComparisonResult(100 - 3 , Player("1").apply { currentBet = 40; name = "Kukatko" })
             )
+
         WinningsCalculator.calculateWinnings(players)
-        println(players.map { Pair(it.player.name, it.player.chips) })
 
         Assert.assertEquals(
             listOf(100, 355, 255, 0, 0),
@@ -34,8 +34,8 @@ class WinningsCalculatorTest {
                 HandComparator.PlayerHandComparisonResult(100 - 7 , Player("1").apply { currentBet = 300; name = "Adam" }),
                 HandComparator.PlayerHandComparisonResult(100 - 10, Player("1").apply { currentBet = 200; name = "Herbert" })
             )
+
         WinningsCalculator.calculateWinnings(players)
-        println(players.map { Pair(it.player.name, it.player.chips) })
 
         Assert.assertEquals(
             listOf(100, 400),
@@ -53,8 +53,8 @@ class WinningsCalculatorTest {
                 HandComparator.PlayerHandComparisonResult(100 - 13, Player("1").apply { currentBet = 20; name = "Picka" }),
                 HandComparator.PlayerHandComparisonResult(100 - 12, Player("1").apply { currentBet = 70; name = "Kukatko" })
             )
+
         WinningsCalculator.calculateWinnings(players)
-        println(players.map { Pair(it.player.name, it.player.chips) })
 
         Assert.assertEquals(
             listOf(150, 50, 340, 100, 100),
@@ -70,8 +70,8 @@ class WinningsCalculatorTest {
                 HandComparator.PlayerHandComparisonResult(100 - 10, Player("1").apply { currentBet = 400; name = "Herbert" }),
                 HandComparator.PlayerHandComparisonResult(100 - 9 , Player("1").apply { currentBet = 400; name = "Bretislav" })
             )
+
         WinningsCalculator.calculateWinnings(players)
-        println(players.map { Pair(it.player.name, it.player.chips) })
 
         Assert.assertEquals(
             listOf(600, 600, 0),
@@ -87,8 +87,8 @@ class WinningsCalculatorTest {
                 HandComparator.PlayerHandComparisonResult(100 - 10, Player("1").apply { currentBet = 200; name = "Herbert" }),
                 HandComparator.PlayerHandComparisonResult(100 - 10 , Player("1").apply { currentBet = 99; name = "John" })
             )
+
         WinningsCalculator.calculateWinnings(players)
-        println(players.map { Pair(it.player.name, it.player.chips) })
 
         Assert.assertEquals(
             listOf(101, 350, 148),
@@ -104,8 +104,8 @@ class WinningsCalculatorTest {
                 HandComparator.PlayerHandComparisonResult(100 - 9 , Player("1").apply { currentBet = 400; name = "Herbert" }),
                 HandComparator.PlayerHandComparisonResult(100 - 9 , Player("1").apply { currentBet = 400; name = "Bretislav" })
             )
+
         WinningsCalculator.calculateWinnings(players)
-        println(players.map { Pair(it.player.name, it.player.chips) })
 
         Assert.assertEquals(
             listOf(1200, 0, 0),

@@ -1,6 +1,8 @@
 package io.pokr.network
 
 import com.google.gson.Gson
+import io.github.cdimascio.dotenv.Dotenv
+import io.github.cdimascio.dotenv.dotenv
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.http.content.file
@@ -17,7 +19,7 @@ import kotlin.concurrent.thread
 class WebEngine {
     fun start() {
         thread {
-            embeddedServer(Netty, 8080) {
+            embeddedServer(Netty, dotenv()["WEB_PORT"]!!.toInt()) {
                 routing {
                     route("api") {
                         get("/game_state") {
