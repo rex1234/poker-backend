@@ -139,6 +139,7 @@ class HoldemTournamentGameEngine(
                 game.currentDealer.apply {
                     currentBet = kotlin.math.min(game.currentDealer.chips, game.smallBlind)
                     isOnMove = true
+                    moveStart = System.currentTimeMillis()
                 }
 
                 get(indexOf(game.currentDealer) + 1).apply {
@@ -354,17 +355,18 @@ class HoldemTournamentGameEngine(
         val currentPlayerOnMove = game.currentPlayerOnMove
 
         // if player has not played in his time limit, we will perform the default action on him
-//        if(System.currentTimeMillis() - currentPlayerOnMove.moveStart > game.config.playerMoveTime * 1000) {
-//            nextPlayerMove(
-//                currentPlayerOnMove.uuid,
-//                // if he can check he will check, otherwise he will fold
-//                if(currentPlayerOnMove.currentBet == game.targetBet)
-//                    PlayerAction(PlayerAction.Action.CHECK, null, null)
-//                else {
-//                    PlayerAction(PlayerAction.Action.FOLD, null, null)
-//                }
-//            )
-//        }
+        if(System.currentTimeMillis() - currentPlayerOnMove.moveStart > game.config.playerMoveTime * 1000) {
+            nextPlayerMove(
+                currentPlayerOnMove.uuid,
+                // if he can check he will check, otherwise he will fold
+                if(currentPlayerOnMove.currentBet == game.targetBet)
+                    PlayerAction(PlayerAction.Action.CHECK, null, null)
+                else {
+                    PlayerAction(PlayerAction.Action.FOLD, null, null)
+                }
+            )
+            updateStateListener(this)
+        }
     }
 
     fun rebuy(playerUuid: String) =
