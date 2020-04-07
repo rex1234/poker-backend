@@ -219,7 +219,7 @@ class HoldemTournamentGameEngine(
             player.action = playerAction.action
 
             // all but one folded
-            if(game.players.count { it.action != PlayerAction.Action.FOLD } == 1) {
+            if(game.players.count { !it.isFinished && it.action != PlayerAction.Action.FOLD } == 1) {
                 finishRound()
                 return
             }
@@ -277,7 +277,7 @@ class HoldemTournamentGameEngine(
     private fun finishRound() {
         // calculate winnings before round ended (all folded)
         // we just take the pot and put it to non-folded player's chips
-        if(game.players.count { it.action != PlayerAction.Action.FOLD } == 1) {
+        if(game.players.count { !it.isFinished && it.action != PlayerAction.Action.FOLD } == 1) {
             val winner = game.players.first { it.action != PlayerAction.Action.FOLD }
             val pot = game.players.sumBy { it.currentBet }
             game.players.forEach {
@@ -304,7 +304,7 @@ class HoldemTournamentGameEngine(
         } else {
             // otherwise we will wait some time and start a new round
             thread {
-                Thread.sleep(7_000)
+                Thread.sleep(3_000)
                 startNewRound()
                 updateStateListener(this)
             }
@@ -354,17 +354,17 @@ class HoldemTournamentGameEngine(
         val currentPlayerOnMove = game.currentPlayerOnMove
 
         // if player has not played in his time limit, we will perform the default action on him
-        if(System.currentTimeMillis() - currentPlayerOnMove.moveStart > game.config.playerMoveTime * 1000) {
-            nextPlayerMove(
-                currentPlayerOnMove.uuid,
-                // if he can check he will check, otherwise he will fold
-                if(currentPlayerOnMove.currentBet == game.targetBet)
-                    PlayerAction(PlayerAction.Action.CHECK, null, null)
-                else {
-                    PlayerAction(PlayerAction.Action.FOLD, null, null)
-                }
-            )
-        }
+//        if(System.currentTimeMillis() - currentPlayerOnMove.moveStart > game.config.playerMoveTime * 1000) {
+//            nextPlayerMove(
+//                currentPlayerOnMove.uuid,
+//                // if he can check he will check, otherwise he will fold
+//                if(currentPlayerOnMove.currentBet == game.targetBet)
+//                    PlayerAction(PlayerAction.Action.CHECK, null, null)
+//                else {
+//                    PlayerAction(PlayerAction.Action.FOLD, null, null)
+//                }
+//            )
+//        }
     }
 
     fun rebuy(playerUuid: String) =
