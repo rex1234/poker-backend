@@ -116,15 +116,15 @@ function print(data) {
 
 function printPlayers(data) {
     var pot = data.user.currentBet;
-    var players = [[1, data.user.currentBet === data.smallBlind]];
+    var players = [[1, data.user.dealer]];
 
     $("#player1 .player-name").html(data.user.name);
     $("#player1 .player-chips").html(data.user.chips-data.user.currentBet);
     $("#player1 .bet").html(data.user.currentBet);
     if(data.user.cards.length > 0) {
         var cards = data.user.cards.split(" ");
-        $("#player1 .card-1").html(cards[0]);
-        $("#player1 .card-2").html(cards[1]);
+        $("#player1 .card-1").html('<img src="img/cards/' + cards[0] +'.svg"/>');
+        $("#player1 .card-2").html('<img src="img/cards/' +cards[1] +'.svg"/>');
     }
     if(data.user.onMove) {
         $("#player1").addClass("active");
@@ -143,7 +143,7 @@ function printPlayers(data) {
          }
          positions[position-1] = 1;
 
-         players.push([position, data.players[i].currentBet === data.smallBlind]);
+         players.push([position, data.players[i].dealer]);
          if(data.players[i].onMove) {
                 $("#player"+ position +" .player-name").addClass("active");
          } else {
@@ -164,9 +164,9 @@ function printPlayers(data) {
     }
 
     //show controls
-    if(data.user.onMove === true) {
+    if(data.user.onMove === true && data.roundState !== "finished") {
         //show fold if cannot check
-        var currentBet = checkCurrentBet(data);
+        var currentBet = checkHighestBet(data);
 
         if(currentBet > data.user.currentBet) {
             $("#fold").removeClass("disabled");
@@ -187,23 +187,35 @@ function printPlayers(data) {
         if(currentBet < data.user.chips) {
              $("#raise").removeClass("disabled");
              var minRaise = getMinRaiseValue(data);
-             $("#raise").attr("onclick", "gameRaise("+ (minRaise - data.user.currentBet) +")");
+             var raise = minRaise - data.user.currentBet;
+             console.log("raise: " + raise + ", raiseTo: " + minRaise);
+
+             $("#raise").attr("onclick", "gameRaise("+ raise +")");
              $("#raise").html("Raise to<br>"+minRaise);
              $(".raise-slider").removeClass("disabled");
 
+            //affect slider and input accordingly
              $(".raise-input").attr({
-                "min": minRaise,
-                "max": data.user.chips,
-                "value": minRaise
+                "min": raise + data.user.currentBet,
+                "max": data.user.chips - data.user.currentBet,
+                "value": raise
              });
 
              var attributes = {
-                 min: minRaise,
-                 max: data.user.chips,
-                 step: minRaise
+                 min: raise + data.user.currentBet,
+                 max: data.user.chips - data.user.currentBet,
+                 step: 1
                };
              $('input[type="range"]').attr(attributes);
              $('input[type="range"]').rangeslider('update', true);
+
+             $(".raise-input").on('keyup', function(e) {
+               var $inputRange = $('[data-rangeslider]', e.target.parentNode);
+               var value = $('input[type="number"]', e.target.parentNode)[0].value;
+               $("#raise").attr("onclick", "gameRaise("+ (value - data.user.currentBet) +")");
+               $("#raise").html("Raise to<br>" + value);
+               $inputRange .val(value) .change();
+             });
 
         }
 
@@ -227,25 +239,41 @@ function printPlayers(data) {
     //Determine, who is the Dealer
     players.sort();
     var dealer;
-    for(i = 0; i < players.length; i++) {
-        if(i+1 >= players.length && players[i][1] === true) {
-              dealer = players[0][0];
-         } else if(players[i][1] === true) {
-              dealer = players[i+1][0];
-         }
-        if(players[i][1] === true) {
+        for(i = 0; i < players.length; i++) {
+            if(players[i][1] === true) {
+                    dealer = players[i][0];
+            }
             $("#player"+ players[i][0] +" .dealer").removeClass("is-dealer");
         }
-    }
     $("#player"+ dealer +" .dealer").addClass("is-dealer");
 
 
-     $(".dealt-cards").html(data.cards);
+    var cards = data.cards.split(" ");
+    cards.reverse();
+    console.log(cards.length);
+
+    //delete cards from previous game
+    if(cards[0] === "") {
+        $(".dealt-cards-1").html("");
+        $(".dealt-cards-2").html("");
+        $(".dealt-cards-3").html("");
+        $(".dealt-cards-4").html("");
+        $(".dealt-cards-5").html("");
+    }
+
+     if(cards[2] !== undefined) {
+        $(".dealt-cards-1").html('<img src="img/cards/' + cards[0] +'.svg"/>');
+        $(".dealt-cards-2").html('<img src="img/cards/' + cards[1] +'.svg"/>');
+        $(".dealt-cards-3").html('<img src="img/cards/' + cards[2] +'.svg"/>');
+      }
+
+     if(cards[3] !== undefined) { $(".dealt-cards-4").html('<img src="img/cards/' + cards[3] +'.svg"/>'); }
+     if(cards[4] !== undefined) { $(".dealt-cards-5").html('<img src="img/cards/' + cards[4] +'.svg"/>'); }
      $(".pot").html(pot);
 }
 
-//checks current bet on a street
-function checkCurrentBet(data) {
+//checks highest bet on a street
+function checkHighestBet(data) {
     var result = 0;
     for(i = 0; i < data.players.length; i++) {
         result = Math.max(result, data.players[i].currentBet);
@@ -259,17 +287,49 @@ function getMinRaiseValue(data) {
     for(i = 0; i < data.players.length; i++) {
         arr.push(data.players[i].currentBet);
     }
-    arr.sort();
-    return arr[arr.length-1] - arr[arr.length-2];
+    arr = sortUnique(arr);
+
+    //TODO skipping blinds
+
+   if(arr.length === 0) {
+        return data.smallBlind*2;
+    }
+
+    //PREFLOP: everyone called BB
+    if(data.user.currentBet === data.smallBlind*2 && arr.length === 1) {
+        return data.smallBlind*2;
+    }
+
+    //POST FLOP + PREFLOP: basis raise *2 previous jump
+
+    if(arr.length >= 2) {
+        return Math.max(4*data.smallBlind, arr[arr.length-1] + (arr[arr.length-1] - arr[arr.length-2]));
+    }
+
+    return ;
 }
+
 
 //returns 0 if preflop
 //returns bet on the previous street per player still in the game
 function previousStreetBet(data) {
     var result = 0;
+    var pot = 0;
     for(i = 0; i < data.players.length; i++) {
         data.players[i].
         result = Math.max(result, data.players[i].currentBet);
     }
 }
 
+//sort array and remove duplicate values
+function sortUnique(arr) {
+  if (arr.length === 0) return arr;
+  arr = arr.sort(function (a, b) { return a*1 - b*1; });
+  var ret = [arr[0]];
+  for (var i = 1; i < arr.length; i++) { //Start loop at 1: arr[0] can never be a duplicate
+    if (arr[i-1] !== arr[i]) {
+      ret.push(arr[i]);
+    }
+  }
+  return ret;
+}

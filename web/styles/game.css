@@ -185,7 +185,7 @@ body {
     background-color: #ffffff;
 }
 
-#player1.active .card-1, #player1.active .card-2  {
+#player1 .card-1, #player1 .card-2  {
     top: -40px;
     background-color: #ffffff;
 }
@@ -359,6 +359,37 @@ body {
     width: 724px;
     height: 79px;
 }
+
+.dealer {
+    position: absolute;
+    visibility: hidden;
+    width: 21px;
+    height: 21px;
+    background-color: #ffffff;
+    -webkit-border-radius: 11px;
+    -moz-border-radius: 11px;
+    border-radius: 11px;
+    font-family: 'Public Sans', sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: #000000;
+    text-align: center;
+    line-height: 20px;
+}
+
+.dealer.is-dealer {
+    visibility: visible;
+}
+
+#player1 .dealer { left: -25px; top: 0px;}
+#player2 .dealer { left: 208px; top: 10px;}
+#player3 .dealer { left: 208px; top: 94px;}
+#player4 .dealer { left: 200px; top: 120px;}
+#player5 .dealer { left: 20px; top: 155px;}
+#player6 .dealer { left: 114px; top: 155px;}
+#player7 .dealer { left: -50px; top: 120px;}
+#player8 .dealer { left: -74px; top: 94px;}
+#player9 .dealer { left: -64px; top: 10px;}
 
 .controls button {
     position: absolute;
