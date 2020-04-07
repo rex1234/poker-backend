@@ -20,7 +20,9 @@ class GameResponse(
         val winningCards: String?,
         val nextBlinds: Long,
         val smallBlind: Int,
-        val bigBlind: Int
+        val bigBlind: Int,
+        val targetBet: Int,
+        var previousTargetBet: Int
     )
 
     class PlayerState(
@@ -60,7 +62,9 @@ class GameResponse(
                     nextBlinds = game.nextBlinds,
                     players = (game.players - player).map {
                         it.playerState(false, game)
-                    }
+                    },
+                    targetBet = game.targetBet,
+                    previousTargetBet = game.previousTargetBet
                 )
 
             fun Player.playerState(forSelf: Boolean, game: Game) = PlayerState(
