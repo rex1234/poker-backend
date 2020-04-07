@@ -512,7 +512,6 @@ body {
     height: 47px;
     border: none;
     background-color: #151515;
-    font-size: ;
     font-family: 'Public Sans', sans-serif;
     font-size: 16px;
     color: #ffffff;
@@ -529,4 +528,223 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type=number] {
   -moz-appearance: textfield;
+}
+
+/*
+/*
+/* Landing screen */
+
+#settings {
+    display: flex;
+    align-items: flex-start;
+    padding: 30px;
+    justify-content: center;
+}
+
+#settings>div {
+    text-align: center;
+}
+
+#joinGame {
+    width: 260px;
+    border: 2px solid #ffffff;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    margin-right: 60px;
+    flex-shrink: 0;
+    transition: border-color 0.6s ease;
+}
+
+#createGame {
+    border: 2px solid #ffffff;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    max-width: 720px;
+    transition: border-color 0.6s ease;
+    padding: 0 15px;
+}
+
+.input-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+h2 {
+    font-size: 26px;
+    font-weight: normal;
+    margin: 28px 0 31px 0;
+    -webkit-transition: color 0.6s ease;
+    -moz-transition: color 0.6s ease;
+    -o-transition: color 0.6s ease;
+    transition: color 0.6s ease;
+}
+
+#settings .label {
+    width: 100%;
+    text-align: center;
+    text-transform: uppercase;
+    margin-bottom: -10px;
+    position: relative;
+    z-index: 1;
+    font-size: 12px;
+    color: #BBBBBB;
+    -webkit-transition: all 0.6s ease;
+    -moz-transition: all 0.6s ease;
+    -o-transition: all 0.6s ease;
+    transition: all 0.6s ease;
+}
+
+#settings label {
+    background-color:#151515;
+    padding: 0 6px;
+}
+
+#settings .input-main {
+    width: 200px;    
+    padding-right: 4px;
+}
+
+#joinGame .input-main {
+    margin: 0 auto;
+}
+
+#createGame .input-main {
+    margin: 0 15px;
+}
+
+
+#settings input {
+    width: 100%;
+    height: 44px;
+    border: 2px solid #2F06FC;
+    background-color: #151515;
+    color: #ffffff;
+    font-size: 16px;
+    padding-top: 5px;
+    font-family: 'Public Sans', sans-serif;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    margin-bottom: 26px;
+    text-align: center;
+    outline: none;
+    -webkit-transition: all 0.6s ease;
+    -moz-transition: all 0.6s ease;
+    -o-transition: all 0.6s ease;
+    transition: all 0.6s ease;
+}
+
+#settings .input-main.clicked input{
+    border-color: #ffffff;
+}
+
+#settings .input-main:hover input{
+    border-color: #ffffff;
+}
+
+#settings .input-main.clicked .label{
+    color: #ffffff;
+}
+
+#settings .input-main .clicked-label {
+    color: #ffffff;
+}
+
+#settings button {
+    height: 49px;
+    background-color: #2F06FC;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    font-family: 'Public Sans', sans-serif;
+    font-size: 16px;
+    color: #ffffff;
+    padding: 0;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 0 20px;
+    margin-top: 4px;
+    margin-bottom: 30px;
+    -webkit-transition: all 0.6s ease;
+    -moz-transition: all 0.6s ease;
+    -o-transition: all 0.6s ease;
+    transition: all 0.6s ease;
+}
+
+#settings button:hover, #settings button:focus {
+    background-color: #363CFF;
+    box-shadow: 0px 4px 30px #2F06FC;
+}
+
+#settings button:active {
+    background-color:#2500DC;
+    box-shadow: 0px 2px 15px #2F06FC;
+}
+
+.advanced-settings {
+    color: #BBBBBB;
+    width: 300px;
+    margin: 17px auto 43px auto;
+}
+
+.advanced-settings:hover {
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.plus-icon {
+    height: 20px;
+    padding: 0 6px;
+    background-color: #2F06FC;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    border-radius: 50%;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 20px;
+    margin-right: 10px;
+    -webkit-transition: all 0.6s ease;
+    -moz-transition: all 0.6s ease;
+    -o-transition: all 0.6s ease;
+    transition: all 0.6s ease;
+}
+
+#createGame p {
+    color: #BBBBBB;
+    -webkit-transition: all 0.6s ease;
+    -moz-transition: all 0.6s ease;
+    -o-transition: all 0.6s ease;
+    transition: all 0.6s ease;
+    line-height: 24px;
+    margin: 4px 0 28px 0;
+}
+
+.unfocused#createGame p{
+    color: #484848 !important;
+}
+
+.unfocused {
+    border-color: #484848 !important;
+}
+
+.unfocused input{
+    border-color: #484848 !important;
+    color: #484848 !important;
+}
+
+.unfocused h2{
+    color: #484848 !important;
+}
+
+.unfocused button{
+    background-color: #484848 !important;
+    color: #bbbbbb !important;
+}
+
+.unfocused .plus-icon {
+    background-color: #484848 !important;
+    color: #bbbbbb !important;
 }

@@ -1,10 +1,7 @@
-
-
-$( "#joinGame button" ).click(function() {
-  connectToGame($('#userid').val(), $('#gameid').val());
-  $("#controls").hide();
+$( "#joinGame button").click(function() {
+  connectToGame($('#userid-join').val(), $('#gameid').val());
+  $("#settings").hide();
   $(".game-container").show();
-  $("#start").hide();
 });
 
 $( "#createGame button" ).click(function() {
@@ -13,11 +10,11 @@ $( "#createGame button" ).click(function() {
         startingBlinds: $("#startingBlinds").val(),
         blindIncreaseTime: $("#blindIncreaseTime").val(),
         playerMoveTime: $("#playerMoveTime").val(),
-        rebuyTime: 720
+        rebuyTime: $("#lateReg").val()
    }
-  createGame($('#userid').val(), gameConfig);
+  createGame($('#userid-create').val(), gameConfig);
 
-  $("#controls").hide();
+  $("#settings").hide();
   $(".game-container").show();
   $("#start").show();
 });
@@ -41,3 +38,55 @@ $('input[type="range"]').rangeslider({
                    $("#raise").attr("onclick", "gameRaise("+ (value - $("#player1 .bet").html()) +")");
                }
  });
+
+ //Settings
+ $("#createGame").hover(
+  function() {$("#createGame").removeClass("unfocused");
+  $("#joinGame").addClass("unfocused")}
+ )
+
+ $("#joinGame").hover(
+  function() {$("#joinGame").removeClass("unfocused");
+  $("#createGame").addClass("unfocused")}
+ )
+
+  //Keyboard focus by tab
+$('#joinGame').on('keyup', checkFocused)         
+  function checkFocused() {
+    $("#joinGame").removeClass("unfocused");
+    $("#createGame").addClass("unfocused");
+};   
+
+$('#createGame').on('keyup', checkFocused2)         
+  function checkFocused2() {
+    $("#createGame").removeClass("unfocused");
+    $("#joinGame").addClass("unfocused");
+};   
+
+
+//coloring inputs
+
+$(".input-main input").focus (function () {
+  $(this).parent().addClass("clicked");
+});
+
+$(".input-main input").blur (function () {
+  $(this).parent().removeClass("clicked");
+});
+
+$(".input-main").hover(
+  function() {
+    $(this).find(".label").addClass("clicked-label");
+  },
+  function() {
+    $(this).find(".label").removeClass("clicked-label")
+  }
+ )
+
+//advanced settings
+$( ".advanced-settings" ).click(function() {
+  $(".advanced-settings").hide();
+  $(".advanced-inputs").show();
+});
+
+//TODO add input validation
