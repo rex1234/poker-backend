@@ -28,15 +28,16 @@ socket.on('gameDisbanded', function () {
 
 // outbound events
 
-function createGame(nickname) {
+function createGame(nickname, sc, sb, bi, pm, rt) {
     socket.emit("connectGame", {
         name: nickname,
         playerUUID: Cookies.get('player_uuid'),
         gameConfig: {
-            startingChips: 25000,
-            startingBlinds: 20,
-            blindIncreaseTime: 720,
-            playerMoveTime: 12,
+            startingChips: sc,
+            startingBlinds: sb,
+            blindIncreaseTime: bi,
+            playerMoveTime: pm,
+            rebuyTime: rt
         }
     });
 }
@@ -119,8 +120,8 @@ function printPlayers(data) {
     var players = [[1, data.user.dealer]];
 
     $("#player1 .player-name").html(data.user.name);
-    $("#player1 .player-chips").html(data.user.chips-data.user.currentBet);
-    $("#player1 .bet").html(data.user.currentBet);
+    $("#player1 .player-chips").html(data.user.chips - data.user.currentBet);
+    $("#player1 .bet").html(data.user.currentBet - data.previousTargetBet);
     if(data.user.cards.length > 0) {
         var cards = data.user.cards.split(" ");
         $("#player1 .card-1").html('<img src="img/cards/' + cards[0] +'.svg"/>');
@@ -151,7 +152,7 @@ function printPlayers(data) {
          }
         $("#player"+ position +" .player-name").html(data.players[i].name);
         $("#player"+ position +" .player-chips").html(data.players[i].chips-data.players[i].currentBet);
-        $("#player"+ position +" .bet").html(data.players[i].currentBet);
+        $("#player"+ position +" .bet").html(data.players[i].currentBet - data.previousTargetBet);
         if(data.players[i].cards != null) {
             if(data.players[i].cards.length > 0) {
                 var cards = data.players[i].cards.split(" ");
@@ -186,36 +187,45 @@ function printPlayers(data) {
         //show raise if can TODO
         if(currentBet < data.user.chips) {
              $("#raise").removeClass("disabled");
-             var minRaise = getMinRaiseValue(data);
-             var raise = minRaise - data.user.currentBet;
-             console.log("raise: " + raise + ", raiseTo: " + minRaise);
+             var raiseTo = getMinRaiseValue(data);
+             var raiseBy = raiseTo - (data.user.currentBet - data.previousTargetBet);
+             console.log("raiseTo: " + raiseTo + ", raiseBy: " + raiseBy + ", currentBet: " + data.user.currentBet + ", data.previousTargetBet: " + data.previousTargetBet);
 
-             $("#raise").attr("onclick", "gameRaise("+ raise +")");
-             $("#raise").html("Raise to<br>"+minRaise);
-             $(".raise-slider").removeClass("disabled");
+              $("#raise").attr("onclick", "gameRaise("+ raiseBy +")");
+              $("#raise").html("Raise to<br>"+raiseTo);
+              $(".raise-slider").removeClass("disabled");
 
             //affect slider and input accordingly
              $(".raise-input").attr({
-                "min": raise + data.user.currentBet,
+                "min": 1,
                 "max": data.user.chips - data.user.currentBet,
-                "value": raise
+                "value": raiseTo
              });
 
-             var attributes = {
-                 min: raise + data.user.currentBet,
-                 max: data.user.chips - data.user.currentBet,
-                 step: 1
-               };
-             $('input[type="range"]').attr(attributes);
-             $('input[type="range"]').rangeslider('update', true);
+             $(".raise-input").val(raiseTo);
 
              $(".raise-input").on('keyup', function(e) {
                var $inputRange = $('[data-rangeslider]', e.target.parentNode);
                var value = $('input[type="number"]', e.target.parentNode)[0].value;
-               $("#raise").attr("onclick", "gameRaise("+ (value - data.user.currentBet) +")");
+               $("#raise").attr("onclick", "gameRaise("+ Math.max(raiseTo , value) - data.user.currentBet +")");
                $("#raise").html("Raise to<br>" + value);
+               if (value == '') {
+                    value = 0;
+               }
                $inputRange .val(value) .change();
              });
+
+            var attributes = {
+                 min: raiseTo,
+                 max: data.user.chips - data.user.currentBet,
+                 step: 1
+               };
+             $('input[type="range"]').attr(attributes);
+             $('input[type="range"]').val(raiseTo).change();
+             $('input[type="range"]').rangeslider('update', true);
+
+
+
 
         }
 
@@ -283,16 +293,18 @@ function checkHighestBet(data) {
 
 //calculates min-raise
 function getMinRaiseValue(data) {
-    var arr = [data.user.currentBet];
+    var arr = [data.user.currentBet - data.previousTargetBet];
     for(i = 0; i < data.players.length; i++) {
-        arr.push(data.players[i].currentBet);
+        arr.push(data.players[i].currentBet - data.previousTargetBet);
     }
     arr = sortUnique(arr);
 
     //TODO skipping blinds
 
-   if(arr.length === 0) {
-        return data.smallBlind*2;
+    console.log(arr);
+
+   if(arr.length <= 1) {
+        return Math.max(data.smallBlind*2, arr[0]*2);
     }
 
     //PREFLOP: everyone called BB
@@ -301,12 +313,10 @@ function getMinRaiseValue(data) {
     }
 
     //POST FLOP + PREFLOP: basis raise *2 previous jump
-
     if(arr.length >= 2) {
         return Math.max(4*data.smallBlind, arr[arr.length-1] + (arr[arr.length-1] - arr[arr.length-2]));
     }
 
-    return ;
 }
 
 

@@ -12,7 +12,7 @@ $( "#createGame button" ).click(function() {
         playerMoveTime: $("#playerMoveTime").val(),
         rebuyTime: $("#lateReg").val()
    }
-  createGame($('#userid-create').val(), gameConfig);
+  createGame($('#userid-create').val(), gameConfig.startingChips, gameConfig.startingBlinds, gameConfig.blindIncreaseTime, gameConfig.playerMoveTime, gameConfig.rebuyTime);
 
   $("#settings").hide();
   $(".game-container").show();
@@ -34,7 +34,10 @@ $('input[type="range"]').rangeslider({
   },
    onSlide : function( position, value) {
                    $("#raise").html("Raise to<br>" + value);
-                   $(".raise-input").val(value);
+                        if(parseInt($(".raise-input").val()) > $('input[type="range"]').attr("min")) {
+                        console.log("test");
+                            $(".raise-input").val(value);
+                        }
                    $("#raise").attr("onclick", "gameRaise("+ (value - $("#player1 .bet").html()) +")");
                }
  });

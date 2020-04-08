@@ -190,10 +190,11 @@ class HoldemTournamentGameEngine(
             // raise and reset other players' actions
             PlayerAction.Action.RAISE -> {
                 val raiseAmount = playerAction.numericValue!!
-                if (raiseAmount > game.smallBlind) {// TODO: implement raise rules
-                    if (player.chips - player.currentBet > raiseAmount) {
-                        player.currentBet += raiseAmount
-                        game.targetBet += raiseAmount
+                if (raiseAmount >= game.smallBlind*2) {// TODO: implement raise rules
+                    if (player.chips - player.currentBet >= raiseAmount) {
+                        game.targetBet = player.currentBet + raiseAmount
+                        player.currentBet = game.targetBet
+
 
                         // we reset other player's action so they have to go again on this street
                         (game.players - player).forEach {
