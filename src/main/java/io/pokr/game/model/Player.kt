@@ -26,6 +26,14 @@ class Player(
 
     var showCards = false
 
+    fun startMove() {
+        isOnMove = true
+        moveStart = System.currentTimeMillis()
+    }
+
+    val isAllIn
+        get() = chips - currentBet == 0
+
     override fun equals(other: Any?): Boolean {
         return other is Player && uuid == other.uuid
     }

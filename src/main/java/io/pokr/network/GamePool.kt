@@ -145,7 +145,7 @@ class GamePool {
 
         val gameEngine = gameEngines[gameSession]!!
 
-        val player = gameEngine.game.players.firstOrNull { it.uuid == playerSession.uuid }
+        val player = gameEngine.game.allPlayers.firstOrNull { it.uuid == playerSession.uuid }
         System.err.println("Executing action {$action} on player ${player?.name} [${gameSession.uuid}]")
 
         when(action.action) {
@@ -184,7 +184,7 @@ class GamePool {
         val playerSession = gameSession.playerSessions.first { it.uuid == playerUuid}
 
         val game = gameEngines[gameSession]!!.game
-        val player = game.players.first { it.uuid == playerSession.uuid }
+        val player = game.allPlayers.first { it.uuid == playerSession.uuid }
 
         return Pair(game, player)
     }

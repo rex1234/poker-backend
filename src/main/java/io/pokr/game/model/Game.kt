@@ -17,7 +17,7 @@ class Game constructor(
     }
 
     var gameState: State = State.CREATED
-    var players = mutableListOf<Player>()
+    var allPlayers = mutableListOf<Player>()
     var targetBet = 0
     var previousTargetBet = 0 // FOR FE purposes
     var smallBlind = 0
@@ -43,20 +43,32 @@ class Game constructor(
 
     var winningCards: CardList? = null
 
+    // players active in the current game
+    val players
+        get() = allPlayers.filter { !it.isFinished }
+
+    // players active in the current round (players that can still play in the street)
     val activePlayers
-        get() = players.filter { !it.isFinished && it.action != PlayerAction.Action.FOLD && it.chips - it.currentBet > 0 }
+        get() = players.filter { it.action != PlayerAction.Action.FOLD && !it.isAllIn }
 
     val currentDealer
-        get() = players.first { it.isDealer }
+        get() = allPlayers.first { it.isDealer }
 
     val nextDealer
-        get() = (activePlayers + activePlayers).run { get(indexOf(currentDealer) + 1) }
+        get() = (players + players).run { get(indexOf(currentDealer) + 1) }
 
     val currentPlayerOnMove
-        get() = players.first { it.isOnMove }
+        get() = allPlayers.first { it.isOnMove }
 
     val nextPlayerOnMove
-        get() = (activePlayers + activePlayers).run { get(indexOf(currentPlayerOnMove) + 1) }
+        get() = (players + players).run {
+            for(i in indexOf(currentPlayerOnMove) + 1 until size)
+            if(get(i) in activePlayers) {
+                return@run get(i)
+            }
+            return@run get(0)
+        }
+
 
     fun pause(pause: Boolean) {
         if(pause) {

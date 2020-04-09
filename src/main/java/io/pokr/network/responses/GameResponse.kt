@@ -1,6 +1,7 @@
 package io.pokr.network.responses
 
 import io.pokr.game.model.Game
+import io.pokr.game.model.GameConfig
 import io.pokr.game.model.Player
 
 class GameResponse(
@@ -9,6 +10,7 @@ class GameResponse(
 
     class GameState(
         val uuid: String,
+        val config: GameConfig,
         val state: String,
         val gameStart: Long?,
         val roundState: String,
@@ -49,6 +51,7 @@ class GameResponse(
             fun from(game: Game, player: Player) =
                 GameState(
                     uuid = game.uuid,
+                    config = game.config,
                     state = game.gameState.toString().toLowerCase(),
                     gameStart =  if(game.gameState == Game.State.ACTIVE) game.gameStart else null,
                     round = game.round,
@@ -56,11 +59,11 @@ class GameResponse(
                     user = player.playerState(true, game),
                     cards = if(game.gameState == Game.State.ACTIVE) game.tableCards.toString() else "",
                     winningCards = game.winningCards?.toString(),
-                    pot = game.players.sumBy { it.currentBet },
+                    pot = game.allPlayers.sumBy { it.currentBet },
                     smallBlind = game.smallBlind,
                     bigBlind = game.bigBlind,
                     nextBlinds = game.nextBlinds,
-                    players = (game.players - player).map {
+                    players = (game.allPlayers - player).map {
                         it.playerState(false, game)
                     },
                     targetBet = game.targetBet,
