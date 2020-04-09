@@ -16,10 +16,6 @@
     height: 40px;
 }
 
-.onMove {
-    font-weight: bold;
-}
-
 .game {
     display: none;
 }
@@ -64,13 +60,14 @@ body {
 
 .info-box {
     position: absolute;
+    z-index: 10;
     top: 60px;
     width: 100%;
     height: 60px;
     -webkit-border-radius: 6px;
     -moz-border-radius: 6px;
     border-radius: 6px;
-    border: 2px solid #FFFFFF;
+    border: 2px solid #BBBBBB;
     background-color: #151515;
 }
 
@@ -81,28 +78,56 @@ body {
 .player-timer-bg {
     visibility: hidden;
     width: 100%;
-    height: 4px;
+    height: 5px;
     border-radius: 4px 4px 0 0;
-    background: #707070;
+    background: #151515;
 }
 
 .player-timer-running {
     visibility: hidden;
-    width: 60%;
-    height: 4px;
-    margin-top: -4px;
+    width: 100%;
+    height: 5px;
+    margin-top: -5px;
     border-radius: 4px 0 0 0;
     background: #2F06FC;
 }
 
-.active .player-timer-bg {
+.onMove .player-timer-bg {
     visibility: visible;
-    background: #707070;
+    background: #151515;
 }
 
-.active .player-timer-running {
+.onMove .player-timer-running {
     visibility: visible;
     background: #2F06FC;
+}
+
+.onMove .info-box {
+border: 2px solid #FFFFFF;
+box-shadow: 0px 0px 30px #2F06FC, 0px 0px 10px #8BEBFF;
+transition: box-shadow 0.3s ease;
+}
+
+.rfinished.onMove .info-box, .fold .info-box, #player1.fold .glow-box, #player1 .info-box {
+    box-shadow: none !important;
+}
+
+.glow-box {
+    position: absolute;
+        z-index: -10;
+        top: 60px;
+        width: 100%;
+        height: 60px;
+        -webkit-border-radius: 6px;
+        -moz-border-radius: 6px;
+        border-radius: 6px;
+        border: 2px solid #BBBBBB;
+        background-color: #151515;
+}
+
+.onMove .glow-box {
+box-shadow: 0px 0px 30px #2F06FC, 0px 0px 10px #8BEBFF;
+transition: box-shadow 0.3s ease;
 }
 
 .player-name {
@@ -110,6 +135,15 @@ body {
     letter-spacing: 0px;
     color: #BBBBBB;
     padding-top: 2px;
+    height: 19px;
+}
+
+#player1.onMove .card-crop {
+    visibility: hidden;
+}
+
+#player1.fold .card-crop{
+    visibility: visible;
 }
 
 
@@ -181,7 +215,8 @@ body {
     left: 74px;
 }
 
-.active .card-1, .active .card-2  {
+
+.onMove .card-1, .onMove .card-2  {
     background-color: #ffffff;
 }
 
@@ -189,6 +224,53 @@ body {
     top: -40px;
     background-color: #ffffff;
 }
+
+.rfinished.check .card-1, .rfinished.check .card-2, .rfinished.call .card-1, .rfinished.call .card-2, .rfinished.raise .card-1, .rfinished.raise .card-2 {
+    top: -40px !important;
+    background-image: none;
+}
+
+.fold .card-1, .fold .card-2, .fold .player-timer-running, .fold .player-timer-bg {
+    visibility: hidden;
+}
+
+.fold .info-box {
+    border-color: #484848;
+}
+
+.fold .player-chips, .fold .player-name{
+ color: #484848;
+}
+
+#player1.fold .card-1, #player1.fold .card-2 {
+    visibility: visible;
+    background-image: url("../img/cards/not-active-player.svg");
+    position: absolute;
+    width: 67px;
+    top: -14px;
+    height: 105px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    background-color: #484848;
+}
+
+#player1.fold .card-1 img, #player1.fold .card-2 img {
+    display: none;
+}
+
+#player1.fold:hover .card-1 img, #player1.fold:hover .card-2 img {
+    display: block;
+}
+
+#player1.fold:hover .card-1, #player1.fold:hover .card-2 {
+    top: -40px;
+}
+
+.card-1, .card-2 {
+    transition: top 0.6s ease;
+}
+
 
 .card-crop {
     position: relative;
@@ -391,7 +473,24 @@ body {
 #player8 .dealer { left: -74px; top: 94px;}
 #player9 .dealer { left: -64px; top: 10px;}
 
-.controls button {
+
+.active .card-1, .active .card-2 {
+    background-image: url("../img/cards/not-active.svg");
+}
+
+.onMove .card-1, .onMove .card-2  {
+    background-image: url("../img/cards/active.svg");
+}
+
+.created .cards {
+    visibility: hidden;
+}
+
+.created .info-box {
+    border-color: #bbbbbb;
+}
+
+.controls button, #start  {
     position: absolute;
     width: 92px;
     height: 49px;
@@ -408,14 +507,31 @@ body {
     cursor: pointer;
 }
 
-.controls button:hover {
+.controls button:hover, #start:hover {
     background-color: #363CFF;
     box-shadow: 0px 4px 30px #2F06FC;
 }
 
-.controls button:active {
+.controls button:active, #start:active {
     background-color:#2500DC;
     box-shadow: 0px 2px 15px #2F06FC;
+}
+
+#start {
+   width: 200px;
+}
+
+.pregame {
+   position: relative;
+   z-index: 5;
+   top: 273px;
+   left: 414px;
+}
+
+.pregame span {
+    position: absolute;
+    top: 15px;
+    left: 6px;
 }
 
 #call {

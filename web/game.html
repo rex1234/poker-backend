@@ -58,7 +58,7 @@
                 </div>
                 <div class="input-main">
                     <div class="label"><label for="playerMoveTime">Time to action</label></div>
-                    <input id="playerMoveTime" type="number" name="playerMoveTime" value="60">
+                    <input id="playerMoveTime" type="number" name="playerMoveTime" value="30">
                 </div>
             </div>
             <div class="input-wrapper">
@@ -81,10 +81,11 @@
 
 
 
-
-<button id="start" style="display:none;">Shuffle up and deal!</button>
-
     <div class="game-container" style="display:none;">
+        <div class="pregame" style="display:none;">
+            <span>Waiting for your friends :*</span>
+            <button id="start" style="display:none;">Shuffle up and deal!</button>
+        </div>
         <div class="players">
             <div id="player1">
                 <div class="dealer">D</div>
@@ -104,6 +105,7 @@
                         <div class="player-rebuys">2</div>
                     </div>
                 </div>
+                <div class="glow-box"></div>
             </div>
             <div id="player2">
                 <div class="dealer">D</div>
@@ -272,9 +274,9 @@
 
         <div class="controls">
             <button id="fold" onclick="gameFold()" class="disabled">Fold</button>
-            <button id="call" onclick="gameCall()" class="disabled">Call<br>160</button>
+            <button id="call" onclick="gameCall()" class="disabled"></button>
             <button id="check" onclick="gameCheck()" class="disabled">Check</button>
-            <button id="raise"  class="disabled">Raise to<br>280</button>
+            <button id="raise" type="submit" class="disabled"></button>
 
             <div class="raise-slider disabled" >
                 <input type="number" min="1" max="100" value="10" class="raise-input">

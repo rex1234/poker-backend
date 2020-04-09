@@ -16,31 +16,21 @@ $( "#createGame button" ).click(function() {
 
   $("#settings").hide();
   $(".game-container").show();
-  $("#start").show();
+  $(".pregame").show();
 });
 
 $( "#start" ).click(function() {
-    startGame();
-  $("#start").hide();
+  startGame();
+  $(".pregame").hide();
 });
 
-//Slider + input functionality
 
-$('input[type="range"]').rangeslider({
-  polyfill : false,
-  onInit : function() {
-    $("#raise").html( "Raise to<br>" + this.$element.val() );
-    $(".raise-input").val(this.$element.val());
-  },
-   onSlide : function( position, value) {
-                   $("#raise").html("Raise to<br>" + value);
-                        if(parseInt($(".raise-input").val()) > $('input[type="range"]').attr("min")) {
-                        console.log("test");
-                            $(".raise-input").val(value);
-                        }
-                   $("#raise").attr("onclick", "gameRaise("+ (value - $("#player1 .bet").html()) +")");
-               }
- });
+//raise on enter
+$(document).bind('keypress', function(e) {
+    if(e.keyCode==13){
+        $('#raise').trigger('click');
+    }
+});
 
  //Settings
  $("#createGame").hover(
@@ -91,5 +81,42 @@ $( ".advanced-settings" ).click(function() {
   $(".advanced-settings").hide();
   $(".advanced-inputs").show();
 });
+
+function playerCountdown(start, playerPosition, cards) {
+     var x = 0;
+     var intervalID = setInterval(function () {
+
+        var limit = $("#playerMoveTime").val();
+        var d = new Date();
+        var now = d.getTime();
+        var prc = 100 - 100*((now - start)/(limit*1000));
+        var crd = cards.split(" ");
+
+        var crdflop = $(".dealt-cards-1").html().charAt(20) + $(".dealt-cards-1").html().charAt(21);
+        var crdturn = $(".dealt-cards-4").html().charAt(20) + $(".dealt-cards-4").html().charAt(21);
+        var crdriver = $(".dealt-cards-5").html().charAt(20) + $(".dealt-cards-5").html().charAt(21);
+
+        $("#player" + playerPosition + " .player-timer-running").css( "width", prc + "%" );
+        if(prc < 25) {
+            $("#player" + playerPosition + " .player-timer-running").css( "background-color", "#FF5500" );
+        } else if(prc < 50) {
+            $("#player" + playerPosition + " .player-timer-running").css( "background-color", "#FFCC00" );
+        } else {
+            $("#player" + playerPosition + " .player-timer-running").css( "background-color", "#2F06FC" );
+        }
+
+        var cardsCheck = false;
+        if (crd[crd.length-1] !== crdflop) {
+            cardsCheck = true;
+        }
+
+
+        if (++x === limit*5 || $("#player" + playerPosition).hasClass("none") === false || $("#player" + playerPosition).hasClass("onMove") === false || cardsCheck || prc < 1) {
+            window.clearInterval(intervalID);
+        }
+     }, 200);
+}
+
+
 
 //TODO add input validation

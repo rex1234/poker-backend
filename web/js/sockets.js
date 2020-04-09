@@ -115,7 +115,10 @@ function print(data) {
     //document.getElementById("content").innerHTML = JSON.stringify(data)
 }
 
+//TODO refactor, split into multiple functions
 function printPlayers(data) {
+    giveCSSClasses(data, 1, -1);
+
     var pot = data.user.currentBet;
     var players = [[1, data.user.dealer]];
 
@@ -127,15 +130,20 @@ function printPlayers(data) {
         $("#player1 .card-1").html('<img src="img/cards/' + cards[0] +'.svg"/>');
         $("#player1 .card-2").html('<img src="img/cards/' +cards[1] +'.svg"/>');
     }
-    if(data.user.onMove) {
-        $("#player1").addClass("active");
-    } else {
-         $("#player1").removeClass("active");
-    }
 
     var positions = [1,0,0,0,0,0,0,0,0];
 
+    //timer functionality
+    if(data.user.onMove) {
+        playerCountdown(data.user.moveStart, 1, data.cards);
+    }
+
     for(i = 0; i < data.players.length; i++) {
+        if(data.state === "created" && data.user.admin) {
+            $("#start").show();
+        } else {
+            $(".pregame").hide();
+        }
         var position;
         if(data.user.index < data.players[i].index) {
             position = data.players[i].index - data.user.index + 1;
@@ -145,11 +153,8 @@ function printPlayers(data) {
          positions[position-1] = 1;
 
          players.push([position, data.players[i].dealer]);
-         if(data.players[i].onMove) {
-                $("#player"+ position +" .player-name").addClass("active");
-         } else {
-                $("#player"+ position +" .player-name").removeClass("active");
-         }
+
+        giveCSSClasses(data, position, i);
         $("#player"+ position +" .player-name").html(data.players[i].name);
         $("#player"+ position +" .player-chips").html(data.players[i].chips-data.players[i].currentBet);
         $("#player"+ position +" .bet").html(data.players[i].currentBet - data.previousTargetBet);
@@ -159,6 +164,10 @@ function printPlayers(data) {
                 $("#player"+ position +" .card-1").html(cards[0]);
                 $("#player"+ position +" .card-2").html(cards[1]);
             }
+        }
+
+        if(data.players[i].onMove) {
+            playerCountdown(data.players[i].moveStart, position, data.cards);
         }
 
         pot += data.players[i].currentBet;
@@ -178,21 +187,35 @@ function printPlayers(data) {
              $("#check").removeClass("disabled");
         }
 
-        //show call if can TODO
+        //show call if can
         if(currentBet > data.user.currentBet) {
              $("#call").removeClass("disabled");
             $("#call").html("Call<br>"+ (currentBet - data.user.currentBet));
         }
 
-        //show raise if can TODO
+        //show raise if can
         if(currentBet < data.user.chips) {
              $("#raise").removeClass("disabled");
              var raiseTo = getMinRaiseValue(data);
              var raiseBy = raiseTo - (data.user.currentBet - data.previousTargetBet);
-             console.log("raiseTo: " + raiseTo + ", raiseBy: " + raiseBy + ", currentBet: " + data.user.currentBet + ", data.previousTargetBet: " + data.previousTargetBet);
+
+             var buttonDesc;
+
+             var check = (data.targetBet === data.previousTargetBet);
+
+             console.log(
+                "targetBet: " + data.targetBet +
+                ",  previousTargetBet: " + data.previousTargetBet +
+                ",  check: " + check);
+
+             if(check) {
+                buttonDesc = "Bet<br>";
+             } else {
+                 buttonDesc = "Raise to<br>";
+             }
 
               $("#raise").attr("onclick", "gameRaise("+ raiseBy +")");
-              $("#raise").html("Raise to<br>"+raiseTo);
+              $("#raise").html(buttonDesc + raiseTo);
               $(".raise-slider").removeClass("disabled");
 
             //affect slider and input accordingly
@@ -208,11 +231,32 @@ function printPlayers(data) {
                var $inputRange = $('[data-rangeslider]', e.target.parentNode);
                var value = $('input[type="number"]', e.target.parentNode)[0].value;
                $("#raise").attr("onclick", "gameRaise("+ Math.max(raiseTo , value) - data.user.currentBet +")");
-               $("#raise").html("Raise to<br>" + value);
+               $("#raise").html(buttonDesc + value);
                if (value == '') {
                     value = 0;
                }
                $inputRange .val(value) .change();
+             });
+
+             //Slider + input functionality
+
+             $('input[type="range"]').rangeslider({
+               polyfill : false,
+               onInit : function() {
+                 $("#raise").html( buttonDesc + this.$element.val() );
+                 $(".raise-input").val(this.$element.val());
+               },
+                onSlide : function( position, value) {
+                                $("#raise").html(buttonDesc + value);
+                                if($(".raise-input").is(":focus") === false) {
+                                     $(".raise-input").val(value);
+                                }
+                                $("#raise").attr("onclick", "gameRaise("+ (value - $("#player1 .bet").html()) +")");
+                            },
+              });
+
+             $('.raise-slider .slider').hover(function() {
+               $(".raise-input").blur();
              });
 
             var attributes = {
@@ -224,9 +268,6 @@ function printPlayers(data) {
              $('input[type="range"]').val(raiseTo).change();
              $('input[type="range"]').rangeslider('update', true);
 
-
-
-
         }
 
     } else {
@@ -235,6 +276,11 @@ function printPlayers(data) {
             $("#check").addClass("disabled");
             $("#raise").addClass("disabled");
             $(".raise-slider").addClass("disabled");
+    }
+
+    //showdown
+    if(data.roundState === "finished") {
+
     }
 
     //hide inactive users
@@ -319,16 +365,22 @@ function getMinRaiseValue(data) {
 
 }
 
+//get css classes for certain player
+function giveCSSClasses(data, position, i) {
+    $("#player" + position).removeClass("created active paused finished ractive rfinished none call raise check fold onMove");
 
-//returns 0 if preflop
-//returns bet on the previous street per player still in the game
-function previousStreetBet(data) {
-    var result = 0;
-    var pot = 0;
-    for(i = 0; i < data.players.length; i++) {
-        data.players[i].
-        result = Math.max(result, data.players[i].currentBet);
+    var onm = false;
+    if(position === 1) {
+        onm = data.user.onMove;
+        $("#player1").addClass(data.state + " r" + data.RoundState + " " + data.user.action);
+    } else {
+        onm = data.players[i].onMove;
+        $("#player" + position).addClass(data.state + " r" + data.roundState + " " + data.players[i].action);
     }
+
+    if(onm === true) {
+        $("#player" + position).addClass("onMove");
+    };
 }
 
 //sort array and remove duplicate values
