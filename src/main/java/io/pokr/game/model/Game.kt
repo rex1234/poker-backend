@@ -61,10 +61,14 @@ class Game constructor(
         get() = allPlayers.first { it.isOnMove }
 
     val nextPlayerOnMove
-        get() = (players + players).run {
-            for(i in indexOf(currentPlayerOnMove) + 1 until size)
-            if(get(i) in activePlayers) {
-                return@run get(i)
+        get() = nextActivePlayerFrom(currentPlayerOnMove)
+
+    fun nextActivePlayerFrom(player: Player) =
+        (players + players).run {
+            for(i in indexOf(player) + 1 until size) {
+                if (get(i) in activePlayers) {
+                    return@run get(i)
+                }
             }
             return@run get(0)
         }

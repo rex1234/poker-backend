@@ -201,7 +201,6 @@ class HoldemTournamentGameEngine(
                         game.targetBet = player.currentBet + raiseAmount
                         player.currentBet = game.targetBet
 
-
                         // we reset other player's action so they have to go again on this street
                         (game.activePlayers - player).forEach {
                             it.action = PlayerAction.Action.NONE
@@ -234,7 +233,11 @@ class HoldemTournamentGameEngine(
 
             // S H O W D O W N bitch
             if(game.tableCards.cards.size < 5) {
-                if(game.players.count { !it.isAllIn && it.action != PlayerAction.Action.FOLD } == 1) {
+                // ((if one player is not all in AND all the rest is all in) OR everyone is all in)
+                // AND all other players are folded
+                if(game.players.none { it.action == PlayerAction.Action.NONE } &&
+                    (game.players.size - game.players.count { it.isAllIn } - game.players.count { it.action == PlayerAction.Action.FOLD } <= 1)) {
+                    System.err.println("Showdown")
                     showdown()
                     return
                 }
@@ -265,9 +268,7 @@ class HoldemTournamentGameEngine(
 
                     // after cards are drawn, the next player from a dealer is on move
                     game.currentPlayerOnMove.isOnMove = false
-                    (game.activePlayers + game.activePlayers).apply {
-                        get(indexOf(game.currentDealer) + 1).startMove()
-                    }
+                    game.nextActivePlayerFrom(game.currentDealer).isOnMove = true
                 }
             } else {
                 // go to the next player
@@ -305,13 +306,13 @@ class HoldemTournamentGameEngine(
         // switch to the FINISHED state, no actions and be performed anymore and the results of the round are shown
         game.roundState = Game.RoundState.FINISHED
 
-        // if there is only one player with chips we will finish the game
-        if(game.allPlayers.count { it.chips > 0 } == 1) {
-            finishGame()
-        } else {
-            // otherwise we will wait some time and start a new round
-            thread {
-                Thread.sleep(3_000)
+        thread {
+            Thread.sleep(3_000) // RECAP timer
+            // if there is only one player with chips we will finish the game
+            if (game.allPlayers.count { it.chips > 0 } == 1) {
+                finishGame()
+            } else {
+                // otherwise we will wait some time and start a new round
                 startNewRound()
                 updateStateListener(this)
             }
