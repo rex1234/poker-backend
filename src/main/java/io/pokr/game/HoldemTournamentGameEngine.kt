@@ -274,6 +274,8 @@ class HoldemTournamentGameEngine(
                 // go to the next player
                 nextPlayer()
             }
+        } else {
+            throw GameException(8, "Action '${playerAction.action.key}' could not be performed")
         }
     }
 
