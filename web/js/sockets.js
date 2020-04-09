@@ -190,7 +190,7 @@ function printPlayers(data) {
         //show call if can
         if(currentBet > data.user.currentBet) {
              $("#call").removeClass("disabled");
-            $("#call").html("Call<br>"+ (currentBet - data.user.currentBet));
+            $("#call").html("Call<br>"+ (Math.min(data.user.chips - data.user.currentBet, currentBet - data.user.currentBet)));
         }
 
         //show raise if can
@@ -198,13 +198,13 @@ function printPlayers(data) {
              $("#raise").removeClass("disabled");
              var raiseTo = getMinRaiseValue(data);
              var raiseBy = raiseTo - (data.user.currentBet - data.previousTargetBet);
-
+             var maxbet = data.user.chips - data.previousTargetBet;
              var buttonDesc;
 
              var check = (data.targetBet === data.previousTargetBet);
 
              console.log(
-                "targetBet: " + data.targetBet +
+                "raiseTo: " + raiseTo +
                 ",  previousTargetBet: " + data.previousTargetBet +
                 ",  check: " + check);
 
@@ -221,7 +221,7 @@ function printPlayers(data) {
             //affect slider and input accordingly
              $(".raise-input").attr({
                 "min": 1,
-                "max": data.user.chips - data.user.currentBet,
+                "max": maxbet,
                 "value": raiseTo
              });
 
@@ -229,13 +229,21 @@ function printPlayers(data) {
 
              $(".raise-input").on('keyup', function(e) {
                var $inputRange = $('[data-rangeslider]', e.target.parentNode);
-               var value = $('input[type="number"]', e.target.parentNode)[0].value;
-               $("#raise").attr("onclick", "gameRaise("+ Math.max(raiseTo , value) - data.user.currentBet +")");
+               var value = 0;
+               if($(".raise-input").is(":focus") === false) {
+                    value = $('input[type="number"]', e.target.parentNode)[0].value;
+               } else {
+                       value = Math.max(raiseTo, $(".raise-input").val());
+                       value = Math.min(value, maxbet);
+               }
+               $("#raise").attr("onclick", "gameRaise("+ Math.min((Math.max(raiseTo , value) - data.user.currentBet)) +")");
                $("#raise").html(buttonDesc + value);
                if (value == '') {
                     value = 0;
                }
-               $inputRange .val(value) .change();
+               if($(".raise-input").is(":focus") === false) {
+                    $inputRange .val(value) .change();
+               }
              });
 
              //Slider + input functionality
@@ -247,11 +255,22 @@ function printPlayers(data) {
                  $(".raise-input").val(this.$element.val());
                },
                 onSlide : function( position, value) {
-                                $("#raise").html(buttonDesc + value);
-                                if($(".raise-input").is(":focus") === false) {
-                                     $(".raise-input").val(value);
+
+                                //round by 10 except the values close to max
+                                var roundedVal = parseInt(value / 10)*10;
+                                if(roundedVal + 9 > this.$element.attr("max")) {
+                                    roundedVal = this.$element.attr("max");
                                 }
-                                $("#raise").attr("onclick", "gameRaise("+ (value - $("#player1 .bet").html()) +")");
+
+                                if($(".raise-input").is(":focus") === false) {
+                                     $("#raise").html(buttonDesc + roundedVal);
+                                     $(".raise-input").val(roundedVal);
+                                     $("#raise").attr("onclick", "gameRaise("+ (roundedVal - $("#player1 .bet").html()) +")");
+                                } else {
+                                    $("#raise").html(buttonDesc + value);
+                                    $("#raise").attr("onclick", "gameRaise("+ (value - $("#player1 .bet").html()) +")");
+                                }
+
                             },
               });
 
@@ -261,8 +280,8 @@ function printPlayers(data) {
 
             var attributes = {
                  min: raiseTo,
-                 max: data.user.chips - data.user.currentBet,
-                 step: 1
+                 step: 10,
+                 max: maxbet
                };
              $('input[type="range"]').attr(attributes);
              $('input[type="range"]').val(raiseTo).change();

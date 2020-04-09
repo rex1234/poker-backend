@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pokid-19</title>
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/js.cookie.min.js"></script>
+    <script src="js/socket.io.js"></script>
+    <script src="js/sockets.js"></script>
+    <script src="js/rangeslider.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="styles/game.css">
+</head>
+<body>
+
+<div id="settings">
+        <div id="joinGame">
+            <h2>Join game</h2>
+            <div class="input-main">
+                <div class="label"><label for="userid-join">Name</label></div>
+                <input id="userid-join" name="nick">
+            </div>
+            <div class="input-main">
+                <div class="label"><label for="userid-join">Game ID</label></div>
+                <input id="gameid" name="gameid">
+            </div>
+            <button>Join Game</button>
+        </div>
+        <div id="createGame" class="unfocused">
+            <h2>Create game</h2>
+            <div class="input-wrapper">
+                <div class="input-main">
+                    <div class="label"><label for="userid-create">Name</label></div>
+                    <input id="userid-create" name="gameid">
+                </div>
+                <div class="input-main">
+                    <div class="label"><label for="startingChips">Chipstack</label></div>
+                    <input id="startingChips" name="startingChips" value="2500">
+                </div>
+                <div class="input-main">
+                    <div class="label"><label for="startingBlinds">Starting small blind</label></div>
+                    <input id="startingBlinds" name="startingBlinds" value="20">
+                </div>
+            </div>
+            
+            <div class="advanced-settings"><span class="plus-icon">+</span>Advanced settings</div>
+            <div class="advanced-inputs" style="display:none;">
+            <div class="input-wrapper">
+                <div class="input-main">
+                    <div class="label"><label for="blindIncreaseTime">Blinds level duration</label></div>
+                    <input id="blindIncreaseTime" name="blindIncreaseTime" value="10">
+                </div>
+                <div class="input-main">
+                    <div class="label"><label for="lateReg">Late reg. until level</label></div>
+                    <input id="lateReg" name="lateReg" value="0">
+                </div>
+                <div class="input-main">
+                    <div class="label"><label for="playerMoveTime">Time to action</label></div>
+                    <input id="playerMoveTime" name="playerMoveTime" value="10">
+                </div>
+            </div>
+            <div class="input-wrapper">
+                <div class="input-main">
+                    <div class="label"><label for="userid-join">Rebuys</label></div>
+                    <input id="gameid" name="gameid" value="0">
+                </div>
+                <div class="input-main">
+                    <div class="label"><label for="userid-join">Addon (Chips)</label></div>
+                    <input id="gameid" name="gameid" value="0">
+                </div>
+            </div>
+        
+            <p>Rebuys are applicable till the end of late registration period.<br>
+                Addon is applicable on the break after late registration period.</p>
+            </div>
+            <button>Create Game</button>
+        </div>
+</div>   
+
+
+<!--
+<div id="controls">
+Nick: <input type="text" id="userid">
+
+<div id="joinGame">
+    Game ID: <input type="text" id="gameid" value=""><br>
+    <button>Join Game</button>
+</div>
+<br><br><br>
+<div id="createGame">
+    <label for="startingChips">Starting chips</label><input type="number" id="startingChips" name="startingChips" min="200" max="100000" value="2500"><br>
+    <label for="startingBlinds">Starting blinds</label><input type="number" id="startingBlinds" name="startingBlinds" min="1" max="100"  value="20"><br>
+    <label for="blindIncreaseTime">Blinds level duration (s)</label><input type="number" id="blindIncreaseTime" name="blindIncreaseTime" min="60" max="3600" value="900"><br>
+    <label for="playerMoveTime">Time to action</label><input type="number" id="playerMoveTime" name="playerMoveTime" min="3" max="60" value="10"><br>
+    <button>Create Game</button>
+</div>
+
+</div>
+-->
+
+<button id="start" style="display:none;">Shuffle up and deal!</button>
+
+
+
+    <script src="js/game.js"></script>
+</body>
+</html>
