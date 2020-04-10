@@ -135,7 +135,7 @@ function printPlayers(data) {
 
     //timer functionality
     if(data.user.onMove) {
-        playerCountdown(data.user.moveStart, 1, data.cards);
+        playerCountdown(data.user.moveStart, 1, data.config.playerMoveTime, data.cards);
     }
 
     for(i = 0; i < data.players.length; i++) {
@@ -158,20 +158,30 @@ function printPlayers(data) {
         $("#player"+ position +" .player-name").html(data.players[i].name);
         $("#player"+ position +" .player-chips").html(data.players[i].chips-data.players[i].currentBet);
         $("#player"+ position +" .bet").html(data.players[i].currentBet - data.previousTargetBet);
-        if(data.players[i].cards != null) {
+
+        //showdown
+        if(data.players[i].cards != null && data.roundState === "finished" ) {
             if(data.players[i].cards.length > 0) {
                 var cards = data.players[i].cards.split(" ");
-                $("#player"+ position +" .card-1").html(cards[0]);
-                $("#player"+ position +" .card-2").html(cards[1]);
+                $("#player"+ position +" .card-1").html('<img src="img/cards/' + cards[0] +'.svg"/>');
+                $("#player"+ position +" .card-2").html('<img src="img/cards/' +cards[1] +'.svg"/>');
+                $("#player"+ position).addClass("showdown");
             }
+        } else {
+            $("#player"+ position +" .card-1").html("");
+            $("#player"+ position +" .card-2").html("");
+            $("#player"+ position).removeClass("showdown");
         }
 
         if(data.players[i].onMove) {
-            playerCountdown(data.players[i].moveStart, position, data.cards);
+            playerCountdown(data.players[i].moveStart, position, data.config.playerMoveTime, data.cards);
         }
 
         pot += data.players[i].currentBet;
     }
+
+    //just a ugly hack to get the slider's handle to the left
+    $("#range-slider")[0].value = 0;
 
     //show controls
     if(data.user.onMove === true && data.roundState !== "finished") {
@@ -190,102 +200,89 @@ function printPlayers(data) {
         //show call if can
         if(currentBet > data.user.currentBet) {
              $("#call").removeClass("disabled");
-            $("#call").html("Call<br>"+ (Math.min(data.user.chips - data.user.currentBet, currentBet - data.user.currentBet)));
+            $("#call").html("Call<br>"+ (Math.min(data.user.chips  - (data.user.currentBet - data.previousTargetBet), currentBet - data.user.currentBet)));
         }
 
         //show raise if can
         if(currentBet < data.user.chips) {
-             $("#raise").removeClass("disabled");
-             var raiseTo = getMinRaiseValue(data);
-             var raiseBy = raiseTo - (data.user.currentBet - data.previousTargetBet);
-             var maxbet = data.user.chips - data.previousTargetBet;
-             var buttonDesc;
+            $("#raise").removeClass("disabled");
 
-             var check = (data.targetBet === data.previousTargetBet);
+            var chipsBehind = data.user.chips - data.user.currentBet;
+            var chipsInPot = data.user.currentBet - data.previousTargetBet;
+            var minRaiseFromCurr = getMinRaiseValue(data) - chipsInPot;
+            var maxRaiseFromCurr = chipsBehind;
+            var raiseBy = Math.min(minRaiseFromCurr, maxRaiseFromCurr);
+            var raiseTo = chipsInPot + raiseBy;
 
-             console.log(
-                "raiseTo: " + raiseTo +
-                ",  previousTargetBet: " + data.previousTargetBet +
-                ",  check: " + check);
+            var buttonDesc;
 
-             if(check) {
-                buttonDesc = "Bet<br>";
-             } else {
-                 buttonDesc = "Raise to<br>";
-             }
+            if(data.targetBet === data.previousTargetBet) {
+               buttonDesc = "Bet<br>";
+            } else {
+                buttonDesc = "Raise to<br>";
+            }
 
-              $("#raise").attr("onclick", "gameRaise("+ raiseBy +")");
-              $("#raise").html(buttonDesc + raiseTo);
-              $(".raise-slider").removeClass("disabled");
+            //adjust the raise in the button
+            $("#raise").attr("onclick", "gameRaise("+ raiseBy +")");
+            $("#raise").html(buttonDesc + raiseTo);
+
+            //if there are not enough chips to raise more, don't show the slider and input
+            if(chipsBehind > minRaiseFromCurr) {
+               $(".raise-slider").removeClass("disabled");
+            }
+
+            //don't show raise if everyone is all in and you cover them
+            if(isEveryoneElseAllin(data)) {
+                $(".raise-slider").addClass("disabled");
+                $("#raise").addClass("disabled");
+            }
+
 
             //affect slider and input accordingly
              $(".raise-input").attr({
                 "min": 1,
-                "max": maxbet,
+                "max": maxRaiseFromCurr,
                 "value": raiseTo
              });
 
+             var changingInput = false;
              $(".raise-input").val(raiseTo);
-
              $(".raise-input").on('keyup', function(e) {
                var $inputRange = $('[data-rangeslider]', e.target.parentNode);
-               var value = 0;
-               if($(".raise-input").is(":focus") === false) {
-                    value = $('input[type="number"]', e.target.parentNode)[0].value;
-               } else {
-                       value = Math.max(raiseTo, $(".raise-input").val());
-                       value = Math.min(value, maxbet);
-               }
-               $("#raise").attr("onclick", "gameRaise("+ Math.min((Math.max(raiseTo , value) - data.user.currentBet)) +")");
+               //min value is min raise, max is max raise
+               var value = Math.min(maxRaiseFromCurr + chipsInPot, Math.max(minRaiseFromCurr, $(".raise-input").val()));
+               $("#raise").attr("onclick", "gameRaise("+ (value - chipsInPot) +")");
+
+               //treat empty input as 0
                $("#raise").html(buttonDesc + value);
                if (value == '') {
                     value = 0;
                }
-               if($(".raise-input").is(":focus") === false) {
-                    $inputRange .val(value) .change();
-               }
+               changingInput = true;
+
+               //affect slider
+               $("#range-slider")[0].value = value;
              });
 
-             //Slider + input functionality
-
-             $('input[type="range"]').rangeslider({
-               polyfill : false,
-               onInit : function() {
-                 $("#raise").html( buttonDesc + this.$element.val() );
-                 $(".raise-input").val(this.$element.val());
-               },
-                onSlide : function( position, value) {
-
-                                //round by 10 except the values close to max
-                                var roundedVal = parseInt(value / 10)*10;
-                                if(roundedVal + 9 > this.$element.attr("max")) {
-                                    roundedVal = this.$element.attr("max");
-                                }
-
-                                if($(".raise-input").is(":focus") === false) {
-                                     $("#raise").html(buttonDesc + roundedVal);
-                                     $(".raise-input").val(roundedVal);
-                                     $("#raise").attr("onclick", "gameRaise("+ (roundedVal - $("#player1 .bet").html()) +")");
-                                } else {
-                                    $("#raise").html(buttonDesc + value);
-                                    $("#raise").attr("onclick", "gameRaise("+ (value - $("#player1 .bet").html()) +")");
-                                }
-
-                            },
-              });
-
-             $('.raise-slider .slider').hover(function() {
-               $(".raise-input").blur();
+             $("#range-slider").attr({
+                   "min": raiseTo,
+                   "max": maxRaiseFromCurr + chipsInPot,
+                   "value": raiseTo
              });
 
-            var attributes = {
-                 min: raiseTo,
-                 step: 10,
-                 max: maxbet
-               };
-             $('input[type="range"]').attr(attributes);
-             $('input[type="range"]').val(raiseTo).change();
-             $('input[type="range"]').rangeslider('update', true);
+             $("#range-slider")[0].value = raiseTo;
+
+            $("#range-slider")[0].oninput = function() {
+                var value = Math.min(maxRaiseFromCurr + chipsInPot, Math.max(minRaiseFromCurr, this.value));
+                //Round to 10s, but exclude max value
+                var roundedVal = parseInt(value/10)*10;
+                if(roundedVal + 9 >= maxRaiseFromCurr + chipsInPot) {
+                    roundedVal = maxRaiseFromCurr + chipsInPot;
+                }
+                $("#raise").attr("onclick", "gameRaise("+ (roundedVal - chipsInPot) +")");
+                $("#raise").html(buttonDesc + roundedVal);
+                $(".raise-input").val(roundedVal);
+            }
 
         }
 
@@ -325,7 +322,6 @@ function printPlayers(data) {
 
     var cards = data.cards.split(" ");
     cards.reverse();
-    console.log(cards.length);
 
     //delete cards from previous game
     if(cards[0] === "") {
@@ -344,6 +340,14 @@ function printPlayers(data) {
 
      if(cards[3] !== undefined) { $(".dealt-cards-4").html('<img src="img/cards/' + cards[3] +'.svg"/>'); }
      if(cards[4] !== undefined) { $(".dealt-cards-5").html('<img src="img/cards/' + cards[4] +'.svg"/>'); }
+
+     //highlight winning cards
+     if(data.roundState === "finished") {
+
+     } else {
+
+     }
+
      $(".pot").html(pot);
 }
 
@@ -366,8 +370,6 @@ function getMinRaiseValue(data) {
 
     //TODO skipping blinds
 
-    console.log(arr);
-
    if(arr.length <= 1) {
         return Math.max(data.smallBlind*2, arr[0]*2);
     }
@@ -382,6 +384,18 @@ function getMinRaiseValue(data) {
         return Math.max(4*data.smallBlind, arr[arr.length-1] + (arr[arr.length-1] - arr[arr.length-2]));
     }
 
+}
+
+//returns true if everyone is folded or allin
+function isEveryoneElseAllin(data) {
+    var rtn = true;
+    for(i = 0; i < data.players.length; i++) {
+        if(data.players[i].action !== "fold") {
+            rtn = rtn && (data.players[i].currentBet === data.players[i].chips);
+        }
+    }
+    console.log(rtn);
+    return rtn;
 }
 
 //get css classes for certain player

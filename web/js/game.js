@@ -82,11 +82,10 @@ $( ".advanced-settings" ).click(function() {
   $(".advanced-inputs").show();
 });
 
-function playerCountdown(start, playerPosition, cards) {
+function playerCountdown(start, playerPosition, limit, cards) {
      var x = 0;
      var intervalID = setInterval(function () {
 
-        var limit = $("#playerMoveTime").val();
         var d = new Date();
         var now = d.getTime();
         var prc = 100 - 100*((now - start)/(limit*1000));
@@ -116,7 +115,6 @@ function playerCountdown(start, playerPosition, cards) {
         }
      }, 200);
 }
-
 
 
 //TODO add input validation

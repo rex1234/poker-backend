@@ -225,7 +225,7 @@ transition: box-shadow 0.3s ease;
     background-color: #ffffff;
 }
 
-.rfinished.check .card-1, .rfinished.check .card-2, .rfinished.call .card-1, .rfinished.call .card-2, .rfinished.raise .card-1, .rfinished.raise .card-2 {
+.showdown .card-1, .showdown .card-2 {
     top: -40px !important;
     background-image: none;
 }
@@ -568,54 +568,86 @@ transition: box-shadow 0.3s ease;
     width: 202px;
 }
 
-.rangeslider,
-.rangeslider__fill {
+
+input[type=range] {
+  -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+  width: 100%; /* Specific width is required for Firefox. */
+  background: transparent; /* Otherwise white in Chrome */
   display: block;
   -moz-border-radius: 2px;
   -webkit-border-radius: 2px;
   border-radius: 2px;
 }
 
-.rangeslider {
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+}
+
+input[type=range]:focus {
+  outline: none; /* Removes the blue border. You should probably do some kind of focus styling for accessibility reasons though. */
+}
+
+input[type=range]::-ms-track {
+  width: 100%;
+  cursor: pointer;
+
+  /* Hides the slider so custom styles can be added */
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+}
+
+
+#range-slider {
   background: #ffffff;
   position: relative;
+    height: 2px;
+    width: 100%;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    top: -2px;
 }
 
-.rangeslider--horizontal {
-  height: 2px;
-  width: 100%;
-}
-
-.rangeslider--horizontal .rangeslider__fill {
-  top: 7=px;
-  height: 100%;
-}
-
-.rangeslider__handle {
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
   background: #2F06FC;
   cursor: pointer;
   display: inline-block;
   width: 24px;
   height: 24px;
-  position: absolute;
-
   -moz-border-radius: 50%;
   -webkit-border-radius: 50%;
   border-radius: 50%;
 }
 
-.rangeslider__handle:active, .rangeslider--active .rangeslider__handle {
-  background-color: #2500DC;
-  box-shadow: 0px 2px 15px #2F06FC;
-}
-.rangeslider--horizontal .rangeslider__handle {
-  top: -12px;
-  touch-action: pan-y;
-  -ms-touch-action: pan-y;
+input[type=range]::-moz-range-thumb {
+  -webkit-appearance: none;
+  background: #2F06FC;
+  cursor: pointer;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
 }
 
-.rangeslider__handle:hover {
+input[type=range]::-ms-thumb {
+  -webkit-appearance: none;
+  background: #2F06FC;
+  cursor: pointer;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+}
+
+#input[type=range]::-webkit-slider-thumb:hover {
   background-color: #363CFF;
+  cursor: pointer;
   box-shadow: 0px 4px 30px #2F06FC;
 }
 
