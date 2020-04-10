@@ -1,19 +1,15 @@
 package io.pokr.network
 
-import com.google.gson.Gson
-import io.github.cdimascio.dotenv.Dotenv
+
 import io.github.cdimascio.dotenv.dotenv
-import io.ktor.application.*
-import io.ktor.http.*
 import io.ktor.http.content.file
 import io.ktor.http.content.files
 import io.ktor.http.content.static
-import io.ktor.response.*
-import io.ktor.routing.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
-import io.pokr.network.responses.GameResponse
-import java.util.*
+import io.ktor.routing.get
+import io.ktor.routing.route
+import io.ktor.routing.routing
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
 import kotlin.concurrent.thread
 
 class WebEngine {

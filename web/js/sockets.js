@@ -26,6 +26,28 @@ socket.on('gameDisbanded', function () {
     // TODO: show some end message, redirect back to the connection screen
 });
 
+socket.on('gameDisbanded', function () {
+    Cookies.set('player_uuid', null);
+    print({msg: "game ended"});
+
+    // TODO: show some end message, redirect back to the connection screen
+});
+
+socket.on('chat', function (data) {
+    console.log(data);
+
+    var message = data.message;
+    var flash = data.flash; // if the message is a react or regular message
+
+    if(flash) {
+        var playerIndex = data.index;
+        alert("[" + data.time + "]" + data.name + ": " + message);
+    } else {
+        // TODO: add message to the chat window
+    }
+});
+
+
 // outbound events
 
 function createGame(nickname, sc, sb, bi, pm, rt) {
@@ -110,6 +132,23 @@ function unpause() {
     sendAction("pause", 0, null)
 }
 
+// chat
+
+function sendReaction(reaction) {
+    socket.emit("chat", {
+        message: reaction,
+        flash: true
+    });
+}
+
+function sendChatMessage(msg) {
+    socket.emit("chat", {
+        message: msg,
+        flash: false
+    });
+}
+
+// MISC
 
 function print(data) {
     //document.getElementById("content").innerHTML = JSON.stringify(data)

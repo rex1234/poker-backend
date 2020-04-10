@@ -1,17 +1,18 @@
 package io.pokr.network
 
-import com.corundumstudio.socketio.*
+import com.corundumstudio.socketio.Configuration
+import com.corundumstudio.socketio.SocketIOClient
+import com.corundumstudio.socketio.SocketIOServer
 import io.github.cdimascio.dotenv.dotenv
 import io.netty.channel.ChannelHandlerContext
 import io.pokr.game.exceptions.GameException
 import io.pokr.game.model.PlayerAction
+import io.pokr.network.requests.ChatRequest
 import io.pokr.network.requests.ConnectionRequest
-
 import io.pokr.network.requests.PlayerActionRequest
+import io.pokr.network.responses.ChatResponse
 import io.pokr.network.responses.ErrorResponse
 import io.pokr.network.responses.GameResponse
-import java.lang.Exception
-
 import java.util.*
 
 /**
@@ -33,6 +34,10 @@ class SocketEngine(
         // outbound
         GAME_STATE("gameState"),
         GAME_DISBANDED("gameDisbanded"),
+
+        // both ways
+        REACT("react"),
+        CHAT_MESSAGE("chat")
     }
 
     lateinit var server: SocketIOServer
@@ -93,7 +98,6 @@ class SocketEngine(
             }
 
             addEventListener(Events.ACTION.key, PlayerActionRequest::class.java) { client, data, ackRequest ->
-                System.err.println("Action request: ")
                 gamePool.executePlayerActionOnSession(
                     client.sessionId.toString(),
                     PlayerAction(
@@ -111,6 +115,13 @@ class SocketEngine(
 
                 sendGameState(client)
             }
+
+            addEventListener(Events.CHAT_MESSAGE.key, ChatRequest::class.java) { client, data, ackRequest ->
+                System.err.println("Game state request")
+
+                sendMessage(client, data.message, data.flash)
+            }
+
 
             addDisconnectListener { client ->
                 gamePool.playerDisconnected(client.sessionId.toString())
@@ -143,6 +154,24 @@ class SocketEngine(
             server.allClients.filter { it.sessionId == UUID.fromString(playerSession.sessionId) }.forEach {
                 val data = gamePool.getGameDataForPlayerUuid(playerSession.uuid)
                 it.sendEvent(Events.GAME_STATE.key, GameResponse.GameStateFactory.from(data.first, data.second))
+            }
+        }
+    }
+
+    /**
+     * Sends message to all players in a game session
+     */
+    private fun sendMessage(client: SocketIOClient, message: String, flash: Boolean) {
+        gamePool.getGroupSessions(client.sessionId.toString()).forEach { playerSession ->
+            server.allClients.filter { it.sessionId == UUID.fromString(playerSession.sessionId) }.forEach {
+                val playerData = gamePool.getGameDataForPlayerUuid(playerSession.uuid).second
+                it.sendEvent(Events.CHAT_MESSAGE.key, ChatResponse(
+                    playerData.name,
+                    playerData.index.toString(),
+                    System.currentTimeMillis(),
+                    message,
+                    flash
+                ))
             }
         }
     }

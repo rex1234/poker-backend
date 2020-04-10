@@ -1,11 +1,11 @@
 package io.pokr.network
 
 import io.pokr.game.HoldemTournamentGameEngine
+import io.pokr.game.exceptions.GameException
 import io.pokr.game.model.Game
 import io.pokr.game.model.GameConfig
 import io.pokr.game.model.Player
 import io.pokr.game.model.PlayerAction
-import io.pokr.game.exceptions.GameException
 import io.pokr.network.model.GameSession
 import io.pokr.network.model.PlayerSession
 import io.pokr.network.util.TokenGenerator

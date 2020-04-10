@@ -1,9 +1,8 @@
 package io.pokr.game
 
+import io.pokr.game.exceptions.GameException
 import io.pokr.game.model.*
 import io.pokr.game.tools.BlindCalculator
-import io.pokr.game.exceptions.GameException
-import io.pokr.game.model.PlayerAction
 import io.pokr.game.tools.GameTimer
 import io.pokr.game.tools.HandComparator
 import io.pokr.game.tools.WinningsCalculator
@@ -20,7 +19,7 @@ class HoldemTournamentGameEngine(
 
     var mockCardStack: CardStack? = null
 
-    val gameTimer = GameTimer {
+    private val gameTimer = GameTimer {
         gameTick()
     }
 
@@ -237,7 +236,6 @@ class HoldemTournamentGameEngine(
                 // AND all other players are folded
                 if(game.players.none { it.action == PlayerAction.Action.NONE } &&
                     (game.players.size - game.players.count { it.isAllIn } - game.players.count { it.action == PlayerAction.Action.FOLD } <= 1)) {
-                    System.err.println("Showdown")
                     showdown()
                     return
                 }
@@ -281,6 +279,8 @@ class HoldemTournamentGameEngine(
 
 
     private fun showdown() {
+        System.err.println("Showdown")
+
         game.tableCards = game.tableCards.with(game.cardStack.drawCards( 5 - game.tableCards.cards.size))
         game.players.filter { it.action != PlayerAction.Action.FOLD }.forEach { it.showCards = true }
 
@@ -399,7 +399,7 @@ class HoldemTournamentGameEngine(
         }
 
     private fun checkCurrentPlayerMoveTimeLimit() {
-        // we want to check player's timelimits only when he is on move and the round is in active state
+        // we want to check player's time limits only when he is on move and the round is in active state
         if(game.roundState != Game.RoundState.ACTIVE) {
             return
         }
