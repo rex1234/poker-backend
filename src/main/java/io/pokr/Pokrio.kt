@@ -1,10 +1,9 @@
 package io.pokr
 
-import io.pokr.network.WebEngine
 import io.pokr.network.GamePool
 import io.pokr.network.SocketEngine
+import io.pokr.network.WebEngine
 import java.io.File
-import kotlin.concurrent.thread
 
 fun main() {
     if(!File(".env").exists()) {
