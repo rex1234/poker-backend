@@ -4,10 +4,17 @@ var socket = io.connect('http://' + window.location.hostname + ':9092');
 
 socket.on('gameState', function (data) {
     Cookies.set('player_uuid', data.user.uuid, { expires: 1 });
-    console.log(data);
+    Cookies.set('game_uuid', data.uuid, { expires: 1 });
+    Cookies.set('nick', data.user.name, { expires: 100 });
+
+
+    $("#settings").hide();
+    $(".game-container").show();
+
+    $(".pregame").show();
+
     printPlayers(data);
     print(data);
-
 
     // TODO: redraw game board
 });
@@ -15,6 +22,11 @@ socket.on('gameState', function (data) {
 socket.on('error', function (data) {
     print(data);
     console.log(data);
+
+    if(data.code == 20) { // invalid game UUID
+        Cookies.set('player_uuid', null);
+        Cookies.set('game_uuid', null);
+    }
 
     // TODO: show dialog with error message
 });
@@ -50,17 +62,11 @@ socket.on('chat', function (data) {
 
 // outbound events
 
-function createGame(nickname, sc, sb, bi, pm, rt) {
+function createGame(nickname, gameConfig) {
     socket.emit("connectGame", {
         name: nickname,
         playerUUID: Cookies.get('player_uuid'),
-        gameConfig: {
-            startingChips: sc,
-            startingBlinds: sb,
-            blindIncreaseTime: bi,
-            playerMoveTime: pm,
-            rebuyTime: rt
-        }
+        gameConfig: gameConfig
     });
 }
 

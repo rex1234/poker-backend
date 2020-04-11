@@ -1,7 +1,7 @@
 $( "#joinGame button").click(function() {
-  connectToGame($('#userid-join').val(), $('#gameid').val());
-  $("#settings").hide();
-  $(".game-container").show();
+    connectToGame($('#userid-join').val(), $('#gameid').val());
+    $("#settings").hide();
+    $(".game-container").show();
 });
 
 $( "#createGame button" ).click(function() {
@@ -11,17 +11,17 @@ $( "#createGame button" ).click(function() {
         blindIncreaseTime: $("#blindIncreaseTime").val(),
         playerMoveTime: $("#playerMoveTime").val(),
         rebuyTime: $("#lateReg").val()
-   }
-  createGame($('#userid-create').val(), gameConfig.startingChips, gameConfig.startingBlinds, gameConfig.blindIncreaseTime, gameConfig.playerMoveTime, gameConfig.rebuyTime);
+    };
+    createGame($('#userid-create').val(), gameConfig);
 
-  $("#settings").hide();
-  $(".game-container").show();
-  $(".pregame").show();
+    $("#settings").hide();
+    $(".game-container").show();
+    $(".pregame").show();
 });
 
 $( "#start" ).click(function() {
-  startGame();
-  $(".pregame").hide();
+    startGame();
+    $(".pregame").hide();
 });
 
 
@@ -32,59 +32,59 @@ $(document).bind('keypress', function(e) {
     }
 });
 
- //Settings
- $("#createGame").hover(
-  function() {$("#createGame").removeClass("unfocused");
-  $("#joinGame").addClass("unfocused")}
- )
+//Settings
+$("#createGame").hover(
+    function() {$("#createGame").removeClass("unfocused");
+        $("#joinGame").addClass("unfocused")}
+)
 
- $("#joinGame").hover(
-  function() {$("#joinGame").removeClass("unfocused");
-  $("#createGame").addClass("unfocused")}
- )
+$("#joinGame").hover(
+    function() {$("#joinGame").removeClass("unfocused");
+        $("#createGame").addClass("unfocused")}
+)
 
-  //Keyboard focus by tab
-$('#joinGame').on('keyup', checkFocused)         
-  function checkFocused() {
+//Keyboard focus by tab
+$('#joinGame').on('keyup', checkFocused)
+function checkFocused() {
     $("#joinGame").removeClass("unfocused");
     $("#createGame").addClass("unfocused");
-};   
+};
 
-$('#createGame').on('keyup', checkFocused2)         
-  function checkFocused2() {
+$('#createGame').on('keyup', checkFocused2)
+function checkFocused2() {
     $("#createGame").removeClass("unfocused");
     $("#joinGame").addClass("unfocused");
-};   
+};
 
 
 //coloring inputs
 
 $(".input-main input").focus (function () {
-  $(this).parent().addClass("clicked");
+    $(this).parent().addClass("clicked");
 });
 
 $(".input-main input").blur (function () {
-  $(this).parent().removeClass("clicked");
+    $(this).parent().removeClass("clicked");
 });
 
 $(".input-main").hover(
-  function() {
-    $(this).find(".label").addClass("clicked-label");
-  },
-  function() {
-    $(this).find(".label").removeClass("clicked-label")
-  }
- )
+    function() {
+        $(this).find(".label").addClass("clicked-label");
+    },
+    function() {
+        $(this).find(".label").removeClass("clicked-label")
+    }
+)
 
 //advanced settings
 $( ".advanced-settings" ).click(function() {
-  $(".advanced-settings").hide();
-  $(".advanced-inputs").show();
+    $(".advanced-settings").hide();
+    $(".advanced-inputs").show();
 });
 
 function playerCountdown(start, playerPosition, limit, cards) {
-     var x = 0;
-     var intervalID = setInterval(function () {
+    var x = 0;
+    var intervalID = setInterval(function () {
 
         var d = new Date();
         var now = d.getTime();
@@ -113,8 +113,16 @@ function playerCountdown(start, playerPosition, limit, cards) {
         if (++x === limit*5 || $("#player" + playerPosition).hasClass("none") === false || $("#player" + playerPosition).hasClass("onMove") === false || cardsCheck || prc < 1) {
             window.clearInterval(intervalID);
         }
-     }, 200);
+    }, 200);
 }
 
+$(document).ready(function () {
+        // restore game
+        if (Cookies.get('game_uuid') && Cookies.get('player_uuid')) {
+            console.log("reconnecting to an existing game");
+            connectToGame(Cookies.get("nick"), Cookies.get("game_uuid"));
+        }
+    }
+);
 
 //TODO add input validation
