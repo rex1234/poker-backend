@@ -129,4 +129,12 @@ class HandComparatorTest {
         Assert.assertEquals(HandComparator.Hand.FLUSH, handComparator.findHighestHand(playerCards2, tableCards2))
     }
 
+    @Test
+    fun highestHandFromTableOf5AllOnTable() {
+        val playerCards = CardList.parse("4C 5H")
+        val tableCards = CardList.parse("2D 2C 2H KC KS")
+
+        Assert.assertEquals(HandComparator.Hand.FULL_HOUSE, handComparator.findHighestHand(playerCards, tableCards))
+    }
+
 }

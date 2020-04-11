@@ -24,7 +24,10 @@ class Player(
     var isRebuyNextRound = false
     var rebuyCount = 0
 
+    // only for FE
+    var winningCards: CardList? = null
     var showCards = false
+    var lastWin = 0
 
     fun startMove() {
         isOnMove = true

@@ -39,9 +39,11 @@ class GameResponse(
         val action: String,
         val cards: String?,
         val hand: String?,
+        val winningCards: String?,
         val chips: Int,
         val currentBet: Int,
-        val rebuyCount: Int
+        val rebuyCount: Int,
+        val lastWin: Int
     )
 
     class GameStateFactory {
@@ -83,8 +85,10 @@ class GameResponse(
                 action = action.toString().toLowerCase(),
                 cards = if (forSelf || (game.roundState == Game.RoundState.FINISHED && showCards)) cards.toString() else null,
                 hand = if (forSelf || (game.roundState == Game.RoundState.FINISHED && showCards)) hand?.handName else null,
+                winningCards = if (forSelf || (game.roundState == Game.RoundState.FINISHED && showCards)) winningCards?.toString() else null,
                 chips = chips,
-                currentBet = currentBet
+                currentBet = currentBet,
+                lastWin = lastWin
             )
         }
     }
