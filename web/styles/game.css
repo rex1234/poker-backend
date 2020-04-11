@@ -437,7 +437,7 @@ transition: box-shadow 0.3s ease;
 .controls {
     position: relative;
     left: 300px;
-    top: 255px;
+    top: 270px;
     width: 724px;
     height: 79px;
 }
@@ -556,9 +556,9 @@ transition: box-shadow 0.3s ease;
     width: 338px;
     height: 49px;
     border: 2px solid #484848;
-    -moz-border-radius: 6px;
-  -webkit-border-radius: 6px;
-  border-radius: 6px;
+    -moz-border-radius: 6px 0 6px 6px;
+    -webkit-border-radius: 6px 0 6px 6px;
+    border-radius: 6px 0 6px 6px;
 }
 
 .slider {
@@ -677,6 +677,7 @@ input::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 }
+
 
 /*
 /*
@@ -895,4 +896,104 @@ h2 {
 .unfocused .plus-icon {
     background-color: #484848 !important;
     color: #bbbbbb !important;
+}
+
+
+/* Bet sizes buttons*/
+.container-betsizes {
+    position: relative;
+    top: -30px;
+    left: 90px;
+}
+
+
+button.betsizes {
+    width: 61px;
+    height: 30px;
+    background-color: #484848;
+}
+
+button.betsizes.first {
+  -moz-border-radius: 6px 0 0 0;
+  -webkit-border-radius: 6px 0 0 0;
+  border-radius: 6px 0 0 0;
+}
+
+button.betsizes.second {
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+    left: 63px;
+}
+
+button.betsizes.third {
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+    left: 126px;
+}
+
+button.betsizes.last {
+  left: 189px;
+  -moz-border-radius: 0 6px 0 0;
+  -webkit-border-radius: 0 6px 0 0;
+  border-radius: 0 6px 0 0;
+}
+
+
+/*autoactions*/
+.autoactions {
+    position: absolute;
+    top: 13px;
+    left: 0px;
+}
+
+.autoactions div {
+    display: inline-block;
+}
+
+.autocheck {
+    margin-left: 63px;
+}
+
+.autoactions input {
+	-webkit-appearance: none;
+	background-color: #131313;
+	border: 2px solid #99a1a7;
+	padding: 9px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+	display: inline-block;
+    position: relative;
+    margin-bottom: -6px;
+    outline: none;
+    cursor: pointer;
+}
+
+.autoactions input:active, .autoactions input:checked:active {
+    border: 2px solid #2F06FC;
+}
+
+.autoactions input:hover {
+    border: 2px solid #bbbbbb;
+}
+
+.autoactions input:checked:hover {
+    background-color: #363CFF;
+    border: 2px solid #363CFF;
+}
+
+.autoactions input:checked {
+    border: 2px solid #2F06FC;
+    background-color: #2F06FC;
+}
+
+.autoactions input:checked:after {
+	content: '\2714';
+	font-size: 16px;
+	position: absolute;
+	top: -2px;
+	left: 3px;
+	color: #ffffff;
 }

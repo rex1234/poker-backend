@@ -272,13 +272,29 @@
         </div>
 
         <div class="controls">
+            <div class="autoactions">
+                <div class="autofold disabled">
+                    <input type="checkbox" id="autofold" name="autofold">
+                    <label for="autofold">Fold</label>
+                </div>
+                <div class="autocheck disabled">
+                    <input type="checkbox" id="autocheck" name="autocheck">
+                    <label for="autocheck">Check</label>
+                </div>
+            </div>
             <button id="fold" onclick="gameFold()" class="disabled">Fold</button>
             <button id="call" onclick="gameCall()" class="disabled"></button>
             <button id="check" onclick="gameCheck()" class="disabled">Check</button>
-            <button onclick="sendReaction('sad')">Sad react</button>
+           <!-- <button onclick="sendReaction('sad')">Sad react</button> -->
             <button id="raise" type="submit" class="disabled"></button>
 
             <div class="raise-slider disabled" >
+                <div class="container-betsizes">
+                    <button class="betsizes first">2.5BB</button>
+                    <button class="betsizes second">50%</button>
+                    <button class="betsizes third">3.5BB</button>
+                    <button class="betsizes last">MAX</button>
+                </div>
                 <input type="number" min="1" max="100" value="10" class="raise-input">
                 <div class="slider">
                     <input type="range" min="1" max="100" value="10" id="range-slider">

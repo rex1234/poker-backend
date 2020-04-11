@@ -91,14 +91,17 @@ function changeName(name) {
 }
 
 function gameCall() {
+    $("#autocheck").prop("checked", false);
     sendAction("call", null, null)
 }
 
 function gameCheck() {
+    $("#autocheck").prop("checked", false);
     sendAction("check", null, null)
 }
 
 function gameFold() {
+    $("#autofold").prop("checked", false);
     sendAction("fold", null, null)
 }
 
@@ -158,6 +161,7 @@ function print(data) {
 function printPlayers(data) {
     giveCSSClasses(data, 1, -1);
 
+
     var pot = data.user.currentBet;
     var players = [[1, data.user.dealer]];
 
@@ -171,6 +175,9 @@ function printPlayers(data) {
     }
 
     var positions = [1,0,0,0,0,0,0,0,0];
+
+    showCards(data);
+
 
     //timer functionality
     if(data.user.onMove) {
@@ -222,8 +229,30 @@ function printPlayers(data) {
     //just a ugly hack to get the slider's handle to the left
     $("#range-slider")[0].value = 0;
 
+    var autoaction = false;
+    //autocheck and autofold
+    if($("#autocheck").prop("checked") && data.user.currentBet === checkHighestBet(data)) {
+        autoaction = true;
+        if(data.user.onMove === true) {
+            wait(500);
+            gameCheck();
+        }
+    }
+
+    if($("#autofold").prop("checked")) {
+         autoaction = true;
+        if(data.user.onMove === true) {
+            wait(500);
+            gameFold();
+        }
+     }
+     $(".autocheck").addClass("disabled");
+     $(".autofold").addClass("disabled");
+
     //show controls
-    if(data.user.onMove === true && data.roundState !== "finished") {
+    if(data.user.onMove === true && data.roundState !== "finished" && autoaction === false) {
+
+
         //show fold if cannot check
         var currentBet = checkHighestBet(data);
 
@@ -241,6 +270,8 @@ function printPlayers(data) {
              $("#call").removeClass("disabled");
             $("#call").html("Call<br>"+ (Math.min(data.user.chips  - (data.user.currentBet - data.previousTargetBet), currentBet - data.user.currentBet)));
         }
+
+
 
         //show raise if can
         if(currentBet < data.user.chips) {
@@ -287,7 +318,6 @@ function printPlayers(data) {
              var changingInput = false;
              $(".raise-input").val(raiseTo);
              $(".raise-input").on('keyup', function(e) {
-               var $inputRange = $('[data-rangeslider]', e.target.parentNode);
                //min value is min raise, max is max raise
                var value = Math.min(maxRaiseFromCurr + chipsInPot, Math.max(minRaiseFromCurr, $(".raise-input").val()));
                $("#raise").attr("onclick", "gameRaise("+ (value - chipsInPot) +")");
@@ -323,6 +353,40 @@ function printPlayers(data) {
                 $(".raise-input").val(roundedVal);
             }
 
+            //change bet sizes buttons
+            //if preflop, show 2.5 / 3 / 3.5 Buttons, else 33 / 50 / 66 prc
+             $(".betsizes.first").removeClass("disabled");
+             $(".betsizes.second").removeClass("disabled");
+             $(".betsizes.third").removeClass("disabled");
+            if(getStreet() === "preflop") {
+                $(".betsizes.first").html("2.5BB");
+                $(".betsizes.first").attr("onclick", "raiseChange(" + Math.min(5*data.smallBlind, maxRaiseFromCurr + chipsInPot) + ")");
+                $(".betsizes.second").html("3BB");
+                $(".betsizes.second").attr("onclick", "raiseChange(" + Math.min(6*data.smallBlind, maxRaiseFromCurr + chipsInPot) + ")");
+                $(".betsizes.third").html("3.5BB");
+                $(".betsizes.third").attr("onclick", "raiseChange(" + Math.min(7*data.smallBlind, maxRaiseFromCurr + chipsInPot) + ")");
+                $(".betsizes.last").attr("onclick", "raiseChange(" + (maxRaiseFromCurr + chipsInPot) + ")");
+
+                //hide the buttons if preflop action
+                if(pot > 3*data.smallBlind) {
+                    $(".betsizes.first").addClass("disabled");
+                    $(".betsizes.second").addClass("disabled");
+                    $(".betsizes.third").addClass("disabled");
+                }
+            } else {
+                if((parseInt(pot/3)) > 2*data.smallBlind) {
+                    $(".betsizes.first").html("33%");
+                    $(".betsizes.first").attr("onclick", "raiseChange(" + Math.min(parseInt(pot/3), maxRaiseFromCurr + chipsInPot) + ")");
+                } else {
+                    $(".betsizes.first").addClass("disabled");
+                }
+                $(".betsizes.second").html("50%");
+                $(".betsizes.second").attr("onclick", "raiseChange(" + Math.min(parseInt(pot/2), maxRaiseFromCurr + chipsInPot) + ")");
+                $(".betsizes.third").html("66%");
+                $(".betsizes.third").attr("onclick", "raiseChange(" + Math.min(parseInt(2*pot/3), maxRaiseFromCurr + chipsInPot) + ")");
+                $(".betsizes.last").attr("onclick", "raiseChange(" + (maxRaiseFromCurr + chipsInPot) + ")");
+            }
+
         }
 
     } else {
@@ -331,6 +395,17 @@ function printPlayers(data) {
             $("#check").addClass("disabled");
             $("#raise").addClass("disabled");
             $(".raise-slider").addClass("disabled");
+
+            //show autofold button when out of turn and cannot check
+            if(data.roundState !== "finished" && (data.user.currentBet < checkHighestBet(data)) && data.user.action === "none") {
+                $(".autofold").removeClass("disabled");
+            }
+
+            console.log(checkHighestBet(data));
+                 //show autocheck button when out of turn and can check
+            if(data.roundState !== "finished" && (data.user.currentBet >= checkHighestBet(data)) && data.user.action === "none") {
+                $(".autocheck").removeClass("disabled");
+            }
     }
 
     //showdown
@@ -359,26 +434,6 @@ function printPlayers(data) {
     $("#player"+ dealer +" .dealer").addClass("is-dealer");
 
 
-    var cards = data.cards.split(" ");
-    cards.reverse();
-
-    //delete cards from previous game
-    if(cards[0] === "") {
-        $(".dealt-cards-1").html("");
-        $(".dealt-cards-2").html("");
-        $(".dealt-cards-3").html("");
-        $(".dealt-cards-4").html("");
-        $(".dealt-cards-5").html("");
-    }
-
-     if(cards[2] !== undefined) {
-        $(".dealt-cards-1").html('<img src="img/cards/' + cards[0] +'.svg"/>');
-        $(".dealt-cards-2").html('<img src="img/cards/' + cards[1] +'.svg"/>');
-        $(".dealt-cards-3").html('<img src="img/cards/' + cards[2] +'.svg"/>');
-      }
-
-     if(cards[3] !== undefined) { $(".dealt-cards-4").html('<img src="img/cards/' + cards[3] +'.svg"/>'); }
-     if(cards[4] !== undefined) { $(".dealt-cards-5").html('<img src="img/cards/' + cards[4] +'.svg"/>'); }
 
      //highlight winning cards
      if(data.roundState === "finished") {
@@ -437,6 +492,54 @@ function isEveryoneElseAllin(data) {
     return rtn;
 }
 
+//show cards
+function showCards(data) {
+   var cards = data.cards.split(" ");
+    cards.reverse();
+
+    //delete cards from previous game
+    if(cards[0] === "") {
+        $(".dealt-cards-1").html("");
+        $(".dealt-cards-2").html("");
+        $(".dealt-cards-3").html("");
+        $(".dealt-cards-4").html("");
+        $(".dealt-cards-5").html("");
+    }
+
+     if(cards[2] !== undefined) {
+        $(".dealt-cards-1").html('<img src="img/cards/' + cards[0] +'.svg"/>');
+        $(".dealt-cards-2").html('<img src="img/cards/' + cards[1] +'.svg"/>');
+        $(".dealt-cards-3").html('<img src="img/cards/' + cards[2] +'.svg"/>');
+      }
+
+     if(cards[3] !== undefined) { $(".dealt-cards-4").html('<img src="img/cards/' + cards[3] +'.svg"/>'); }
+     if(cards[4] !== undefined) { $(".dealt-cards-5").html('<img src="img/cards/' + cards[4] +'.svg"/>'); }
+
+    //TODO: animate cards
+    console.log(getStreet());
+}
+
+//returns the street of the game = preflop, flop, turn, river
+function getStreet() {
+    if($(".dealt-cards-5").html() !== "") {
+        return "river";
+    }
+    if($(".dealt-cards-4").html() !== "") {
+         return "turn";
+    }
+    if($(".dealt-cards-1").html() !== "") {
+         return "flop";
+     }
+     return "preflop";
+}
+
+//changes input and slider to a value
+function raiseChange(value) {
+    $('.raise-input').val(value);
+    $("#range-slider")[0].value = value;
+    $(".raise-input").keyup();
+}
+
 //get css classes for certain player
 function giveCSSClasses(data, position, i) {
     $("#player" + position).removeClass("created active paused finished ractive rfinished none call raise check fold onMove");
@@ -466,4 +569,11 @@ function sortUnique(arr) {
     }
   }
   return ret;
+}
+
+function wait(ms) {
+    var d = new Date();
+    var d2 = null;
+    do { d2 = new Date(); }
+    while(d2-d < ms);
 }
