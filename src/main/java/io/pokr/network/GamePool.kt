@@ -47,7 +47,7 @@ class GamePool {
         System.err.println("Created game session: ${gameSession.uuid}")
 
         gameEngines[gameSession] =
-            HoldemTournamentGameEngine(
+                HoldemTournamentGameEngine(
                 gameUuid = gameSession.uuid,
                 updateStateListener = {
                     updateStateListener?.invoke(gameSession.playerSessions)
@@ -105,11 +105,11 @@ class GamePool {
      * Discards all associated games and player sessions for a game with given gameUUID
      */
     fun discardGame(gameUuid: String) {
-        gameSessions.firstOrNull { it.uuid == gameUuid }?.apply {
-            gameDisbandedListener?.invoke(playerSessions)
-            playerSessions.clear()
-            gameEngines.remove(this)
-            gameSessions.remove(this)
+        gameSessions.filter { it.uuid == gameUuid }.forEach {
+            gameDisbandedListener?.invoke(it.playerSessions)
+            it.playerSessions.clear()
+            gameEngines.remove(it)
+            gameSessions.remove(it)
         }
     }
 
