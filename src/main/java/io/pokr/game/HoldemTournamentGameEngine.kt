@@ -146,12 +146,12 @@ class HoldemTournamentGameEngine(
             // dealer is SB and is on move, the other player is BB
             if(game.activePlayers.size == 2) {
                 game.currentDealer.apply {
-                    currentBet = kotlin.math.min(game.currentDealer.chips, game.smallBlind)
+                    currentBet = kotlin.math.min(chips, game.smallBlind)
                     startMove()
                 }
 
                 get(indexOf(game.currentDealer) + 1).apply {
-                    currentBet = kotlin.math.min(game.currentDealer.chips, game.bigBlind)
+                    currentBet = kotlin.math.min(chips, game.bigBlind)
                 }
             } else {
                 // otherwise, the next player to the dealer is SB
