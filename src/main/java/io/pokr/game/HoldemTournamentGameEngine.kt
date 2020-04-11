@@ -269,7 +269,7 @@ class HoldemTournamentGameEngine(
 
                     // after cards are drawn, the next player from a dealer is on move
                     game.currentPlayerOnMove.isOnMove = false
-                    game.nextActivePlayerFrom(game.currentDealer).isOnMove = true
+                    game.nextActivePlayerFrom(game.currentDealer).startMove()
                 }
             } else {
                 // go to the next player

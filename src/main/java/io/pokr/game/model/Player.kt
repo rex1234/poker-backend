@@ -30,8 +30,8 @@ class Player(
     var lastWin = 0
 
     fun startMove() {
-        isOnMove = true
         moveStart = System.currentTimeMillis()
+        isOnMove = true
     }
 
     val isAllIn
