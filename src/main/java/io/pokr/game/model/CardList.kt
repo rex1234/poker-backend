@@ -18,6 +18,9 @@ class CardList(
             CardList(cardStack.stack)
     }
 
+    val size
+        get() = cards.size
+
     fun with(cardList: CardList) =
         CardList(cardList.cards + cards)
 

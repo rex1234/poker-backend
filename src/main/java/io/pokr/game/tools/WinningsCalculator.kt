@@ -53,6 +53,7 @@ class WinningsCalculator {
             results.last().player.currentBet = pot
 
             results.forEach {
+                it.player.lastWin = it.player.currentBet
                 it.player.chips += it.player.currentBet
                 it.player.currentBet = 0
             }

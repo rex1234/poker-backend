@@ -109,7 +109,7 @@ class HoldemTournamentGameEngine(
             targetBet = game.bigBlind
             previousTargetBet = 0
             roundState = Game.RoundState.ACTIVE
-            winningCards = null
+            bestCards = null
             tableCards = CardList()
         }
 
@@ -123,10 +123,12 @@ class HoldemTournamentGameEngine(
         // reset players' states
         game.allPlayers.forEach {
             it.cards = CardList()
+            it.bestCards = null
             it.showCards = false
             it.isOnMove = false
             it.hand = null
             it.action = PlayerAction.Action.NONE
+            it.lastWin = 0
         }
 
         // draw cards for each non-finished player
@@ -144,12 +146,12 @@ class HoldemTournamentGameEngine(
             // dealer is SB and is on move, the other player is BB
             if(game.activePlayers.size == 2) {
                 game.currentDealer.apply {
-                    currentBet = kotlin.math.min(game.currentDealer.chips, game.smallBlind)
+                    currentBet = kotlin.math.min(chips, game.smallBlind)
                     startMove()
                 }
 
                 get(indexOf(game.currentDealer) + 1).apply {
-                    currentBet = kotlin.math.min(game.currentDealer.chips, game.bigBlind)
+                    currentBet = kotlin.math.min(chips, game.bigBlind)
                 }
             } else {
                 // otherwise, the next player to the dealer is SB
@@ -195,7 +197,8 @@ class HoldemTournamentGameEngine(
             // raise and reset other players' actions
             PlayerAction.Action.RAISE -> {
                 val raiseAmount = playerAction.numericValue!!
-                if (raiseAmount >= game.smallBlind * 2) {// TODO: implement raise rules
+                // if we can raise or if we raise to an all in
+                if (raiseAmount >= game.smallBlind * 2 || raiseAmount + player.currentBet == player.chips) {// TODO: implement raise rules
                     if (player.chips - player.currentBet >= raiseAmount) {
                         game.targetBet = player.currentBet + raiseAmount
                         player.currentBet = game.targetBet
@@ -335,7 +338,9 @@ class HoldemTournamentGameEngine(
         } else {
             // calculate winning after regular round
             val ranks = handComparator.evalPlayers(game.players, game.tableCards)
-            game.winningCards = ranks[0].bestCards
+            ranks.forEach { it.player.bestCards = it.bestCards!!.first }
+            game.bestCards = ranks[0].bestCards!!.second
+
             WinningsCalculator.calculateWinnings(ranks)
         }
     }

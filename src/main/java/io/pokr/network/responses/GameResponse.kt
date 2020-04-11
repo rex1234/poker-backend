@@ -19,7 +19,7 @@ class GameResponse(
         val players: List<PlayerState>,
         val pot: Int?,
         val cards: String,
-        val winningCards: String?,
+        val bestCards: String?,
         val nextBlinds: Long,
         val smallBlind: Int,
         val bigBlind: Int,
@@ -39,9 +39,11 @@ class GameResponse(
         val action: String,
         val cards: String?,
         val hand: String?,
+        val bestCards: String?,
         val chips: Int,
         val currentBet: Int,
-        val rebuyCount: Int
+        val rebuyCount: Int,
+        val lastWin: Int
     )
 
     class GameStateFactory {
@@ -58,7 +60,7 @@ class GameResponse(
                     roundState = game.roundState.toString().toLowerCase(),
                     user = player.playerState(true, game),
                     cards = if(game.gameState == Game.State.ACTIVE) game.tableCards.toString() else "",
-                    winningCards = game.winningCards?.toString(),
+                    bestCards = game.bestCards?.toString(),
                     pot = game.allPlayers.sumBy { it.currentBet },
                     smallBlind = game.smallBlind,
                     bigBlind = game.bigBlind,
@@ -83,8 +85,10 @@ class GameResponse(
                 action = action.toString().toLowerCase(),
                 cards = if (forSelf || (game.roundState == Game.RoundState.FINISHED && showCards)) cards.toString() else null,
                 hand = if (forSelf || (game.roundState == Game.RoundState.FINISHED && showCards)) hand?.handName else null,
+                bestCards = if (forSelf || (game.roundState == Game.RoundState.FINISHED && showCards)) bestCards?.toString() else null,
                 chips = chips,
-                currentBet = currentBet
+                currentBet = currentBet,
+                lastWin = lastWin
             )
         }
     }

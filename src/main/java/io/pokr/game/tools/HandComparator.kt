@@ -46,18 +46,6 @@ class HandComparator {
 
         val CardList.evalHand
             get() = EvalHand.evaluate(EvalHand.fromString(toString().replace("0", "T")))
-
-        val CardList.allTriplesFromFour
-            get() = (0..3).map { i ->
-                CardList(cards - cards[i])
-            }
-
-        val CardList.allTriplesFromFive
-            get() = (0..3).map { i ->
-                (i + 1..4).map { j -> Pair(i, j) } // indices of all pairs of cards
-            }.flatten(). map {
-                CardList(cards - cards[it.first] - cards[it.second]) // subtract the cards from the stack of 5
-            }
     }
 
     enum class Hand(
@@ -79,7 +67,7 @@ class HandComparator {
         var rank: Int,
         var player: Player,
         var hand: Hand? = null,
-        var bestCards: CardList? = null
+        var bestCards: Pair<CardList, CardList>? = null
     )
 
     fun findHighestHand(cardList: CardList) =
@@ -88,25 +76,51 @@ class HandComparator {
     fun compareHands(c1: CardList, c2: CardList) =
         c2.evalHand - c1.evalHand
 
+
+    private fun getAllCardCombinations(playerCards: CardList, tableCards: CardList): List<Pair<CardList, CardList>> {
+        val allCards = playerCards.with(tableCards).cards
+
+        if(allCards.size == 5) {
+            return listOf(Pair(playerCards, tableCards))
+        } else {
+            val discardCards = allCards.size - 5
+
+            val result =
+                if(discardCards == 1) {
+                    (0..5).map { allCards - allCards[it] }
+                } else {
+                    (0..6).map { i -> (0..6).map { j -> Pair(i, j) }}.flatten().filter { it.first != it.second }.map {
+                        allCards - allCards[it.first] - allCards[it.second]
+                    }
+                }
+
+            return result.map {
+                val losingCards = allCards - it
+                Pair(CardList(playerCards.cards - losingCards), CardList(tableCards.cards - losingCards))
+            }
+        }
+    }
+
     fun findHighestHand(playerCards: CardList, tableCards: CardList) =
-        when {
-            tableCards.cards.size == 3 -> findHighestHand(playerCards.with(tableCards))
-            tableCards.cards.size == 4 -> findHighestHand(
-                tableCards.allTriplesFromFour.minBy { playerCards.with(it).evalHand }!!.with(playerCards)
-            )
-            else -> findHighestHand(
-                tableCards.allTriplesFromFive.minBy { playerCards.with(it).evalHand }!!.with(playerCards)
-            )
+        getAllCardCombinations(playerCards, tableCards).minBy {
+            it.first.with(it.second).evalHand
+        }!!.let {
+            findHighestHand(it.first.with(it.second))
         }
 
 
     fun evalPlayers(players: List<Player>, tableCards: CardList) =
         players.map { player ->
-            tableCards.allTriplesFromFive.minBy { player.cards.with(it).evalHand }!!.let {
+            getAllCardCombinations(player.cards, tableCards).minBy {
+                it.first.with(it.second).evalHand
+            }!!.let {
                 PlayerHandComparisonResult(
-                    rank = if (player.action == PlayerAction.Action.FOLD) Integer.MAX_VALUE else player.cards.with(it).evalHand,
+                    rank = if (player.action == PlayerAction.Action.FOLD)
+                        Integer.MAX_VALUE
+                    else
+                        it.first.with(it.second).evalHand,
                     player = player,
-                    hand = findHighestHand(it.with(player.cards)),
+                    hand = findHighestHand(it.first.with(it.second)),
                     bestCards = it
                 )
             }
