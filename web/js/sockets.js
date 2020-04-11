@@ -504,6 +504,7 @@ function showCards(data) {
         $(".dealt-cards-3").html("");
         $(".dealt-cards-4").html("");
         $(".dealt-cards-5").html("");
+
     }
 
      if(cards[2] !== undefined) {
@@ -512,10 +513,26 @@ function showCards(data) {
         $(".dealt-cards-3").html('<img src="img/cards/' + cards[2] +'.svg"/>');
       }
 
-     if(cards[3] !== undefined) { $(".dealt-cards-4").html('<img src="img/cards/' + cards[3] +'.svg"/>'); }
-     if(cards[4] !== undefined) { $(".dealt-cards-5").html('<img src="img/cards/' + cards[4] +'.svg"/>'); }
+     if(cards[3] !== undefined) {
+        $(".dealt-cards-4").html('<img src="img/cards/' + cards[3] +'.svg"/>');
+      }
+     if(cards[4] !== undefined) {
+        $(".dealt-cards-5").html('<img src="img/cards/' + cards[4] +'.svg"/>');
+      }
 
-    //TODO: animate cards
+      if(getStreet() === "flop" && noOnePlayed(data)) {
+        animationFlop();
+      }
+
+      if(getStreet() === "turn" && noOnePlayed(data)) {
+         animationTurn();
+      }
+
+      if(getStreet() === "river" && noOnePlayed(data)) {
+           animationRiver();
+      }
+
+    //TODO: animate showdown (more streets) and show cards if someone reconnects
     console.log(getStreet());
 }
 
@@ -556,6 +573,20 @@ function giveCSSClasses(data, position, i) {
     if(onm === true) {
         $("#player" + position).addClass("onMove");
     };
+}
+
+//returns true if noone played yet
+function noOnePlayed(data) {
+    if(data.user.action !== "none") {
+        return false;
+    }
+    for(i = 0; i < data.players.length; i++) {
+        console.log(data.players[i].action);
+        if(data.players[i].action !== "none") {
+            return false;
+        }
+    }
+    return true;
 }
 
 //sort array and remove duplicate values
