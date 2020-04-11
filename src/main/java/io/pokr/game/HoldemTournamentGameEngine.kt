@@ -109,7 +109,7 @@ class HoldemTournamentGameEngine(
             targetBet = game.bigBlind
             previousTargetBet = 0
             roundState = Game.RoundState.ACTIVE
-            winningCards = null
+            bestCards = null
             tableCards = CardList()
         }
 
@@ -123,7 +123,7 @@ class HoldemTournamentGameEngine(
         // reset players' states
         game.allPlayers.forEach {
             it.cards = CardList()
-            it.winningCards = null
+            it.bestCards = null
             it.showCards = false
             it.isOnMove = false
             it.hand = null
@@ -338,8 +338,8 @@ class HoldemTournamentGameEngine(
         } else {
             // calculate winning after regular round
             val ranks = handComparator.evalPlayers(game.players, game.tableCards)
-            ranks.forEach { it.player.winningCards = it.bestCards!!.first }
-            game.winningCards = ranks[0].bestCards!!.second
+            ranks.forEach { it.player.bestCards = it.bestCards!!.first }
+            game.bestCards = ranks[0].bestCards!!.second
 
             WinningsCalculator.calculateWinnings(ranks)
         }

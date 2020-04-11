@@ -41,7 +41,7 @@ class Game constructor(
     lateinit var cardStack: CardStack
     lateinit var tableCards: CardList
 
-    var winningCards: CardList? = null
+    var bestCards: CardList? = null
 
     // players active in the current game
     val players

@@ -25,7 +25,7 @@ class Player(
     var rebuyCount = 0
 
     // only for FE
-    var winningCards: CardList? = null
+    var bestCards: CardList? = null
     var showCards = false
     var lastWin = 0
 
