@@ -306,7 +306,16 @@ class HoldemTournamentGameEngine(
         }
 
         // if a player has 0 chips, he is finished and won't play anymore (unless he rebuys)
-        game.allPlayers.filter { it.chips == 0 }.forEach { it.isFinished = true }
+        game.allPlayers.filter { it.chips == 0 }.forEach {
+            it.isFinished = true
+        }
+
+        // set player's final rank (if it was not already set before)
+        game.allPlayers.filter { it.finalRank == 0 && it.chips == 0 }.forEach {
+            it.finalRank = game.players.size + 1 + it.lastWin
+
+            // TODO: player with more chips at the round end should have better final rank
+        }
 
         // switch to the FINISHED state, no actions and be performed anymore and the results of the round are shown
         game.roundState = Game.RoundState.FINISHED
@@ -315,6 +324,7 @@ class HoldemTournamentGameEngine(
             Thread.sleep(3_000) // RECAP timer
             // if there is only one player with chips we will finish the game
             if (game.allPlayers.count { it.chips > 0 } == 1) {
+                game.allPlayers.first { it.chips > 0 }.finalRank = 1
                 finishGame()
             } else {
                 // otherwise we will wait some time and start a new round

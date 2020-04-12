@@ -66,8 +66,7 @@ class GamePool {
         executePlayerAction(playerSession.uuid, PlayerAction(
             action = PlayerAction.Action.CHANGE_NAME,
             textValue = playerName
-        )
-        )
+        ))
     }
 
     /**
@@ -173,7 +172,7 @@ class GamePool {
      * Returns sessions of all other players in the same game as the session player
      */
     fun getGroupSessions(session: String) =
-        gameSessions.firstOrNull() { session in it.playerSessions.map { it.sessionId } }?.playerSessions
+        gameSessions.firstOrNull { session in it.playerSessions.map { it.sessionId } }?.playerSessions
             ?: listOf<PlayerSession>()
 
     /**

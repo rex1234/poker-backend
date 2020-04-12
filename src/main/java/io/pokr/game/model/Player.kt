@@ -23,6 +23,7 @@ class Player(
     var chips = 0
     var isRebuyNextRound = false
     var rebuyCount = 0
+    var finalRank = 0
 
     // only for FE
     var bestCards: CardList? = null

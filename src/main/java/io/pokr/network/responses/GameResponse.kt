@@ -43,7 +43,8 @@ class GameResponse(
         val chips: Int,
         val currentBet: Int,
         val rebuyCount: Int,
-        val lastWin: Int
+        val lastWin: Int,
+        val finalRank: Int
     )
 
     class GameStateFactory {
@@ -88,7 +89,8 @@ class GameResponse(
                 bestCards = if (forSelf || (game.roundState == Game.RoundState.FINISHED && showCards)) bestCards?.toString() else null,
                 chips = chips,
                 currentBet = currentBet,
-                lastWin = lastWin
+                lastWin = lastWin,
+                finalRank = finalRank
             )
         }
     }

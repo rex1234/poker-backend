@@ -32,7 +32,7 @@ class Game constructor(
     var totalPauseTime = 0L
 
     val isLateRegistrationEnabled
-        get() = System.currentTimeMillis() - gameStart < config.rebuyTime * 1000
+        get() = System.currentTimeMillis() - gameStart - totalPauseTime < config.rebuyTime * 1000
 
     val gameTime
         get() = System.currentTimeMillis() - gameStart - totalPauseTime
@@ -76,8 +76,10 @@ class Game constructor(
 
     fun pause(pause: Boolean) {
         if(pause) {
+            gameState = State.PAUSED
             pauseStart = System.currentTimeMillis()
         } else {
+            gameState = State.ACTIVE
             val pauseTime = System.currentTimeMillis() - pauseStart
             totalPauseTime += pauseTime
             nextBlinds += pauseTime
