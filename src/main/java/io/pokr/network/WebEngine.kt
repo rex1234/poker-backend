@@ -2,9 +2,11 @@ package io.pokr.network
 
 
 import io.github.cdimascio.dotenv.dotenv
+import io.ktor.application.call
 import io.ktor.http.content.file
 import io.ktor.http.content.files
 import io.ktor.http.content.static
+import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.route
 import io.ktor.routing.routing
@@ -19,6 +21,10 @@ class WebEngine {
                 routing {
                     route("api") {
                         get("/game_state") {
+                        }
+
+                        get("/version") {
+                            call.respondText("v1.0")
                         }
                     }
 
