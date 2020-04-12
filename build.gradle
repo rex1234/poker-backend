@@ -49,9 +49,9 @@ compileTestKotlin {
 //create a single Jar with all dependencies
 task fatJar(type: Jar) {
     manifest {
-        attributes 'Implementation-Title': 'Gradle Jar File Example',
+        attributes 'Implementation-Title': 'Pokr.io server',
                 'Implementation-Version': version,
-                'Main-Class': 'com.mkyong.DateUtils'
+                'Main-Class': 'io.pokr.PokrioKt'
     }
     baseName = project.name + '-all'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
