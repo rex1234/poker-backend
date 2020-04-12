@@ -10,7 +10,6 @@ class HandComparator {
 
     companion object {
 
-        // TODO: take the highest card outside of the combination
         val CardList.highCard
             get() = cards.maxBy { it.value.ordinal }!!
 

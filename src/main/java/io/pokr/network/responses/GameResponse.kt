@@ -24,7 +24,8 @@ class GameResponse(
         val smallBlind: Int,
         val bigBlind: Int,
         val targetBet: Int,
-        var previousTargetBet: Int
+        var previousTargetBet: Int,
+        val isLateRegistrationEnabled: Boolean
     )
 
     class PlayerState(
@@ -70,7 +71,8 @@ class GameResponse(
                         it.playerState(false, game)
                     },
                     targetBet = game.targetBet,
-                    previousTargetBet = game.previousTargetBet
+                    previousTargetBet = game.previousTargetBet,
+                    isLateRegistrationEnabled = game.isLateRegistrationEnabled
                 )
 
             fun Player.playerState(forSelf: Boolean, game: Game) = PlayerState(

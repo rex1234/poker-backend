@@ -7,6 +7,7 @@ import io.pokr.game.tools.GameTimer
 import io.pokr.game.tools.HandComparator
 import io.pokr.game.tools.WinningsCalculator
 import kotlin.concurrent.thread
+import kotlin.math.*
 
 class HoldemTournamentGameEngine(
     gameUuid: String,
@@ -146,22 +147,22 @@ class HoldemTournamentGameEngine(
             // dealer is SB and is on move, the other player is BB
             if(game.activePlayers.size == 2) {
                 game.currentDealer.apply {
-                    currentBet = kotlin.math.min(chips, game.smallBlind)
+                    currentBet = min(chips, game.smallBlind)
                     startMove()
                 }
 
                 get(indexOf(game.currentDealer) + 1).apply {
-                    currentBet = kotlin.math.min(chips, game.bigBlind)
+                    currentBet = min(chips, game.bigBlind)
                 }
             } else {
                 // otherwise, the next player to the dealer is SB
                 get(indexOf(game.currentDealer) + 1).apply {
-                    currentBet = kotlin.math.min(chips, game.smallBlind)
+                    currentBet = min(chips, game.smallBlind)
                 }
 
                 // the next one BB
                 get(indexOf(game.currentDealer) + 2).apply {
-                    currentBet = kotlin.math.min(chips, game.bigBlind)
+                    currentBet = min(chips, game.bigBlind)
                 }
 
                 // and the next one is on move
@@ -186,7 +187,7 @@ class HoldemTournamentGameEngine(
         val passedMove = when(playerAction.action) {
             PlayerAction.Action.CALL -> {
                 // call to the target bet or go all in
-                player.currentBet = kotlin.math.min(game.targetBet, player.chips)
+                player.currentBet = min(game.targetBet, player.chips)
                 true
             }
 
@@ -321,12 +322,15 @@ class HoldemTournamentGameEngine(
         game.roundState = Game.RoundState.FINISHED
 
         thread {
-            Thread.sleep(3_000) // RECAP timer
+            // recap timer - the more cards there are, the longer we will show the recapr
+            Thread.sleep(min(3_000 + max((game.players.count { it.showCards } - 1), 0) * 1500L, 6000L))
+
             // if there is only one player with chips we will finish the game
             if (game.allPlayers.count { it.chips > 0 } == 1) {
                 game.allPlayers.first { it.chips > 0 }.finalRank = 1
                 finishGame()
             } else {
+                // TODO: there can be bug when a player unpauses before this time limit (and startNewRound will be called 2x)
                 // otherwise we will wait some time and start a new round
                 startNewRound()
                 updateStateListener(this)
