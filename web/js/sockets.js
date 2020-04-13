@@ -1,5 +1,8 @@
 var socket = io.connect('http://' + window.location.hostname + ':9092');
 
+//reconnection variable
+var reconnected = false;
+
 // inbound events
 
 socket.on('gameState', function (data) {
@@ -364,7 +367,7 @@ function printPlayers(data) {
              $(".betsizes.first").removeClass("disabled");
              $(".betsizes.second").removeClass("disabled");
              $(".betsizes.third").removeClass("disabled");
-            if(getStreet() === "preflop") {
+            if(getStreet(data) === "preflop") {
                 $(".betsizes.first").html("2.5BB");
                 $(".betsizes.first").attr("onclick", "raiseChange(" + Math.min(5*data.smallBlind, maxRaiseFromCurr + chipsInPot) + ")");
                 $(".betsizes.second").html("3BB");
@@ -407,16 +410,10 @@ function printPlayers(data) {
                 $(".autofold").removeClass("disabled");
             }
 
-            console.log(checkHighestBet(data));
-                 //show autocheck button when out of turn and can check
-            if(data.roundState !== "finished" && (data.user.currentBet >= checkHighestBet(data)) && data.user.action === "none") {
+            //show autocheck button when out of turn and can check
+            if(data.roundState !== "finished" && (data.user.currentBet >= checkHighestBet(data)) && data.user.action === "none" && data.state === "active") {
                 $(".autocheck").removeClass("disabled");
             }
-    }
-
-    //showdown
-    if(data.roundState === "finished") {
-
     }
 
     //hide inactive users
@@ -440,20 +437,26 @@ function printPlayers(data) {
     $("#player"+ dealer +" .dealer").addClass("is-dealer");
 
 
-
-     //highlight winning cards
+     //TODO highlight winning cards
      if(data.roundState === "finished") {
 
      } else {
 
      }
 
+    //showdown
+    if(data.roundState === "finished") {
+        $('.player-timer-running').hide();
+    } else {
+        $('.player-timer-running').show();
+    }
+
      $(".pot").html(pot);
 }
 
 //checks highest bet on a street
 function checkHighestBet(data) {
-    var result = 0;
+    var result = data.user.currentBet;
     for(i = 0; i < data.players.length; i++) {
         result = Math.max(result, data.players[i].currentBet);
     }
@@ -494,7 +497,6 @@ function isEveryoneElseAllin(data) {
             rtn = rtn && (data.players[i].currentBet === data.players[i].chips);
         }
     }
-    console.log(rtn);
     return rtn;
 }
 
@@ -503,54 +505,109 @@ function showCards(data) {
    var cards = data.cards.split(" ");
     cards.reverse();
 
-    //delete cards from previous game
-    if(cards[0] === "") {
-        $(".dealt-cards-1").html("");
-        $(".dealt-cards-2").html("");
-        $(".dealt-cards-3").html("");
-        $(".dealt-cards-4").html("");
-        $(".dealt-cards-5").html("");
-
-    }
-
-     if(cards[2] !== undefined) {
+    function addFlop() {
         $(".dealt-cards-1").html('<img src="img/cards/' + cards[0] +'.svg"/>');
         $(".dealt-cards-2").html('<img src="img/cards/' + cards[1] +'.svg"/>');
         $(".dealt-cards-3").html('<img src="img/cards/' + cards[2] +'.svg"/>');
-      }
+    }
 
-     if(cards[3] !== undefined) {
+    function addTurn() {
         $(".dealt-cards-4").html('<img src="img/cards/' + cards[3] +'.svg"/>');
-      }
-     if(cards[4] !== undefined) {
+    }
+
+    function addRiver() {
         $(".dealt-cards-5").html('<img src="img/cards/' + cards[4] +'.svg"/>');
+    }
+
+     //delete cards from previous game
+     if(cards[0] === "") {
+         $(".dealt-cards-1").html("");
+         $(".dealt-cards-2").html("");
+         $(".dealt-cards-3").html("");
+         $(".dealt-cards-4").html("");
+         $(".dealt-cards-5").html("");
+         $(".dealt-cards-5").css('opacity', 0);
+         $(".dealt-cards-4").css('opacity', 0);
+         $(".dealt-cards-3").css('opacity', 0);
+         $(".dealt-cards-2").css('opacity', 0);
+         $(".dealt-cards-1").css('opacity', 0);
+     }
+    console.log(data);
+    if(reconnected) {
+        if(getStreet(data) === "flop") {
+            addFlop();
+            animationFlopInstant();
+        }
+        if(getStreet(data) === "turn") {
+            addFlop();
+            addTurn();
+            animationFlopInstant();
+            animationTurnInstant();
+        }
+        if(getStreet(data) === "river") {
+            addFlop();
+            addTurn();
+            addRiver();
+            animationFlopInstant();
+            animationTurnInstant();
+            animationRiverInstant();
+        }
+        $(".dealt-cards-1").css('opacity', 0);
+        reconnected = false;
+    } else {
+
+        //animate allins streets = preflop allin
+         if(data.roundState === "finished" && getStreet(data) === "river") {
+            if($(".dealt-cards-1").html() === "") {
+                $(".dealt-cards-5").css('opacity', 0);
+                $(".dealt-cards-4").css('opacity', 0);
+                addFlop();
+                addTurn();
+                addRiver();
+                animationAll();
+            }
+            if($(".dealt-cards-4").html() === "") {
+                $(".dealt-cards-4").css('opacity', 0);
+                $(".dealt-cards-5").css('opacity', 0);
+                addTurn();
+                addRiver();
+                animationTurnAndRiver();
+            }
+            if($(".dealt-cards-5").html() === "") {
+                addRiver();
+                animationRiverShowdown();
+            }
+         }
+
+          if(getStreet(data) === "flop" && noOnePlayed(data)) {
+            addFlop();
+            animationFlop();
+          }
+
+          if(getStreet(data) === "turn" && noOnePlayed(data)) {
+             addTurn();
+             animationTurn();
+          }
+
+          if(getStreet(data) === "river" && noOnePlayed(data)) {
+             addRiver();
+             animationRiver();
+          }
       }
 
-      if(getStreet() === "flop" && noOnePlayed(data)) {
-        animationFlop();
-      }
 
-      if(getStreet() === "turn" && noOnePlayed(data)) {
-         animationTurn();
-      }
-
-      if(getStreet() === "river" && noOnePlayed(data)) {
-           animationRiver();
-      }
-
-    //TODO: animate showdown (more streets) and show cards if someone reconnects
-    console.log(getStreet());
 }
 
 //returns the street of the game = preflop, flop, turn, river
-function getStreet() {
-    if($(".dealt-cards-5").html() !== "") {
+function getStreet(data) {
+    var cards = data.cards.split(" ");
+    if(cards.length === 5) {
         return "river";
     }
-    if($(".dealt-cards-4").html() !== "") {
+    if(cards.length === 4) {
          return "turn";
     }
-    if($(".dealt-cards-1").html() !== "") {
+    if(cards.length === 3) {
          return "flop";
      }
      return "preflop";
@@ -587,12 +644,15 @@ function noOnePlayed(data) {
         return false;
     }
     for(i = 0; i < data.players.length; i++) {
-        console.log(data.players[i].action);
         if(data.players[i].action !== "none") {
             return false;
         }
     }
     return true;
+}
+
+function connectedPlayersChange(arr) {
+
 }
 
 //sort array and remove duplicate values

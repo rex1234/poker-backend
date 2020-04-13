@@ -109,16 +109,16 @@ function playerCountdown(start, playerPosition, limit, cards) {
             cardsCheck = true;
         }
 
-
-        if (++x === limit*5 || $("#player" + playerPosition).hasClass("none") === false || $("#player" + playerPosition).hasClass("onMove") === false || cardsCheck || prc < 1) {
+        if (++x === limit*25 || $("#player" + playerPosition).hasClass("none") === false || $("#player" + playerPosition).hasClass("onMove") === false || cardsCheck || prc < 1) {
             window.clearInterval(intervalID);
         }
-    }, 200);
+    }, 40);
 }
 
 $(document).ready(function () {
         // restore game
         if (Cookies.get('game_uuid') && Cookies.get('player_uuid')) {
+            reconnected = true;
             console.log("reconnecting to an existing game");
             connectToGame(Cookies.get("nick"), Cookies.get("game_uuid"));
         }
