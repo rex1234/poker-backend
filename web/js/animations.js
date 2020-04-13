@@ -146,7 +146,11 @@ river
     .add({
         targets: '.dealt-cards-5',
         rotateY: [90, 180],
-        duration: 1000
+        duration: 1000,
+        complete: function(anim) {
+            refreshCards();
+            highlightCards(d);
+         }
     }, 2250);
 
 riverInstant
@@ -198,7 +202,11 @@ riverShow
     .add({
         targets: '.dealt-cards-5',
         rotateY: [90, 180],
-        duration: 1000
+        duration: 1000,
+        complete: function(anim) {
+            refreshCards();
+            highlightCards(d);
+        }
     }, 700);
 
 
@@ -225,7 +233,11 @@ turnAndRiver
     .add({
         targets: '.dealt-cards-5',
         rotateY: [90, 180],
-        duration: 1000
+        duration: 1000,
+        complete: function(anim) {
+            refreshCards();
+            highlightCards(d);
+        }
     });
 
 function animationAll() {

@@ -3,6 +3,9 @@ var socket = io.connect('http://' + window.location.hostname + ':9092');
 //reconnection variable
 var reconnected = false;
 
+//data
+var d;
+
 // inbound events
 
 socket.on('gameState', function (data) {
@@ -23,7 +26,7 @@ socket.on('gameState', function (data) {
         $(".pregame").hide();
     }
 
-
+    d = data;
     printPlayers(data);
     print(data);
 
@@ -171,6 +174,7 @@ function sendChatMessage(msg) {
     });
 }
 
+
 // MISC
 
 function print(data) {
@@ -181,6 +185,11 @@ function print(data) {
 function printPlayers(data) {
     giveCSSClasses(data, 1, -1);
 
+
+    //first hand of the round
+    if(data.roundState === "active" && noOnePlayed(data)) {
+        refreshCards();
+    }
 
     var pot = data.user.currentBet;
     var players = [[1, data.user.dealer]];
@@ -448,10 +457,10 @@ function printPlayers(data) {
 
 
      //TODO highlight winning cards
-     if(data.roundState === "finished") {
 
-     } else {
-
+     //at the end of the round, only if the showdown was at the river (no earlier allin runout)
+     if(data.roundState === "finished" && typeof data.bestCards !== 'undefined' && $(".dealt-cards-5").css('opacity') === "1") {
+        highlightCards(data);
      }
 
     //showdown
@@ -637,7 +646,7 @@ function giveCSSClasses(data, position, i) {
     var onm = false;
     if(position === 1) {
         onm = data.user.onMove;
-        $("#player1").addClass(data.state + " r" + data.RoundState + " " + data.user.action);
+        $("#player1").addClass(data.state + " r" + data.roundState + " " + data.user.action);
     } else {
         onm = data.players[i].onMove;
         $("#player" + position).addClass(data.state + " r" + data.roundState + " " + data.players[i].action);
@@ -646,6 +655,80 @@ function giveCSSClasses(data, position, i) {
     if(onm === true) {
         $("#player" + position).addClass("onMove");
     };
+}
+
+//highlight winning cards
+function highlightCards(data) {
+    var lastWin = data.user.lastWin;
+    var highest = [data.user.index];
+    var arrPos = [-1];
+
+    //determine who won
+    for(i = 0; i < data.players.length; i++) {
+        if(data.players[i].lastWin > lastWin) {
+            highest = [];
+            arrPos = [];
+            highest.push(data.players[i].index);
+            arrPos.push(i);
+
+        }
+        if(data.players[i].lastWin === lastWin) {
+            highest.push(data.players[i].index);
+            arrPos.push(i);
+        }
+    }
+
+    $(".card-1").addClass("notPlaying");
+    $(".card-2").addClass("notPlaying");
+
+    //hide cards in players hands
+    for(i = 0; i < highest.length; i++) {
+        var position = getPlayerPosition(data, highest[i]);
+        var cardsPl;
+        var bestPl;
+
+        if(position === 1) {
+            cardsPl = data.user.cards.split(" ");
+            bestPl = data.user.bestCards.split(" ");
+        } else {
+            cardsPl = data.players[arrPos[i]].cards.split(" ");
+            bestPl = data.players[arrPos[i]].bestCards.split(" ");
+        }
+        console.log(bestPl[0] + "b" + bestPl[1]);
+        console.log(cardsPl[0] + "c" + cardsPl[1]);
+
+        for(k = 0; k < cardsPl.length; k++) {
+            var contains = (bestPl[0] === cardsPl[k]) || (bestPl[1] === cardsPl[k]);
+            console.log(contains);
+            if(contains) {
+                $("#player" + position + " .cards .card-" + (k+1)).removeClass("notPlaying");
+            }
+        }
+    }
+
+    var cards = data.cards.split(" ");
+    var bestCards = data.bestCards.split(" ");
+    var pos = bestCards.length;
+    //partly hide cards that does not won
+    for(i = 5; i > 0; i--) {
+        console.log("i: " + cards[i-1] + ", pos:" + bestCards[pos-1] + ", removed: " + (cards[i-1] !== bestCards[pos-1]))
+        if(cards[i-1] !== bestCards[pos-1]) {
+            $(".dealt-cards-" + (6-i)).addClass("notPlaying");
+        } else if(pos === 0) {
+            $(".dealt-cards-" + (6-i)).addClass("notPlaying");
+        } else {
+            pos--;
+        }
+    }
+}
+
+//resets all css on the cards
+function refreshCards() {
+    for(i = 1; i <= 5; i++) {
+        $(".dealt-cards-" + i).removeClass("notPlaying");
+    }
+    $(".card-1").removeClass("notPlaying");
+    $(".card-2").removeClass("notPlaying");
 }
 
 //returns true if noone played yet
@@ -659,6 +742,19 @@ function noOnePlayed(data) {
         }
     }
     return true;
+}
+
+function getPlayerPosition(data, index) {
+    var position;
+    if(data.user.index === index) {
+        return 1;
+    }
+    if(data.user.index < index) {
+        position = index - data.user.index + 1;
+    } else {
+        position = index - data.user.index + 10;
+    }
+    return position;
 }
 
 function connectedPlayersChange(arr) {
