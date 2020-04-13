@@ -265,3 +265,18 @@ function animationTurnInstant() {
 function animationRiverInstant() {
     riverInstant.play();
 }
+
+//loader
+function animationLoader() {
+    anime({
+        targets: '#loader .wrapper img',
+        easing: 'easeInOutSine',
+        keyframes: [
+            {translateY: 0},
+            {translateY: -20},
+            {translateY: 0}
+          ],
+          loop: true,
+        delay: anime.stagger(200) // increase delay by 100ms for each elements.
+    });
+}

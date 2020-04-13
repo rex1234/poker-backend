@@ -10,11 +10,19 @@ socket.on('gameState', function (data) {
     Cookies.set('game_uuid', data.uuid, { expires: 1 });
     Cookies.set('nick', data.user.name, { expires: 100 });
 
-
+    //user is in game
+    $("#loader").hide();
     $("#settings").hide();
     $(".game-container").show();
-
     $(".pregame").show();
+
+    //user is admin
+    if(data.state === "created" && data.user.admin) {
+        $("#start").show();
+    } else {
+        $(".pregame").hide();
+    }
+
 
     printPlayers(data);
     print(data);
@@ -25,6 +33,9 @@ socket.on('gameState', function (data) {
 socket.on('error', function (data) {
     print(data);
     console.log(data);
+
+    //hide loader if err
+    $("#loader").hide();
 
     if(data.code == 20) { // invalid game UUID
         Cookies.set('player_uuid', null);
@@ -176,7 +187,9 @@ function printPlayers(data) {
 
     $("#player1 .player-name").html(data.user.name);
     $("#player1 .player-chips").html(data.user.chips - data.user.currentBet);
-    $("#player1 .bet").html(data.user.currentBet - data.previousTargetBet);
+    var betDesc = data.user.currentBet - data.previousTargetBet;
+    if(betDesc <= 0) { betDesc = ""; }
+    $("#player1 .bet").html(betDesc);
     if(data.user.cards.length > 0) {
         var cards = data.user.cards.split(" ");
         $("#player1 .card-1").html('<img src="img/cards/' + cards[0] +'.svg"/>');
@@ -194,11 +207,6 @@ function printPlayers(data) {
     }
 
     for(i = 0; i < data.players.length; i++) {
-        if(data.state === "created" && data.user.admin) {
-            $("#start").show();
-        } else {
-            $(".pregame").hide();
-        }
         var position;
         if(data.user.index < data.players[i].index) {
             position = data.players[i].index - data.user.index + 1;
@@ -212,7 +220,9 @@ function printPlayers(data) {
         giveCSSClasses(data, position, i);
         $("#player"+ position +" .player-name").html(data.players[i].name);
         $("#player"+ position +" .player-chips").html(data.players[i].chips-data.players[i].currentBet);
-        $("#player"+ position +" .bet").html(data.players[i].currentBet - data.previousTargetBet);
+        var betDesc = data.players[i].currentBet - data.previousTargetBet;
+        if(betDesc <= 0) { betDesc = ""; }
+        $("#player"+ position +" .bet").html(betDesc);
 
         //showdown
         if(data.players[i].cards != null && data.roundState === "finished" ) {

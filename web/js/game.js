@@ -1,10 +1,14 @@
+var timerOn = -1;
+
 $( "#joinGame button").click(function() {
+    $("#loader .wrapper .text").html("Feeding you to the sharks…");
+    $("#loader").show();
     connectToGame($('#userid-join').val(), $('#gameid').val());
-    $("#settings").hide();
-    $(".game-container").show();
 });
 
 $( "#createGame button" ).click(function() {
+    $("#loader .wrapper .text").html("Cleaning shark tank…");
+    $("#loader").show();
     var gameConfig = {
         startingChips: $("#startingChips").val(),
         startingBlinds: $("#startingBlinds").val(),
@@ -13,15 +17,10 @@ $( "#createGame button" ).click(function() {
         rebuyTime: $("#lateReg").val()
     };
     createGame($('#userid-create').val(), gameConfig);
-
-    $("#settings").hide();
-    $(".game-container").show();
-    $(".pregame").show();
 });
 
 $( "#start" ).click(function() {
     startGame();
-    $(".pregame").hide();
 });
 
 
@@ -86,6 +85,13 @@ function playerCountdown(start, playerPosition, limit, cards) {
     var x = 0;
     var intervalID = setInterval(function () {
 
+        if(timerOn !== intervalID) {
+            if(timerOn !== -1) {
+                window.clearInterval(timerOn);
+            }
+            timerOn = intervalID;
+        }
+
         var d = new Date();
         var now = d.getTime();
         var prc = 100 - 100*((now - start)/(limit*1000));
@@ -111,13 +117,18 @@ function playerCountdown(start, playerPosition, limit, cards) {
 
         if (++x === limit*25 || $("#player" + playerPosition).hasClass("none") === false || $("#player" + playerPosition).hasClass("onMove") === false || cardsCheck || prc < 1) {
             window.clearInterval(intervalID);
+            timerOn = 0;
         }
     }, 40);
+
 }
 
 $(document).ready(function () {
         // restore game
         if (Cookies.get('game_uuid') && Cookies.get('player_uuid')) {
+            $("#loader .wrapper .text").html("Reconnecting…");
+            $("#loader").show();
+            animationLoader();
             reconnected = true;
             console.log("reconnecting to an existing game");
             connectToGame(Cookies.get("nick"), Cookies.get("game_uuid"));
