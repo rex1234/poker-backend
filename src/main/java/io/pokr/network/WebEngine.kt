@@ -36,7 +36,7 @@ class WebEngine {
                     port = dotenv()["WEB_PORT"]!!.toInt()
                 }
 
-                val keyStoreFile = File(dotenv()["KEYSTORE_PATH"])
+                val keyStoreFile = File(dotenv()["KEYSTORE_PATH"] ?: "")
 
                 if(keyStoreFile.exists()) {
                     val keystorePw = dotenv()["KEYSTORE_PASSWORD"]!!.toCharArray()
@@ -62,7 +62,7 @@ class WebEngine {
     }
 
     fun Application.main() {
-        if(File(dotenv()["KEYSTORE_PATH"]).exists()) {
+        if(File(dotenv()["KEYSTORE_PATH"] ?: "").exists()) {
             install(HttpsRedirect)
         }
 

@@ -51,10 +51,9 @@ class SocketEngine(
             port = dotenv()["SOCKETS_PORT"]!!.toInt()
             origin = dotenv()["WEB_URL"]!!
 
-            val keyStoreFile = File(dotenv()["KEYSTORE_PATH"])
+            val keyStoreFile = File(dotenv()["KEYSTORE_PATH"] ?: "")
             if(keyStoreFile.exists()) {
                 keyStore = FileInputStream(keyStoreFile)
-                keyStoreFormat = "jks"
                 keyStorePassword = dotenv()["KEYSTORE_PASSWORD"]!!
             }
 
