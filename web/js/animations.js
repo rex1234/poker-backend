@@ -56,6 +56,75 @@ var riverInstant = anime.timeline({
     duration: 1
 });
 
+var preflop = anime.timeline({
+    autoplay: false,
+    duration: 5000
+});
+
+preflop
+    .add({
+        targets: '.dealt-cards-3',
+        scaleX: [-1,-1],
+        translateX: 154,
+        rotateY: [0, 90],
+        duration: 1
+    }, 700)
+    .add({
+        targets: '.dealt-cards-3',
+        opacity: [0,1],
+        duration: 1
+    })
+    .add({
+        targets: '.dealt-cards-3',
+        rotateY: [90, 180],
+        easing: 'easeOutQuad',
+        duration: 300
+    })
+    .add({
+        targets: '.dealt-cards-3',
+        translateX: 0,
+        easing: 'easeOutQuad',
+        duration: 500
+    })
+    .add({
+        targets: '.dealt-cards-1',
+        opacity: [0, 1],
+        duration: 1
+    }, '-=500')
+    .add({
+        targets: '.dealt-cards-2',
+        opacity: [0, 1],
+        duration: 1
+    }, '-=350')
+    .add({
+        targets: '.dealt-cards-4',
+        scaleX: [-1,-1],
+        opacity: [0,1],
+        rotateY: [0, 90],
+        duration: 1
+    }, '+=500')
+    .add({
+        targets: '.dealt-cards-4',
+        rotateY: [90, 180],
+        duration: 1000
+    })
+    .add({
+        targets: '.dealt-cards-5',
+        scaleX: [-1,-1],
+        opacity: [0,1],
+        rotateY: [0, 90],
+        duration: 1
+    })
+    .add({
+         targets: '.dealt-cards-5',
+         rotateY: [90, 180],
+         duration: 1000,
+         complete: function(anim) {
+             refreshCards();
+             highlightCards(finishedData);
+         }
+     });
+
 
 flop
     .add({
@@ -112,20 +181,6 @@ flopInstant
         duration: 1
     });
 
-turn
-    .add({
-        targets: '.dealt-cards-4',
-        scaleX: [-1,-1],
-        rotateY: [0, 90],
-        opacity: [0,1],
-        duration: 0
-    })
-    .add({
-        targets: '.dealt-cards-4',
-        rotateY: [90, 180],
-        duration: 1000
-    }, 1550);
-
 turnInstant
     .add({
         targets: '.dealt-cards-4',
@@ -134,24 +189,6 @@ turnInstant
         opacity: [0,1],
         duration: 1
     });
-
-river
-    .add({
-        targets: '.dealt-cards-5',
-        scaleX: [-1,-1],
-        rotateY: [0, 90],
-        opacity: [0,1],
-        duration: 0
-    })
-    .add({
-        targets: '.dealt-cards-5',
-        rotateY: [90, 180],
-        duration: 1000,
-        complete: function(anim) {
-            refreshCards();
-            highlightCards(d);
-         }
-    }, 2250);
 
 riverInstant
     .add({
@@ -205,7 +242,7 @@ riverShow
         duration: 1000,
         complete: function(anim) {
             refreshCards();
-            highlightCards(d);
+            highlightCards(finishedData);
         }
     }, 700);
 
@@ -236,14 +273,14 @@ turnAndRiver
         duration: 1000,
         complete: function(anim) {
             refreshCards();
-            highlightCards(d);
+            highlightCards(finishedData);
         }
     });
 
 function animationAll() {
-    flop.play();
-    turn.play();
-    river.play();
+    preflop.play();
+    //turn.play();
+    //river.play();
 }
 
 function animationFlop() {

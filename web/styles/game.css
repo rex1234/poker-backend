@@ -70,7 +70,7 @@ body {
     background-color: #151515;
 }
 
-.folded .info-box {
+.folded .info-box, .busted .info-box {
     border-color: #484848;
 }
 
@@ -146,7 +146,7 @@ transition: box-shadow 0.3s ease;
 }
 
 
-.folded .player-name {
+.folded .player-name, .busted .player-name {
     color: #484848;
 }
 
@@ -157,7 +157,7 @@ transition: box-shadow 0.3s ease;
     padding-top: 6px;
 }
 
-.folded .player-chips {
+.folded .player-chips, .busted .player-chips {
     color: #484848;
 }
 
@@ -191,7 +191,7 @@ transition: box-shadow 0.3s ease;
     color: #151515;
 }
 
-.folded .cards {
+.folded .cards, .busted .cards {
     visibility: hidden;
 }
 
@@ -517,19 +517,32 @@ transition: box-shadow 0.3s ease;
 
 #start {
    width: 200px;
+   left: 194px;
+   top: 50px;
 }
 
 .pregame {
    position: relative;
    z-index: 5;
+   width: 600px;
+   text-align: center;
    top: 273px;
-   left: 414px;
+   left: 220px;
 }
 
-.pregame span {
+.pregame .all-text {
     position: absolute;
+    width: 100%;
     top: 15px;
-    left: 6px;
+    left: 0px;
+}
+
+.pregame .admin-text {
+    position: absolute;
+    width: 100%;
+    top: 42px;
+    color: #bbbbbb;
+    left: 0px;
 }
 
 #call {
@@ -1029,7 +1042,31 @@ button.betsizes.last {
     transition: all 0.4s ease;
 }
 
-/* animation support */
-.dealt-cards-1, .dealt-cards-2, .dealt-cards-3, .dealt-cards-4, .dealt-cards-5 {
-    opacity: 0;
+
+/*blind info */
+.game-info {
+margin-top: 174px;
+margin-left: 18px;
+}
+
+.level-time span {
+    color: #707070;
+}
+
+.blinds-state {
+    margin-top: 7px;
+}
+
+.blinds-state .current {
+
+}
+
+.blinds-state .next {
+    color: #707070;
+}
+
+.rebuys-late-addon {
+    margin-top: 3px;
+    line-height: 26px;
+    color: #707070;
 }

@@ -92,7 +92,7 @@
 
     <div class="game-container" style="display:none;">
         <div class="pregame" style="display:none;">
-            <span>Waiting for your friends :*</span>
+            <span class="all-text"></span><br><span class="admin-text"></span>
             <button id="start" style="display:none;">Shuffle up and deal!</button>
         </div>
         <div class="players">
@@ -110,8 +110,8 @@
                     <div class="player-name"></div>
                     <div class="player-chips"></div>
                     <div class="rebuy-info">
-                        <div class="player-addons">A</div>
-                        <div class="player-rebuys">2</div>
+                        <div class="player-addons disabled"></div>
+                        <div class="player-rebuys disabled"></div>
                     </div>
                 </div>
                 <div class="glow-box"></div>
@@ -130,8 +130,8 @@
                     <div class="player-name"></div>
                     <div class="player-chips"></div>
                     <div class="rebuy-info">
-                        <div class="player-addons">A</div>
-                        <div class="player-rebuys">2</div>
+                        <div class="player-addons disabled"></div>
+                        <div class="player-rebuys disabled"></div>
                     </div>
                 </div>
             </div>
@@ -149,8 +149,8 @@
                     <div class="player-name"></div>
                     <div class="player-chips"></div>
                     <div class="rebuy-info">
-                        <div class="player-addons">A</div>
-                        <div class="player-rebuys">2</div>
+                        <div class="player-addons disabled"></div>
+                        <div class="player-rebuys disabled"></div>
                     </div>
                 </div>
             </div>
@@ -168,8 +168,8 @@
                     <div class="player-name"></div>
                     <div class="player-chips"></div>
                     <div class="rebuy-info">
-                        <div class="player-addons">A</div>
-                        <div class="player-rebuys">2</div>
+                        <div class="player-addons disabled"></div>
+                        <div class="player-rebuys disabled"></div>
                     </div>
                 </div>
             </div>
@@ -187,8 +187,8 @@
                     <div class="player-name"></div>
                     <div class="player-chips"></div>
                     <div class="rebuy-info">
-                        <div class="player-addons">A</div>
-                        <div class="player-rebuys">2</div>
+                        <div class="player-addons disabled"></div>
+                        <div class="player-rebuys disabled"></div>
                     </div>
                 </div>
             </div>
@@ -206,8 +206,8 @@
                     <div class="player-name"></div>
                     <div class="player-chips"></div>
                     <div class="rebuy-info">
-                        <div class="player-addons">A</div>
-                        <div class="player-rebuys">2</div>
+                        <div class="player-addons disabled"></div>
+                        <div class="player-rebuys disabled"></div>
                     </div>
                 </div>
             </div>
@@ -225,8 +225,8 @@
                     <div class="player-name"></div>
                     <div class="player-chips"></div>
                     <div class="rebuy-info">
-                        <div class="player-addons">A</div>
-                        <div class="player-rebuys">2</div>
+                        <div class="player-addons disabled"></div>
+                        <div class="player-rebuys disabled"></div>
                     </div>
                 </div>
             </div>
@@ -244,8 +244,8 @@
                     <div class="player-name"></div>
                     <div class="player-chips"></div>
                     <div class="rebuy-info">
-                        <div class="player-addons">A</div>
-                        <div class="player-rebuys">2</div>
+                        <div class="player-addons disabled"></div>
+                        <div class="player-rebuys disabled"></div>
                     </div>
                 </div>
             </div>
@@ -263,8 +263,8 @@
                     <div class="player-name"></div>
                     <div class="player-chips"></div>
                     <div class="rebuy-info">
-                        <div class="player-addons">A</div>
-                        <div class="player-rebuys">2</div>
+                        <div class="player-addons disabled"></div>
+                        <div class="player-rebuys disabled"></div>
                     </div>
                 </div>
             </div>
@@ -310,6 +310,12 @@
                     <input type="range" min="1" max="100" value="10" id="range-slider">
                 </div>
             </div>
+        </div>
+
+        <div class="game-info" style="display:none;">
+            <div class="level-time">Level&nbsp;&nbsp;&nbsp;<span>00:00</span></div>
+            <div class="blinds-state"><span class="current"></span>&nbsp;&nbsp;&nbsp;<span class="next"></span></div>
+            <div class="rebuys-late-addon">Rebuy, Late reg. end: 15 min</div>
         </div>
     </div>
     <script src="js/anime.min.js"></script>
