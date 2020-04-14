@@ -104,7 +104,7 @@ class WebEngine(
                                 "Game Session:" + it.uuid + "<br/> Players: <ul>" +
                                         it.playerSessions.map {
                                             "<li>" + gamePool.getGameDataForPlayerUuid(it.uuid).second.name + "</li>"
-                                        }.joinToString() + "</ul>"
+                                        }.joinToString("") + "</ul>"
                             }.joinToString("<hr>"), ContentType.parse("text/html")
                         )
                     }
