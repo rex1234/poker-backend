@@ -19,7 +19,7 @@ fun main() {
 
     println("Initializing Web")
 
-    WebEngine().start()
+    WebEngine(gamePool).start()
 
     println("Server deployed at http://localhost:8080/")
 }

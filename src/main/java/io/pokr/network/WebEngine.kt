@@ -5,7 +5,12 @@ import io.github.cdimascio.dotenv.dotenv
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
+import io.ktor.auth.Authentication
+import io.ktor.auth.UserIdPrincipal
+import io.ktor.auth.authenticate
+import io.ktor.auth.basic
 import io.ktor.features.HttpsRedirect
+import io.ktor.http.ContentType
 import io.ktor.http.content.file
 import io.ktor.http.content.files
 import io.ktor.http.content.static
@@ -24,7 +29,9 @@ import java.security.KeyStore
 import java.security.KeyStore.*
 import kotlin.concurrent.thread
 
-class WebEngine {
+class WebEngine(
+    val gamePool: GamePool
+) {
     fun start() {
         thread {
             embeddedServer(Netty, applicationEngineEnvironment {
@@ -66,13 +73,41 @@ class WebEngine {
             install(HttpsRedirect)
         }
 
+        install(Authentication) {
+            basic(name = "admin") {
+                realm = "Ktor Server"
+                validate { credentials ->
+                    if (credentials.name == "admin" && credentials.password == dotenv()["ADMIN_PW"]) {
+                        UserIdPrincipal(credentials.name)
+                    } else {
+                        null
+                    }
+                }
+            }
+        }
+
         routing {
             route("api") {
                 get("/game_state") {
                 }
+            }
 
-                get("/version") {
-                    call.respondText("v1.0")
+            authenticate("admin") {
+                route("admin") {
+                    get("v") {
+                        call.respondText("v1.0")
+                    }
+
+                    get("games") {
+                        call.respondText(
+                            gamePool.gameSessions.map {
+                                "Game Session:" + it.uuid + "<br/> Players: <ul>" +
+                                        it.playerSessions.map {
+                                            "<li>" + gamePool.getGameDataForPlayerUuid(it.uuid).second.name + "</li>"
+                                        }.joinToString() + "</ul>"
+                            }.joinToString("<hr>"), ContentType.parse("text/html")
+                        )
+                    }
                 }
             }
 

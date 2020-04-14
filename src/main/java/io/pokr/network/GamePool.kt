@@ -15,8 +15,8 @@ import io.pokr.network.util.TokenGenerator
  */
 class GamePool {
 
-    private val gameSessions: MutableList<GameSession> = mutableListOf()
-    private val gameEngines = mutableMapOf<GameSession, HoldemTournamentGameEngine>()
+    val gameSessions: MutableList<GameSession> = mutableListOf()
+    val gameEngines = mutableMapOf<GameSession, HoldemTournamentGameEngine>()
 
     /**
      * Called when a game should be discarded
