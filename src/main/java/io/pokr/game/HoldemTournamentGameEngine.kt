@@ -21,6 +21,9 @@ class HoldemTournamentGameEngine(
         gameTick()
     }
 
+    // extra time that is added after round finishes so that the animations can be performed
+    private var extraRoundTime = 0L
+
     fun initGame(config: GameConfig) {
         game.config = config
     }
@@ -282,6 +285,12 @@ class HoldemTournamentGameEngine(
     private fun showdown() {
         System.err.println("Showdown")
 
+        extraRoundTime = when(game.tableCards.size) {
+            0 -> 4200L
+            3 -> 2700L
+            else -> 1700L
+        }
+
         game.tableCards = game.tableCards.with(game.cardStack.drawCards( 5 - game.tableCards.cards.size))
         game.players.filter { it.action != PlayerAction.Action.FOLD }.forEach { it.showCards = true }
 
@@ -320,7 +329,8 @@ class HoldemTournamentGameEngine(
 
         thread {
             // recap timer - the more cards there are, the longer we will show the recapr
-            Thread.sleep(min(3_000 + max((game.players.count { it.showCards } - 1), 0) * 1500L, 6000L))
+            Thread.sleep(min(3_000 + max((game.players.count { it.showCards } - 1), 0) * 1500L, 6000L) + extraRoundTime)
+            extraRoundTime = 0L
 
             // if there is only one player with chips we will finish the game
             if (game.allPlayers.count { it.chips > 0 } == 1) {
