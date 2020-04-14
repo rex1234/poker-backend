@@ -1,6 +1,6 @@
 package handeval;
 
-import java.util.Arrays;
+import java.util.*;
 
 /** Utility methods for evaluating or creating a hand of cards. */
 public abstract class Hand {

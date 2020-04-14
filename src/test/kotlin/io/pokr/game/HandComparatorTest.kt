@@ -1,9 +1,8 @@
 package io.pokr.game
 
-import io.pokr.game.model.CardList
-import io.pokr.game.tools.HandComparator
-import org.junit.Assert
-import org.junit.Test
+import io.pokr.game.model.*
+import io.pokr.game.tools.*
+import org.junit.*
 
 class HandComparatorTest {
 

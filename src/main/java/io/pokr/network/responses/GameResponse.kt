@@ -1,8 +1,6 @@
 package io.pokr.network.responses
 
-import io.pokr.game.model.Game
-import io.pokr.game.model.GameConfig
-import io.pokr.game.model.Player
+import io.pokr.game.model.*
 
 class GameResponse(
     val game: GameState

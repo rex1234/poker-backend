@@ -1,10 +1,8 @@
 package io.pokr.game
 
-import io.pokr.game.model.Player
-import io.pokr.game.tools.HandComparator
-import io.pokr.game.tools.WinningsCalculator
-import org.junit.Assert
-import org.junit.Test
+import io.pokr.game.model.*
+import io.pokr.game.tools.*
+import org.junit.*
 
 class WinningsCalculatorTest {
 

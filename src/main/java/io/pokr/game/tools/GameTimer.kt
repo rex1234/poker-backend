@@ -1,6 +1,6 @@
 package io.pokr.game.tools
 
-import kotlin.concurrent.thread
+import kotlin.concurrent.*
 
 class GameTimer(
     val tickListener: () -> Unit

@@ -1,9 +1,7 @@
 package io.pokr
 
-import io.pokr.network.GamePool
-import io.pokr.network.SocketEngine
-import io.pokr.network.WebEngine
-import java.io.File
+import io.pokr.network.*
+import java.io.*
 
 fun main() {
     if(!File(".env").exists()) {

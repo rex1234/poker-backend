@@ -1,33 +1,19 @@
 package io.pokr.network
 
 
-import io.github.cdimascio.dotenv.dotenv
-import io.ktor.application.Application
-import io.ktor.application.call
-import io.ktor.application.install
-import io.ktor.auth.Authentication
-import io.ktor.auth.UserIdPrincipal
-import io.ktor.auth.authenticate
-import io.ktor.auth.basic
-import io.ktor.features.HttpsRedirect
-import io.ktor.http.ContentType
-import io.ktor.http.content.file
-import io.ktor.http.content.files
-import io.ktor.http.content.static
-import io.ktor.response.respondText
-import io.ktor.routing.get
-import io.ktor.routing.route
-import io.ktor.routing.routing
-import io.ktor.server.engine.applicationEngineEnvironment
-import io.ktor.server.engine.connector
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.engine.sslConnector
-import io.ktor.server.netty.Netty
-import java.io.File
-import java.io.FileInputStream
-import java.security.KeyStore
+import io.github.cdimascio.dotenv.*
+import io.ktor.application.*
+import io.ktor.auth.*
+import io.ktor.features.*
+import io.ktor.http.*
+import io.ktor.http.content.*
+import io.ktor.response.*
+import io.ktor.routing.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+import java.io.*
 import java.security.KeyStore.*
-import kotlin.concurrent.thread
+import kotlin.concurrent.*
 
 class WebEngine(
     val gamePool: GamePool

@@ -1,12 +1,7 @@
 package io.pokr.game
 
-import io.pokr.game.model.CardList
-import io.pokr.game.model.CardStack
-import io.pokr.game.model.GameConfig
-import io.pokr.game.model.PlayerAction
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
+import io.pokr.game.model.*
+import org.junit.*
 
 class HoldemTournamentGameEngineTest {
 

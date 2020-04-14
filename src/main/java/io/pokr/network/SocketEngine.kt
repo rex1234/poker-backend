@@ -1,21 +1,14 @@
 package io.pokr.network
 
+import com.corundumstudio.socketio.*
 import com.corundumstudio.socketio.Configuration
-import com.corundumstudio.socketio.SocketIOClient
-import com.corundumstudio.socketio.SocketIOServer
-import io.github.cdimascio.dotenv.dotenv
-import io.netty.channel.ChannelHandlerContext
-import io.pokr.game.exceptions.GameException
-import io.pokr.game.model.PlayerAction
-import io.pokr.network.requests.ChatRequest
-import io.pokr.network.requests.ConnectionRequest
-import io.pokr.network.requests.PlayerActionRequest
-import io.pokr.network.responses.ChatResponse
-import io.pokr.network.responses.ErrorResponse
-import io.pokr.network.responses.GameResponse
-import java.io.File
-import java.io.FileInputStream
-import java.io.InputStream
+import io.github.cdimascio.dotenv.*
+import io.netty.channel.*
+import io.pokr.game.exceptions.*
+import io.pokr.game.model.*
+import io.pokr.network.requests.*
+import io.pokr.network.responses.*
+import java.io.*
 import java.util.*
 
 /**
@@ -129,7 +122,6 @@ class SocketEngine(
 
                 sendMessage(client, data.message, data.flash)
             }
-
 
             addDisconnectListener { client ->
                 gamePool.playerDisconnected(client.sessionId.toString())

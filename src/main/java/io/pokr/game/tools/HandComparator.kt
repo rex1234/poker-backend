@@ -1,9 +1,6 @@
 package io.pokr.game.tools
 
-import io.pokr.game.model.CardList
-import io.pokr.game.model.Player
-import io.pokr.game.model.PlayerAction
-
+import io.pokr.game.model.*
 import handeval.Hand as EvalHand
 
 class HandComparator {

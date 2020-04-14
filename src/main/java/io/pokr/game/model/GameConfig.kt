@@ -1,6 +1,6 @@
 package io.pokr.game.model
 
-import java.beans.ConstructorProperties
+import java.beans.*
 
 class GameConfig @ConstructorProperties("startingChips", "startingBlinds", "blindIncreaseTime", "playerMoveTime", "rebuyTime") constructor(
     val startingChips: Int,

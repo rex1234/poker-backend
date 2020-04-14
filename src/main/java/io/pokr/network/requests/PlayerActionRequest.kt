@@ -1,6 +1,6 @@
 package io.pokr.network.requests
 
-import java.beans.ConstructorProperties
+import java.beans.*
 
 class PlayerActionRequest @ConstructorProperties("action", "textValue", "numericValue") constructor(
     val action: String,
