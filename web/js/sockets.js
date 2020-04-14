@@ -634,7 +634,7 @@ function showCards(data) {
     } else {
         //animate allins streets = preflop allin
 
-        if(street === "preflopShow") {
+        if(street === "preflopShow" && data.cards.length === 14) {
             $(".dealt-cards-5").css('opacity', 0);
             $(".dealt-cards-4").css('opacity', 0);
             addFlop();
@@ -643,7 +643,7 @@ function showCards(data) {
             animationAll();
         }
 
-        if(street === "flopShow") {
+        if(street === "flopShow" && data.cards.length === 14) {
             $(".dealt-cards-4").css('opacity', 0);
             $(".dealt-cards-5").css('opacity', 0);
             addTurn();
@@ -651,7 +651,7 @@ function showCards(data) {
             animationTurnAndRiver();
         }
 
-        if(street === "turnShow") {
+        if(street === "turnShow" && data.cards.length === 14) {
             addRiver();
             animationRiverShowdown();
         }
@@ -903,7 +903,7 @@ function initializeVars(data) {
          }
 
     }
-
+    console.log(street);
     if(data.state === "finished") {
         street = "done";
     }
