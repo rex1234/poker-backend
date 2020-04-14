@@ -13,6 +13,9 @@ import io.pokr.network.requests.PlayerActionRequest
 import io.pokr.network.responses.ChatResponse
 import io.pokr.network.responses.ErrorResponse
 import io.pokr.network.responses.GameResponse
+import java.io.File
+import java.io.FileInputStream
+import java.io.InputStream
 import java.util.*
 
 /**
@@ -42,12 +45,18 @@ class SocketEngine(
 
     lateinit var server: SocketIOServer
 
-
     fun start() {
         val config = Configuration().apply {
-            hostname = "127.0.0.1"
+            hostname = "0.0.0.0"
             port = dotenv()["SOCKETS_PORT"]!!.toInt()
             origin = dotenv()["WEB_URL"]!!
+
+            val keyStoreFile = File(dotenv()["KEYSTORE_PATH"])
+            if(keyStoreFile.exists()) {
+                keyStore = FileInputStream(keyStoreFile)
+                keyStoreFormat = "jks"
+                keyStorePassword = dotenv()["KEYSTORE_PASSWORD"]!!
+            }
 
             exceptionListener = object: com.corundumstudio.socketio.listener.ExceptionListener {
                 override fun onConnectException(e: Exception, client: SocketIOClient?) {
