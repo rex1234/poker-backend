@@ -421,7 +421,7 @@ class HoldemTournamentGameEngine(
             smallBlind = BlindCalculator.nextBlind(smallBlind)
             bigBlind = smallBlind * 2
 
-            updateStateListener(this@HoldemTournamentGameEngine)
+            //updateStateListener(this@HoldemTournamentGameEngine)
         }
 
     private fun checkCurrentPlayerMoveTimeLimit() {
@@ -512,5 +512,4 @@ class HoldemTournamentGameEngine(
 
             action(it)
         }
-
 }
