@@ -8,8 +8,10 @@ class CronJobManager(
     fun run() {
         jobs.forEach {
             thread {
-                it.execute()
-                Thread.sleep(it.interval)
+                while(true) {
+                    it.execute()
+                    Thread.sleep(it.interval)
+                }
             }
         }
     }

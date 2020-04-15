@@ -23,6 +23,8 @@ class HoldemTournamentGameEngine(
 
     // extra time that is added after round finishes so that the animations can be performed
     private var extraRoundTime = 0L
+    // whether we the timer at the round's end is running
+    private var isRoundEndThreadRunning = false
 
     fun initGame(config: GameConfig) {
         game.config = config
@@ -329,7 +331,8 @@ class HoldemTournamentGameEngine(
         game.roundState = Game.RoundState.FINISHED
 
         thread {
-            // recap timer - the more cards there are, the longer we will show the recapr
+            isRoundEndThreadRunning = true
+            // recap timer - the more cards there are, the longer we will show the recap
             Thread.sleep(min(3_000 + max((game.players.count { it.showCards } - 1), 0) * 1500L, 6000L) + extraRoundTime)
             extraRoundTime = 0L
 
@@ -338,11 +341,15 @@ class HoldemTournamentGameEngine(
                 game.allPlayers.first { it.chips > 0 }.finalRank = 1
                 finishGame()
             } else {
-                // TODO: there can be bug when a player unpauses before this time limit (and startNewRound will be called 2x)
                 // otherwise we will wait some time and start a new round
-                startNewRound()
-                updateStateListener(this)
+                // there can be bug when a player unpauses before this time limit (and startNewRound will be called 2x)
+                // isRoundEndThreadRunning prevents this
+                if(!isRoundEndThreadRunning) {
+                    startNewRound()
+                    updateStateListener(this)
+                }
             }
+            isRoundEndThreadRunning = false
         }
     }
 
@@ -368,8 +375,6 @@ class HoldemTournamentGameEngine(
     }
 
     fun finishGame() {
-        // TODO: add player ranks
-
         System.err.println("Game ${game.uuid} finished")
 
         gameTimer.stop()
