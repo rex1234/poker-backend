@@ -706,7 +706,7 @@ function highlightCards(data) {
     var arrPos = [-1];
 
     //TODO Replace finalRank by handRank when implemented
-
+/*
     //determine who won
     for(i = 0; i < data.players.length; i++) {
         if(data.players[i].finalRank < finalRank) {
@@ -746,7 +746,7 @@ function highlightCards(data) {
             }
         }
     }
-
+*/
     var cards = data.cards.split(" ");
     var bestCards = data.bestCards.split(" ");
     var pos = bestCards.length;
