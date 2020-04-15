@@ -1,6 +1,8 @@
 package io.pokr
 
+import io.github.cdimascio.dotenv.*
 import io.pokr.network.*
+import jobs.*
 import java.io.*
 
 fun main() {
@@ -19,5 +21,10 @@ fun main() {
 
     WebEngine(gamePool).start()
 
-    println("Server deployed at http://localhost:8080/")
+    println("Server deployed at " + dotenv()["WEB_URL"])
+
+    println("Starting cron jobs")
+    CronJobManager(
+        ClearGamesJob(gamePool)
+    ).run()
 }

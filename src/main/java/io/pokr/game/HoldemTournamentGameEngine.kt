@@ -104,6 +104,7 @@ class HoldemTournamentGameEngine(
         }
 
         // init the round, set target bet to big blind, set players' blinds and draw cards
+        increaseBlinds()
         game.apply {
             round++
             cardStack = if(mockCardStack != null) mockCardStack!! else CardStack.create()
@@ -383,11 +384,6 @@ class HoldemTournamentGameEngine(
             return
         }
 
-        // we need to increase the blinds
-        if(System.currentTimeMillis() > game.nextBlinds) {
-            increaseBlinds()
-        }
-
         checkCurrentPlayerMoveTimeLimit()
     }
 
@@ -415,14 +411,17 @@ class HoldemTournamentGameEngine(
         nextDealer.isDealer = true
     }
 
-    private fun increaseBlinds() =
-        game.apply {
-            nextBlinds = System.currentTimeMillis() + config.blindIncreaseTime * 1000
-            smallBlind = BlindCalculator.nextBlind(smallBlind)
-            bigBlind = smallBlind * 2
+    private fun increaseBlinds() {
+        if (System.currentTimeMillis() > game.nextBlinds) {
+            game.apply {
+                nextBlinds = System.currentTimeMillis() + config.blindIncreaseTime * 1000
+                smallBlind = BlindCalculator.nextBlind(smallBlind)
+                bigBlind = smallBlind * 2
 
-            //updateStateListener(this@HoldemTournamentGameEngine)
+                //updateStateListener(this@HoldemTournamentGameEngine)
+            }
         }
+    }
 
     private fun checkCurrentPlayerMoveTimeLimit() {
         // we want to check player's time limits only when he is on move and the round is in active state
