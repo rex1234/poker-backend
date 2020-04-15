@@ -28,7 +28,7 @@ socket.on('gameState', function (data) {
     $(".pregame").show();
 
     if(data.state === "created") {
-        $(".all-text").html("Invite other players by sending them this code: <b>" + data.uuid + "</b>");
+        $(".all-text").html("Invite other players by sending them this code:<div class='code'>" + data.uuid + "</div>");
         //user is admin
         if(data.user.admin) {
             $(".admin-text").html("You will be able to start the game when there are 2 or more players.");

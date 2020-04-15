@@ -21,7 +21,7 @@
 }
 
 body {
-    background-color: #151515;
+    background-color: #061727;
     font-family: 'Public Sans', sans-serif;
     font-size: 16px;
     color: #ffffff;
@@ -40,7 +40,7 @@ body {
     top: 145px;
     width: 632px;
     height: 300px;
-    border: 2px solid #ffffff;
+    background-color: #0F2E4B;
     -webkit-border-radius: 150px;
     -moz-border-radius: 150px;
     border-radius: 150px;
@@ -66,34 +66,38 @@ body {
     -webkit-border-radius: 6px;
     -moz-border-radius: 6px;
     border-radius: 6px;
-    border: 2px solid #BBBBBB;
-    background-color: #151515;
+    background-color: #0F2E4B;
+    border: 2px solid #0F2E4B;
 }
 
 .folded .info-box, .busted .info-box {
-    border-color: #484848;
+    border: 2px solid #0F2E4B;
+    background-color: #061727;
 }
 
 .player-timer-bg {
     visibility: hidden;
-    width: 100%;
-    height: 5px;
-    border-radius: 4px 4px 0 0;
-    background: #151515;
+    width: 163px;
+    height: 6px;
+    margin-left: -1px;
+    margin-top: -2px;
+    border-radius: 6px 6px 0 0;
+    background: #061727;
 }
 
 .player-timer-running {
     visibility: hidden;
     width: 100%;
-    height: 5px;
-    margin-top: -5px;
-    border-radius: 4px 0 0 0;
+    height: 6px;
+    margin-top: -6px;
+    margin-left: -2px;
+    border-radius: 6px 0 0 0;
     background: #2F06FC;
 }
 
 .onMove .player-timer-bg {
     visibility: visible;
-    background: #151515;
+    background: #1D4871;
 }
 
 .onMove .player-timer-running {
@@ -101,9 +105,13 @@ body {
     background: #2F06FC;
 }
 
+.rfinished .player-timer-bg {
+    visibility: hidden;
+}
+
 .onMove.ractive .info-box {
-border: 2px solid #FFFFFF;
-box-shadow: 0px 0px 30px #2F06FC, 0px 0px 10px #8BEBFF;
+border: 2px solid #363CFF;
+box-shadow: 0px 0px 30px #2F06FC;
 transition: box-shadow 0.3s ease;
 }
 
@@ -120,19 +128,18 @@ transition: box-shadow 0.3s ease;
         -webkit-border-radius: 6px;
         -moz-border-radius: 6px;
         border-radius: 6px;
-        border: 2px solid #BBBBBB;
-        background-color: #151515;
+        background-color: #061727;
 }
 
 .onMove.ractive .glow-box {
-box-shadow: 0px 0px 30px #2F06FC, 0px 0px 10px #8BEBFF;
+box-shadow: 0px 0px 30px #2F06FC;
 transition: box-shadow 0.3s ease;
 }
 
 .player-name {
     text-align: center;
     letter-spacing: 0px;
-    color: #BBBBBB;
+    color: #7D98B2;
     padding-top: 2px;
     height: 19px;
 }
@@ -147,7 +154,7 @@ transition: box-shadow 0.3s ease;
 
 
 .folded .player-name, .busted .player-name {
-    color: #484848;
+    color: #1D4871;
 }
 
 .player-chips {
@@ -158,7 +165,24 @@ transition: box-shadow 0.3s ease;
 }
 
 .folded .player-chips, .busted .player-chips {
-    color: #484848;
+    color: #1D4871;
+}
+
+.created .cards {
+    visibility: hidden;
+}
+
+.created .info-box {
+    background-color: #0F2E4B;
+     border: none;
+}
+
+.created .player-name {
+    color: #7D98B2;
+}
+
+.created .player-chips {
+    color: #1D4871;
 }
 
 .rebuy-info {
@@ -187,8 +211,8 @@ transition: box-shadow 0.3s ease;
     height: 5px;
     left: 7px;
     top: 38px;
-    background-color: #151515;
-    color: #151515;
+    background-color: #061727;
+    color: #061727;
 }
 
 .folded .cards, .busted .cards {
@@ -203,7 +227,7 @@ transition: box-shadow 0.3s ease;
     -webkit-border-radius: 6px;
     -moz-border-radius: 6px;
     border-radius: 6px;
-    background-color: #5E5E5E;
+    background-color: #1D4871;
 }
 
 .card-1 {
@@ -234,11 +258,11 @@ transition: box-shadow 0.3s ease;
 }
 
 .fold .info-box {
-    border-color: #484848;
+    border-color: #0F2E4B;
 }
 
 .fold .player-chips, .fold .player-name{
- color: #484848;
+ color: #1D4871;
 }
 
 #player1.fold .card-1, #player1.fold .card-2 {
@@ -251,7 +275,7 @@ transition: box-shadow 0.3s ease;
     -webkit-border-radius: 6px;
     -moz-border-radius: 6px;
     border-radius: 6px;
-    background-color: #484848;
+    background-color: #1D4871;
 }
 
 #player1.fold .card-1 img, #player1.fold .card-2 img {
@@ -273,11 +297,11 @@ transition: box-shadow 0.3s ease;
 
 .card-crop {
     position: relative;
-    top: 86px;
+    top: 82px;
     z-index: 2;
     width: 100%;
     height: 10px;
-    background-color: #151515;
+    background-color: #061727;
 }
 
 #player1 {
@@ -480,14 +504,6 @@ transition: box-shadow 0.3s ease;
     background-image: url("../img/cards/active.svg");
 }
 
-.created .cards {
-    visibility: hidden;
-}
-
-.created .info-box {
-    border-color: #bbbbbb;
-}
-
 .controls button, #start  {
     position: absolute;
     width: 92px;
@@ -518,7 +534,7 @@ transition: box-shadow 0.3s ease;
 #start {
    width: 200px;
    left: 194px;
-   top: 50px;
+   top: 90px;
 }
 
 .pregame {
@@ -526,23 +542,28 @@ transition: box-shadow 0.3s ease;
    z-index: 5;
    width: 600px;
    text-align: center;
-   top: 273px;
+   top: 252px;
    left: 220px;
 }
 
 .pregame .all-text {
     position: absolute;
     width: 100%;
-    top: 15px;
+    top: 0px;
     left: 0px;
 }
 
 .pregame .admin-text {
     position: absolute;
     width: 100%;
-    top: 42px;
-    color: #bbbbbb;
+    top: 90px;
+    color: #7D98B2;
     left: 0px;
+}
+
+.all-text .code {
+    font-size: 32px;
+    padding: 6px 0 0 0;
 }
 
 #call {
@@ -565,8 +586,8 @@ transition: box-shadow 0.3s ease;
     position: absolute;
     left: 386px;
     width: 338px;
-    height: 49px;
-    border: 2px solid #484848;
+    height: 45px;
+    border: 2px solid #1D4871;
     -moz-border-radius: 6px 0 6px 6px;
     -webkit-border-radius: 6px 0 6px 6px;
     border-radius: 6px 0 6px 6px;
@@ -574,7 +595,7 @@ transition: box-shadow 0.3s ease;
 
 .slider {
     position: relative;
-    top: 23px;
+    top: 22px;
     left: 113px;
     width: 202px;
 }
@@ -668,13 +689,13 @@ input[type=range]::-ms-thumb {
     text-align: center;
     left: 2px;
     width: 88px;
-    height: 47px;
+    height: 43px;
     border: none;
-    background-color: #151515;
+    background-color: #061727;
     font-family: 'Public Sans', sans-serif;
     font-size: 16px;
     color: #ffffff;
-    border-right: 2px solid #484848;
+    border-right: 2px solid #1D4871;
 }
 
 /* Chrome, Safari, Edge, Opera */
@@ -749,7 +770,7 @@ h2 {
     position: relative;
     z-index: 1;
     font-size: 12px;
-    color: #BBBBBB;
+    color: #7D98B2;
     -webkit-transition: all 0.6s ease;
     -moz-transition: all 0.6s ease;
     -o-transition: all 0.6s ease;
@@ -757,7 +778,7 @@ h2 {
 }
 
 #settings label {
-    background-color:#151515;
+    background-color:#061727;
     padding: 0 6px;
 }
 
@@ -779,7 +800,7 @@ h2 {
     width: 100%;
     height: 44px;
     border: 2px solid #2F06FC;
-    background-color: #151515;
+    background-color: #061727;
     color: #ffffff;
     font-size: 16px;
     padding-top: 5px;
@@ -845,7 +866,7 @@ h2 {
 }
 
 .advanced-settings {
-    color: #BBBBBB;
+    color: #7D98B2;
     width: 300px;
     margin: 17px auto 43px auto;
 }
@@ -873,7 +894,7 @@ h2 {
 }
 
 #createGame p {
-    color: #BBBBBB;
+    color: #7D98B2;
     -webkit-transition: all 0.6s ease;
     -moz-transition: all 0.6s ease;
     -o-transition: all 0.6s ease;
@@ -901,12 +922,12 @@ h2 {
 
 .unfocused button{
     background-color: #484848 !important;
-    color: #bbbbbb !important;
+    color: #7D98B2 !important;
 }
 
 .unfocused .plus-icon {
     background-color: #484848 !important;
-    color: #bbbbbb !important;
+    color: #7D98B2 !important;
 }
 
 
@@ -921,7 +942,7 @@ h2 {
 button.betsizes {
     width: 61px;
     height: 30px;
-    background-color: #484848;
+    background-color: #1D4871;
 }
 
 button.betsizes.first {
@@ -969,8 +990,8 @@ button.betsizes.last {
 
 .autoactions input {
 	-webkit-appearance: none;
-	background-color: #131313;
-	border: 2px solid #99a1a7;
+	background-color: #061727;
+	border: 2px solid #7D98B2;
 	padding: 9px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
@@ -987,7 +1008,7 @@ button.betsizes.last {
 }
 
 .autoactions input:hover {
-    border: 2px solid #bbbbbb;
+    border: 2px solid #A1C0DE;
 }
 
 .autoactions input:checked:hover {
@@ -1011,7 +1032,7 @@ button.betsizes.last {
 
 #loader {
     position: fixed;
-    background-color: #151515;
+    background-color: #061727;
     margin: 0;
     padding: 0;
     z-index: 10;
@@ -1050,7 +1071,7 @@ margin-left: 18px;
 }
 
 .level-time span {
-    color: #707070;
+    color: #7D98B2;
 }
 
 .blinds-state {
@@ -1062,11 +1083,11 @@ margin-left: 18px;
 }
 
 .blinds-state .next {
-    color: #707070;
+    color: #7D98B2;
 }
 
 .rebuys-late-addon {
     margin-top: 3px;
     line-height: 26px;
-    color: #707070;
+    color: #7D98B2;
 }
