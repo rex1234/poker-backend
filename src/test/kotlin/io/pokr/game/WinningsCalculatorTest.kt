@@ -21,7 +21,7 @@ class WinningsCalculatorTest {
 
         Assert.assertEquals(
             listOf(100, 355, 255, 0, 0),
-            players.map { it.player.chips }
+            players.map { it.player.lastWin }
         )
     }
 
@@ -37,7 +37,7 @@ class WinningsCalculatorTest {
 
         Assert.assertEquals(
             listOf(100, 400),
-            players.map { it.player.chips }
+            players.map { it.player.lastWin }
         )
     }
 
@@ -56,7 +56,7 @@ class WinningsCalculatorTest {
 
         Assert.assertEquals(
             listOf(150, 50, 340, 100, 100),
-            players.map { it.player.chips }
+            players.map { it.player.lastWin }
         )
     }
 
@@ -73,7 +73,7 @@ class WinningsCalculatorTest {
 
         Assert.assertEquals(
             listOf(600, 600, 0),
-            players.map { it.player.chips }
+            players.map { it.player.lastWin }
         )
     }
 
@@ -90,7 +90,7 @@ class WinningsCalculatorTest {
 
         Assert.assertEquals(
             listOf(101, 350, 148),
-            players.map { it.player.chips }
+            players.map { it.player.lastWin }
         )
     }
 
@@ -107,7 +107,7 @@ class WinningsCalculatorTest {
 
         Assert.assertEquals(
             listOf(1200, 0, 0),
-            players.map { it.player.chips }
+            players.map { it.player.lastWin }
         )
     }
 

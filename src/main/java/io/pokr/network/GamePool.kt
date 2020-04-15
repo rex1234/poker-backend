@@ -43,7 +43,7 @@ class GamePool {
         System.err.println("Created game session: ${gameSession.uuid}")
 
         gameEngines[gameSession] =
-                HoldemTournamentGameEngine(
+            HoldemTournamentGameEngine(
                 gameUuid = gameSession.uuid,
                 updateStateListener = {
                     updateStateListener?.invoke(gameSession.playerSessions)
