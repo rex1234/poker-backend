@@ -92,7 +92,7 @@ class SocketEngine(
 
                     gamePool.createGame(data.gameConfig!!, client.sessionId.toString(), data.name                        )
                 } else {
-                    gamePool.connectToGame(client.sessionId.toString(), data.gameUUID, data.playerUUID, data.name)
+                    gamePool.connectToGame(client.sessionId.toString(), data.gameUUID.toUpperCase(), data.playerUUID, data.name)
                 }
 
                 sendGameState(client)
