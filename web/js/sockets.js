@@ -1,4 +1,4 @@
-var socket = io.connect('http://' + window.location.hostname + ':9092');
+var socket = io.connect(location.protocol + '//' + window.location.hostname + ':9092');
 
 //reconnection variable
 var reconnected = false;
