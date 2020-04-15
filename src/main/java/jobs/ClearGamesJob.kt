@@ -8,7 +8,9 @@ class ClearGamesJob(
 
     override fun execute() {
         gamePool.gameSessions.filter {
-            System.currentTimeMillis() - it.created > 24 * 3600 * 1000
+            val age = System.currentTimeMillis() - it.created
+
+            age > 24 * 3600 * 1000 || (it.playerSessions.size == 1 && age > 3590 * 1000)
         }.forEach {
             gamePool.discardGame(it.uuid)
         }
