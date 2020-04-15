@@ -331,6 +331,10 @@ class HoldemTournamentGameEngine(
         game.roundState = Game.RoundState.FINISHED
 
         thread {
+            // otherwise we will wait some time and start a new round
+            // there can be bug when a player unpauses before this time limit (and startNewRound will be called 2x)
+            // isRoundEndThreadRunning prevents this
+
             isRoundEndThreadRunning = true
             // recap timer - the more cards there are, the longer we will show the recap
             Thread.sleep(min(3_000 + max((game.players.count { it.showCards } - 1), 0) * 1500L, 6000L) + extraRoundTime)
@@ -341,13 +345,9 @@ class HoldemTournamentGameEngine(
                 game.allPlayers.first { it.chips > 0 }.finalRank = 1
                 finishGame()
             } else {
-                // otherwise we will wait some time and start a new round
-                // there can be bug when a player unpauses before this time limit (and startNewRound will be called 2x)
-                // isRoundEndThreadRunning prevents this
-                if(!isRoundEndThreadRunning) {
-                    startNewRound()
-                    updateStateListener(this)
-                }
+                startNewRound()
+                updateStateListener(this)
+
             }
             isRoundEndThreadRunning = false
         }
@@ -485,8 +485,10 @@ class HoldemTournamentGameEngine(
                 }
             } else {
                 if (game.gameState == Game.State.PAUSED) {
-                    game.pause(false)
-                    startNewRound()
+                    if(!isRoundEndThreadRunning) {
+                        game.pause(false)
+                        startNewRound()
+                    }
                 }
             }
         }
