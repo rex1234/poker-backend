@@ -715,36 +715,79 @@ input[type=number] {
 /*
 /* Landing screen */
 
+.left-container {
+    background-color: #FBF4EC;
+    width: 40%;
+    height: 100%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    overflow-x: hidden;
+}
+
+.logo {
+    margin: 40px 0 0 40px;
+}
+
+.left-container .content {
+    margin: 40px 0 0 40px;
+    margin-top: 200px;
+}
+
+h1 {
+    color: #061727;
+    text-align: left;
+    font-size: 42px;
+    line-height: 50px;
+    font-weight: normal;
+}
+
+.subH1 {
+    color: #061727;
+    text-align: left;
+    font-size: 20px;
+    line-height: 28px;
+    font-weight: normal;    
+}
+
 #settings {
-    display: flex;
-    align-items: flex-start;
-    padding: 30px;
-    justify-content: center;
+    position: fixed;
+    overflow-x: hidden;
+    right: 0;
+    top: 0;
+    width: 60%;
+    height: 100%;
+    padding-top: 120px;
 }
 
 #settings>div {
     text-align: center;
 }
 
+.or {
+    color: #7D98B2;
+    font-size: 18px;
+    padding: 25px;
+}
+
 #joinGame {
     width: 260px;
-    border: 2px solid #ffffff;
     -moz-border-radius: 6px;
     -webkit-border-radius: 6px;
     border-radius: 6px;
-    margin-right: 60px;
-    flex-shrink: 0;
-    transition: border-color 0.6s ease;
+    margin: 0 auto;
+    padding-top: 1px;
+    background-color: #0F2E4B;
 }
 
 #createGame {
-    border: 2px solid #ffffff;
     -moz-border-radius: 6px;
     -webkit-border-radius: 6px;
     border-radius: 6px;
-    max-width: 720px;
-    transition: border-color 0.6s ease;
-    padding: 0 15px;
+    width: 260px;
+    margin: 0 auto;
+    padding-top: 1px;
+    background-color: #0F2E4B;
 }
 
 .input-wrapper {
@@ -752,14 +795,16 @@ input[type=number] {
     justify-content: center;
 }
 
-h2 {
+#settings h2 {
     font-size: 26px;
     font-weight: normal;
-    margin: 28px 0 31px 0;
+    padding: 15px 0 22px 0;
+    margin: 0;
     -webkit-transition: color 0.6s ease;
     -moz-transition: color 0.6s ease;
     -o-transition: color 0.6s ease;
     transition: color 0.6s ease;
+    cursor: pointer;
 }
 
 #settings .label {
@@ -778,7 +823,7 @@ h2 {
 }
 
 #settings label {
-    background-color:#061727;
+    background-color:#0F2E4B;
     padding: 0 6px;
 }
 
@@ -792,7 +837,7 @@ h2 {
 }
 
 #createGame .input-main {
-    margin: 0 15px;
+    margin: 0 auto;
 }
 
 
@@ -800,7 +845,7 @@ h2 {
     width: 100%;
     height: 44px;
     border: 2px solid #2F06FC;
-    background-color: #061727;
+    background-color: #0F2E4B;
     color: #ffffff;
     font-size: 16px;
     padding-top: 5px;
@@ -855,6 +900,10 @@ h2 {
     transition: all 0.6s ease;
 }
 
+#settings p {
+    padding: 0 15px;
+}
+
 #settings button:hover, #settings button:focus {
     background-color: #363CFF;
     box-shadow: 0px 4px 30px #2F06FC;
@@ -867,8 +916,8 @@ h2 {
 
 .advanced-settings {
     color: #7D98B2;
-    width: 300px;
-    margin: 17px auto 43px auto;
+    width: 260px;
+    margin: -3px auto 13px auto;
 }
 
 .advanced-settings:hover {
@@ -901,33 +950,6 @@ h2 {
     transition: all 0.6s ease;
     line-height: 24px;
     margin: 4px 0 28px 0;
-}
-
-.unfocused#createGame p{
-    color: #484848 !important;
-}
-
-.unfocused {
-    border-color: #484848 !important;
-}
-
-.unfocused input{
-    border-color: #484848 !important;
-    color: #484848 !important;
-}
-
-.unfocused h2{
-    color: #484848 !important;
-}
-
-.unfocused button{
-    background-color: #484848 !important;
-    color: #7D98B2 !important;
-}
-
-.unfocused .plus-icon {
-    background-color: #484848 !important;
-    color: #7D98B2 !important;
 }
 
 

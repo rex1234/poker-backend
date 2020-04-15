@@ -24,6 +24,7 @@ socket.on('gameState', function (data) {
     //user is in game
     $("#loader").hide();
     $("#settings").hide();
+    $(".left-container").hide();
     $(".game-container").show();
     $(".pregame").show();
 
@@ -700,20 +701,20 @@ function giveCSSClasses(data, position, i) {
 
 //highlight winning cards
 function highlightCards(data) {
-    var lastWin = data.user.lastWin;
+    var finalRank = data.user.finalRank;
     var highest = [data.user.index];
     var arrPos = [-1];
 
     //determine who won
     for(i = 0; i < data.players.length; i++) {
-        if(data.players[i].lastWin > lastWin) {
+        if(data.players[i].finalRank < finalRank) {
             highest = [];
             arrPos = [];
             highest.push(data.players[i].index);
-            lastWin = data.players[i].lastWin;
+            finalRank = data.players[i].finalRank;
             arrPos.push(i);
         }
-        if(data.players[i].lastWin === lastWin) {
+        if(data.players[i].finalRank === finalRank) {
             highest.push(data.players[i].index);
             arrPos.push(i);
         }

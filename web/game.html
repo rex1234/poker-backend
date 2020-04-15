@@ -22,69 +22,77 @@
             <div class="text">Loading…</div>
         </div>
     </div>
-    <div id="settings">
-        <div id="joinGame">
-            <h2>Join game</h2>
+    <div id="main-screen">
+        <div class="left-container">
+            <div class="logo"><img src="img/logo.svg" width="240" height="41"></div>
+            <div class="content">
+                <h1>Poker home games<br>without bullshit.</h1>
+                <p class="subH1">No downloads, no registrations,<br>no microtransactions.</p>
 
-            <div class="input-main">
-                <div class="label"><label for="userid-join">Name</label></div>
-                <input id="userid-join" name="nick" maxlength="14">
             </div>
-            <div class="input-main">
-                <div class="label"><label for="userid-join" >Game ID</label></div>
-                <input id="gameid" name="guid">
-            </div>
-            <button>Join Game</button>
-
         </div>
-        <div id="createGame" class="unfocused">
-            <h2>Create game</h2>
-            <div class="input-wrapper">
+        <div id="settings">
+            <div id="joinGame">
+                <h2>Join game</h2>
+                <div class="toggler">
                 <div class="input-main">
-                    <div class="label"><label for="userid-create">Name</label></div>
-                    <input id="userid-create" name="userid-create">
+                    <div class="label"><label for="userid-join">Name</label></div>
+                    <input id="userid-join" name="nick" maxlength="14">
                 </div>
                 <div class="input-main">
-                    <div class="label"><label for="startingChips">Chipstack</label></div>
-                    <input id="startingChips" type="number" name="startingChips" value="2500">
+                    <div class="label"><label for="userid-join" >Game ID</label></div>
+                    <input id="gameid" name="guid">
                 </div>
-                <div class="input-main">
-                    <div class="label"><label for="startingBlinds">Starting small blind</label></div>
-                    <input id="startingBlinds" type="number" name="startingBlinds" value="20">
+                <button>Join Game</button>
                 </div>
+
             </div>
+            <div class="or">or</div>
+            <div id="createGame">
+                <h2>Create game</h2>
+                <div class="toggler" style="display: none">
+                    <div class="input-main">
+                        <div class="label"><label for="userid-create">Name</label></div>
+                        <input id="userid-create" name="userid-create">
+                    </div>
+                    <div class="input-main">
+                        <div class="label"><label for="startingChips">Chipstack</label></div>
+                        <input id="startingChips" type="number" name="startingChips" value="2500">
+                    </div>
+                    <div class="input-main">
+                        <div class="label"><label for="userid-join">Rebuys</label></div>
+                        <input id="rebuy" name=" " type="number" value="0">
+                    </div>
+
+
+
+                <div class="advanced-settings"><span class="plus-icon">+</span>Advanced settings</div>
+                <div class="advanced-inputs" style="display:none;">
+                    <div class="input-main">
+                        <div class="label"><label for="lateReg">Rebuys/reg. until level</label></div>
+                        <input id="lateReg" type="number" name="lateReg" value="0">
+                    </div>
+                    <div class="input-main">
+                        <div class="label"><label for="blindIncreaseTime">Blinds level duration (s)</label></div>
+                        <input id="blindIncreaseTime" type="number" name="blindIncreaseTime" value="600">
+                    </div>
+                    <div class="input-main">
+                        <div class="label"><label for="playerMoveTime">Time to action (s)</label></div>
+                        <input id="playerMoveTime" type="number" name="playerMoveTime" value="30">
+                    </div>
+                    <div class="input-main">
+                        <div class="label"><label for="startingBlinds">Starting small blind</label></div>
+                        <input id="startingBlinds" type="number" name="startingBlinds" value="20">
+                    </div>
+                </div>
+
+
             
-            <div class="advanced-settings"><span class="plus-icon">+</span>Advanced settings</div>
-            <div class="advanced-inputs" style="display:none;">
-            <div class="input-wrapper">
-                <div class="input-main">
-                    <div class="label"><label for="blindIncreaseTime">Blinds level duration</label></div>
-                    <input id="blindIncreaseTime" type="number" name="blindIncreaseTime" value="600">
-                </div>
-                <div class="input-main">
-                    <div class="label"><label for="lateReg">Late reg. until level</label></div>
-                    <input id="lateReg" type="number" name="lateReg" value="0">
-                </div>
-                <div class="input-main">
-                    <div class="label"><label for="playerMoveTime">Time to action</label></div>
-                    <input id="playerMoveTime" type="number" name="playerMoveTime" value="30">
+                <p></p>
+
+                <button>Create Game</button>
                 </div>
             </div>
-            <div class="input-wrapper">
-                <div class="input-main">
-                    <div class="label"><label for="userid-join">Rebuys</label></div>
-                    <input id="rebuy" name=" " type="number" value="0">
-                </div>
-                <div class="input-main">
-                    <div class="label"><label for="userid-join">Addon (Chips)</label></div>
-                    <input id="addon" name=" " type="number" value="0">
-                </div>
-            </div>
-        
-            <p>Rebuys are applicable till the end of late registration period.<br>
-                Addon is applicable on the break after late registration period.</p>
-            </div>
-            <button>Create Game</button>
         </div>
 </div>   
 

@@ -32,28 +32,23 @@ $(document).bind('keypress', function(e) {
 });
 
 //Settings
-$("#createGame").hover(
-    function() {$("#createGame").removeClass("unfocused");
-        $("#joinGame").addClass("unfocused")}
-)
+$("#settings h2")
+    .click (function () {
+        $("#joinGame .toggler").slideToggle();
+        $("#createGame .toggler").slideToggle();
+        $(this).parent().css("background-color", "#0F2E4B");
+    }).hover (
+        function () {
+            if($(this).parent().children(".toggler").css('display') == 'none') { 
+                $(this).parent().css("background-color", "#1D4871");
+            }
+        },
+        function () {
+            $(this).parent().css("background-color", "#0F2E4B");
+        }
+);
 
-$("#joinGame").hover(
-    function() {$("#joinGame").removeClass("unfocused");
-        $("#createGame").addClass("unfocused")}
-)
 
-//Keyboard focus by tab
-$('#joinGame').on('keyup', checkFocused)
-function checkFocused() {
-    $("#joinGame").removeClass("unfocused");
-    $("#createGame").addClass("unfocused");
-};
-
-$('#createGame').on('keyup', checkFocused2)
-function checkFocused2() {
-    $("#createGame").removeClass("unfocused");
-    $("#joinGame").addClass("unfocused");
-};
 
 
 //coloring inputs
@@ -78,7 +73,7 @@ $(".input-main").hover(
 //advanced settings
 $( ".advanced-settings" ).click(function() {
     $(".advanced-settings").hide();
-    $(".advanced-inputs").show();
+    $(".advanced-inputs").slideToggle();
 });
 
 function playerCountdown(start, playerPosition, limit, cards) {
