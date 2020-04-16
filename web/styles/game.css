@@ -1179,3 +1179,10 @@ margin-left: 18px;
 .player-tag.call {
     background-color: #1C15FF;
 }
+
+.notransition {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -o-transition: none !important;
+  transition: none !important;
+}
