@@ -24,11 +24,12 @@ socket.on('gameState', function (data) {
     //user is in game
     $("#loader").hide();
     $("#settings").hide();
+    $(".left-container").hide();
     $(".game-container").show();
     $(".pregame").show();
 
     if(data.state === "created") {
-        $(".all-text").html("Invite other players by sending them this code: <b>" + data.uuid + "</b>");
+        $(".all-text").html("Invite other players by sending them this code:<div id='code'>" + data.uuid + "</div><button id='copyButton' onclick='copyToClipboard(document.getElementById(\"code\"))'>Copy code</button>");
         //user is admin
         if(data.user.admin) {
             $(".admin-text").html("You will be able to start the game when there are 2 or more players.");
@@ -700,20 +701,22 @@ function giveCSSClasses(data, position, i) {
 
 //highlight winning cards
 function highlightCards(data) {
-    var lastWin = data.user.lastWin;
+    var finalRank = data.user.finalRank;
     var highest = [data.user.index];
     var arrPos = [-1];
 
+    //TODO Replace finalRank by handRank when implemented
+/*
     //determine who won
     for(i = 0; i < data.players.length; i++) {
-        if(data.players[i].lastWin > lastWin) {
+        if(data.players[i].finalRank < finalRank) {
             highest = [];
             arrPos = [];
             highest.push(data.players[i].index);
-            lastWin = data.players[i].lastWin;
+            finalRank = data.players[i].finalRank;
             arrPos.push(i);
         }
-        if(data.players[i].lastWin === lastWin) {
+        if(data.players[i].finalRank === finalRank) {
             highest.push(data.players[i].index);
             arrPos.push(i);
         }
@@ -743,7 +746,7 @@ function highlightCards(data) {
             }
         }
     }
-
+*/
     var cards = data.cards.split(" ");
     var bestCards = data.bestCards.split(" ");
     var pos = bestCards.length;

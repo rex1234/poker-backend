@@ -32,28 +32,29 @@ $(document).bind('keypress', function(e) {
 });
 
 //Settings
-$("#createGame").hover(
-    function() {$("#createGame").removeClass("unfocused");
-        $("#joinGame").addClass("unfocused")}
-)
+$("#settings h2")
+    .click (function () {
+        $("#joinGame .toggler").slideToggle();
+        $("#createGame .toggler").slideToggle();
+        $(this).parent().css("background-color", "#0F2E4B");
+    }).hover (
+        function () {
+            if($(this).parent().children(".toggler").css('display') == 'none') { 
+                $(this).parent().css("background-color", "#1D4871");
+            }
+        },
+        function () {
+            $(this).parent().css("background-color", "#0F2E4B");
+        }
+);
 
-$("#joinGame").hover(
-    function() {$("#joinGame").removeClass("unfocused");
-        $("#createGame").addClass("unfocused")}
-)
+$('#userid-join').change(function() {
+      $('#userid-create').val($(this).val());
+});
 
-//Keyboard focus by tab
-$('#joinGame').on('keyup', checkFocused)
-function checkFocused() {
-    $("#joinGame").removeClass("unfocused");
-    $("#createGame").addClass("unfocused");
-};
-
-$('#createGame').on('keyup', checkFocused2)
-function checkFocused2() {
-    $("#createGame").removeClass("unfocused");
-    $("#joinGame").addClass("unfocused");
-};
+$('#userid-create').change(function() {
+      $('#userid-join').val($(this).val());
+});
 
 
 //coloring inputs
@@ -78,7 +79,7 @@ $(".input-main").hover(
 //advanced settings
 $( ".advanced-settings" ).click(function() {
     $(".advanced-settings").hide();
-    $(".advanced-inputs").show();
+    $(".advanced-inputs").slideToggle();
 });
 
 function playerCountdown(start, playerPosition, limit, cards) {
@@ -124,6 +125,7 @@ function playerCountdown(start, playerPosition, limit, cards) {
 }
 
 $(document).ready(function () {
+
         // restore game
         if (Cookies.get('game_uuid') && Cookies.get('player_uuid')) {
             $("#loader .wrapper .text").html("Reconnecting…");
@@ -133,7 +135,70 @@ $(document).ready(function () {
             console.log("reconnecting to an existing game");
             connectToGame(Cookies.get("nick"), Cookies.get("game_uuid"));
         }
+
+        if(Cookies.get('player_uuid')) {
+            $('#userid-create').val(Cookies.get("nick"));
+            $('#userid-join').val(Cookies.get("nick"));
+        }
     }
 );
+
+
+//Copy code to clipboard
+$("#copyButton").click(function() {
+    copyToClipboard(document.getElementById("code"));
+    console.log("sss");
+});
+
+function copyToClipboard(elem) {
+	  // create hidden text element, if it doesn't already exist
+    var targetId = "_hiddenCopyText_";
+    var isInput = elem.tagName === "INPUT" || elem.tagName === "TEXTAREA";
+    var origSelectionStart, origSelectionEnd;
+    if (isInput) {
+        // can just use the original source element for the selection and copy
+        target = elem;
+        origSelectionStart = elem.selectionStart;
+        origSelectionEnd = elem.selectionEnd;
+    } else {
+        // must use a temporary form element for the selection and copy
+        target = document.getElementById(targetId);
+        if (!target) {
+            var target = document.createElement("textarea");
+            target.style.position = "absolute";
+            target.style.left = "-9999px";
+            target.style.top = "0";
+            target.id = targetId;
+            document.body.appendChild(target);
+        }
+        target.textContent = elem.textContent;
+    }
+    // select the content
+    var currentFocus = document.activeElement;
+    target.focus();
+    target.setSelectionRange(0, target.value.length);
+
+    // copy the selection
+    var succeed;
+    try {
+    	  succeed = document.execCommand("copy");
+    } catch(e) {
+        succeed = false;
+    }
+    // restore original focus
+    if (currentFocus && typeof currentFocus.focus === "function") {
+        currentFocus.focus();
+    }
+
+    if (isInput) {
+        // restore prior selection
+        elem.setSelectionRange(origSelectionStart, origSelectionEnd);
+    } else {
+        // clear temporary content
+        target.textContent = "";
+    }
+    $("#copyButton").html("Copied!");
+    return succeed;
+}
 
 //TODO add input validation
