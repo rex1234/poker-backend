@@ -250,12 +250,15 @@ function printPlayers(data) {
     var positions = [1,0,0,0,0,0,0,0,0];
 
     if(data.state === "active") {
-        if(prevData.user.finalRank !== 0) {
-             positions[0] = 0;
-        } else {
-             positions[0] = 1;
+          if(prevData.user.finalRank !== 0) {
+              positions[0] = 0;
+          } else if(data.roundState !== "finished" && data.user.finalRank !== 0) {
+              positions[0] = 0;
+          } else {
+          positions[0] = 1;
         }
     }
+
 
     showCards(data);
 
@@ -274,11 +277,14 @@ function printPlayers(data) {
 
         if(data.state === "active") {
             if(prevData.players[i].finalRank !== 0) {
-               positions[position-1] = 0;
+                positions[position-1] = 0;
+            } else if(data.roundState !== "finished" && data.players[i].finalRank !== 0) {
+                positions[position-1] = 0;
             } else {
                positions[position-1] = 1;
             }
         }
+
 
          players.push([position, data.players[i].dealer]);
 
@@ -363,6 +369,7 @@ function printPlayers(data) {
     } else {
         $('.player-timer-running').show();
     }
+
 
     //display pot
     if(data.roundState === "finished") {
@@ -880,7 +887,6 @@ function assignTags(data) {
 
         //check
         if((action === "check" && prevAction !== action) || (action === "none" && prevPlayers[i].onMove && checkLast) || checkShowdown) {
-            console.log(checkShowdown);
             $("#player" + position + " .player-tag").addClass("check");
             $("#player" + position + " .player-tag").show();
             $("#player" + position + " .player-tag").show().delay(600).queue(function(n) {
@@ -921,9 +927,9 @@ function assignTags(data) {
 
        if(data.roundState === "finished") {
             if($("#player" + position + " .player-tag").hasClass("allin")) {
-                $(this).removeClass("allin");
+                $("#player" + position + " .player-tag").removeClass("allin");
+                $("#player" + position + " .player-tag").hide();
             }
-
        }
         //allin
     }
@@ -986,9 +992,7 @@ function initializeVars(data) {
            default:
              street = "preflop";
          }
-
     }
-    console.log(street);
     if(data.state === "finished") {
         street = "done";
     }
