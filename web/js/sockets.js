@@ -9,6 +9,7 @@ var prevData;
 var roundTurn = 0;
 var cardChanged = false;
 var street = "preflop";
+var prevStreet = "none"
 
 var timerBlinds = -1;
 
@@ -50,6 +51,7 @@ socket.on('gameState', function (data) {
         $(".blinds-state .current").html(data.smallBlind + " / " + data.smallBlind*2);
         $(".blinds-state .next").html(getNextSmallBlind(data.smallBlind) + " / " + getNextSmallBlind(data.smallBlind)*2);
         blindsTimer(data.nextBlinds);
+        assignTags(data);
     }
 
     if(data.state === "finished") {
@@ -62,6 +64,7 @@ socket.on('gameState', function (data) {
 
     printPlayers(data);
     print(data);
+
     if(data.roundState !== "finished") {
         prevData = data;
     }
@@ -224,7 +227,17 @@ function printPlayers(data) {
     var players = [[1, data.user.dealer]];
 
     $("#player1 .player-name").html(data.user.name);
-    $("#player1 .player-chips").html(data.user.chips - data.user.currentBet);
+    //hacky way to determine what to show when all in and last to act – otherwise you can see who won in advance
+    if(data.roundState === "finished" && data.state === "active") {
+        if(data.user.onMove) {
+            $("#player1 .player-chips").html(Math.max(0, prevData.user.chips - data.targetBet));
+        } else {
+            $("#player1 .player-chips").html(prevData.user.chips-prevData.user.currentBet);
+        }
+    } else {
+        $("#player1 .player-chips").html(data.user.chips - data.user.currentBet);
+    }
+
     var betDesc = data.user.currentBet - data.previousTargetBet;
     if(betDesc <= 0) { betDesc = ""; }
     $("#player1 .bet").html(betDesc);
@@ -271,7 +284,16 @@ function printPlayers(data) {
 
         giveCSSClasses(data, position, i);
         $("#player"+ position +" .player-name").html(data.players[i].name);
-        $("#player"+ position +" .player-chips").html(data.players[i].chips-data.players[i].currentBet);
+        //hacky way to determine what to show when all in and last to act – otherwise you can see who won in advance
+        if(data.roundState === "finished" && data.state === "active") {
+            if(data.players[i].onMove) {
+                $("#player"+ position +" .player-chips").html(Math.max(0, prevData.players[i].chips - data.targetBet));
+            } else {
+                $("#player"+ position +" .player-chips").html(prevData.players[i].chips-prevData.players[i].currentBet);
+            }
+        } else {
+            $("#player"+ position +" .player-chips").html(data.players[i].chips-data.players[i].currentBet);
+        }
         var betDesc = data.players[i].currentBet - data.previousTargetBet;
         if(betDesc <= 0) { betDesc = ""; }
         $("#player"+ position +" .bet").html(betDesc);
@@ -343,8 +365,13 @@ function printPlayers(data) {
     }
 
     //display pot
+    if(data.roundState === "finished") {
+        pot = lastWinSum(data);
+    }
+
     if(pot <= 0) { pot = ""; }
-     $(".pot").html(pot);
+    $(".pot").html(pot);
+
 }
 
 
@@ -831,29 +858,84 @@ function blindsTimer(nextBlinds) {
     }, 1000);
 }
 
-//sort array and remove duplicate values
-function sortUnique(arr) {
-  if (arr.length === 0) return arr;
-  arr = arr.sort(function (a, b) { return a*1 - b*1; });
-  var ret = [arr[0]];
-  for (var i = 1; i < arr.length; i++) { //Start loop at 1: arr[0] can never be a duplicate
-    if (arr[i-1] !== arr[i]) {
-      ret.push(arr[i]);
+function assignTags(data) {
+    var players = [...data.players];
+    players.push(data.user);
+    var prevPlayers = [...prevData.players];
+    prevPlayers.push(prevData.user);
+    for(i = 0; i < players.length; i++) {
+        var prevAction = prevPlayers[i].action;
+        var action = players[i].action;
+        var position = getPlayerPosition(data, players[i].index);
+        $("#player" + position + " .player-tag").removeClass("check call raise");
+        if(players[i].chips !== players[i].currentBet) {
+            $("#player" + position + " .player-tag").removeClass("allin");
+            $("#player" + position + " .player-tag").hide();
+        }
+
+        var checkLast = prevPlayers[i].currentBet === prevData.targetBet;
+        var checkShowdown = data.roundState === "finished" && players[i].onMove && action === "check";
+        var callLast = prevPlayers[i].currentBet < prevData.targetBet;
+        var callShowdown = data.roundState === "finished" && players[i].onMove && action === "call";
+
+        //check
+        if((action === "check" && prevAction !== action) || (action === "none" && prevPlayers[i].onMove && checkLast) || checkShowdown) {
+            console.log(checkShowdown);
+            $("#player" + position + " .player-tag").addClass("check");
+            $("#player" + position + " .player-tag").show();
+            $("#player" + position + " .player-tag").show().delay(600).queue(function(n) {
+              $(this).fadeOut(); n();
+            });
+            $("#player" + position + " .player-tag").html("Check");
+        }
+
+        //call
+        if((action === "call" && prevAction !== action) || (action === "none" && prevPlayers[i].onMove && callLast) || callShowdown) {
+              $("#player" + position + " .player-tag").addClass("call");
+              $("#player" + position + " .player-tag").show();
+              $("#player" + position + " .player-tag").show().delay(600).queue(function(n) {
+                $(this).fadeOut(); n();
+              });
+              $("#player" + position + " .player-tag").html("Call");
+        }
+
+        //bet or raise TODO add animation for allin
+       if((action === "raise" && prevAction !== action)) {
+           if(players[i].chips === players[i].currentBet && players[i].finalRank === 0) {
+                 $("#player" + position + " .player-tag").addClass("allin");
+                 $("#player" + position + " .player-tag").show();
+                 $("#player" + position + " .player-tag").html("allin");
+           } else {
+                $("#player" + position + " .player-tag").addClass("raise");
+                $("#player" + position + " .player-tag").show();
+                $("#player" + position + " .player-tag").show().delay(600).queue(function(n) {
+                  $(this).fadeOut(); n();
+                });
+                if(prevData.previousTargetBet === prevData.targetBet) {
+                    $("#player" + position + " .player-tag").html("Bet");
+                } else {
+                    $("#player" + position + " .player-tag").html("Raise");
+                }
+           }
+       }
+
+       if(data.roundState === "finished") {
+            if($("#player" + position + " .player-tag").hasClass("allin")) {
+                $(this).removeClass("allin");
+            }
+
+       }
+        //allin
     }
-  }
-  return ret;
 }
 
-function wait(ms) {
-    var d = new Date();
-    var d2 = null;
-    do { d2 = new Date(); }
-    while(d2-d < ms);
+function lastOnMove(data) {
+    return 0;
 }
 
 function initializeVars(data) {
     roundTurn++;
-
+    prevStreet = street;
     if(roundTurn === 1) {
         refreshCards();
     }
@@ -912,3 +994,40 @@ function initializeVars(data) {
     }
 
 }
+
+//checks if the socket change is only in reconnection var
+function isReconnect(data) {
+
+}
+
+//sums all last wins
+function lastWinSum(data) {
+    var lastWin = data.user.lastWin;
+    for(i = 0; i < data.players.length; i++){
+        lastWin += data.players[i].lastWin;
+    }
+    return lastWin;
+}
+
+//HELPERS
+
+//sort array and remove duplicate values
+function sortUnique(arr) {
+  if (arr.length === 0) return arr;
+  arr = arr.sort(function (a, b) { return a*1 - b*1; });
+  var ret = [arr[0]];
+  for (var i = 1; i < arr.length; i++) { //Start loop at 1: arr[0] can never be a duplicate
+    if (arr[i-1] !== arr[i]) {
+      ret.push(arr[i]);
+    }
+  }
+  return ret;
+}
+
+function wait(ms) {
+    var d = new Date();
+    var d2 = null;
+    do { d2 = new Date(); }
+    while(d2-d < ms);
+}
+
