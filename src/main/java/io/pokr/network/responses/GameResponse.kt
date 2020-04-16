@@ -43,6 +43,7 @@ class GameResponse(
         val currentBet: Int,
         val rebuyCount: Int,
         val lastWin: Int,
+        val isWinner: Boolean,
         val finalRank: Int
     )
 
@@ -90,6 +91,7 @@ class GameResponse(
                 chips = chips,
                 currentBet = currentBet,
                 lastWin = lastWin,
+                isWinner = isWinner,
                 finalRank = finalRank
             )
         }

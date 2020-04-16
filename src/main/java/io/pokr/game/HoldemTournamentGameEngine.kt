@@ -133,6 +133,7 @@ class HoldemTournamentGameEngine(
             it.hand = null
             it.action = PlayerAction.Action.NONE
             it.lastWin = 0
+            it.isWinner = false
         }
 
         // draw cards for each non-finished player
@@ -322,7 +323,7 @@ class HoldemTournamentGameEngine(
 
         // set player's final rank (if it was not already set before)
         game.allPlayers.filter { it.finalRank == 0 && it.chips == 0 }.forEach {
-            it.finalRank = game.players.size + 1 + it.lastWin
+            it.finalRank = game.players.size + 1
 
             // TODO: player with more chips at the round end should have better final rank
         }
@@ -363,12 +364,16 @@ class HoldemTournamentGameEngine(
                 it.chips -= it.currentBet
                 it.currentBet = 0
             }
+            winner.lastWin = pot
             winner.chips += pot
         } else {
             // calculate winning after regular round
+            // TODO: put PlayerHandComparisonResult directly to Player (we need it there anyway)
             val ranks = handComparator.evalPlayers(game.players, game.tableCards)
             ranks.forEach { it.player.bestCards = it.bestCards!!.first }
             game.bestCards = ranks[0].bestCards!!.second
+
+            ranks.filter { it.rank == ranks[0].rank }.map { it.player }.forEach { it.isWinner = true }
 
             WinningsCalculator.calculateWinnings(ranks)
         }
