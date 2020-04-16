@@ -29,6 +29,7 @@ class Player(
     var bestCards: CardList? = null
     var showCards = false
     var lastWin = 0
+    var isWinner = false
 
     fun startMove() {
         moveStart = System.currentTimeMillis()
