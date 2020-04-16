@@ -1143,3 +1143,33 @@ margin-left: 18px;
 #copyButton:hover {
     background-color: #3E6488;
 }
+
+/* tags */
+.player-tag {
+    width: 80%;
+    text-align: center;
+    position: absolute;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    padding: 0px 6px;
+    top: 6px;
+    left: 6%;
+}
+
+.player-tag.allin {
+    background-color: #FF5500;
+}
+
+.player-tag.raise {
+    background-color: #FFCC00;
+    color: #000;
+}
+
+.player-tag.check {
+    background-color: #00CF75;
+}
+
+.player-tag.call {
+    background-color: #1C15FF;
+}
