@@ -735,23 +735,20 @@ function giveCSSClasses(data, position, i) {
 
 //highlight winning cards
 function highlightCards(data) {
-    var finalRank = data.user.finalRank;
-    var highest = [data.user.index];
-    var arrPos = [-1];
+    var winners = [];
+    var arrPos = [];
+
+    if(data.user.winner === true) {
+        winners.push(data.user.index);
+        arrPos.push(-1);
+    }
 
     //TODO Replace finalRank by handRank when implemented
-/*
+
     //determine who won
     for(i = 0; i < data.players.length; i++) {
-        if(data.players[i].finalRank < finalRank) {
-            highest = [];
-            arrPos = [];
-            highest.push(data.players[i].index);
-            finalRank = data.players[i].finalRank;
-            arrPos.push(i);
-        }
-        if(data.players[i].finalRank === finalRank) {
-            highest.push(data.players[i].index);
+        if(data.players[i].winner === true) {
+            winners.push(data.players[i].index);
             arrPos.push(i);
         }
     }
@@ -760,8 +757,8 @@ function highlightCards(data) {
     $(".card-2").addClass("notPlaying");
 
     //hide cards in players hands
-    for(i = 0; i < highest.length; i++) {
-        var position = getPlayerPosition(data, highest[i]);
+    for(i = 0; i < winners.length; i++) {
+        var position = getPlayerPosition(data, winners[i]);
         var cardsPl;
         var bestPl;
 
@@ -780,7 +777,7 @@ function highlightCards(data) {
             }
         }
     }
-*/
+
     var cards = data.cards.split(" ");
     var bestCards = data.bestCards.split(" ");
     var pos = bestCards.length;

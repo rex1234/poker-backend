@@ -150,6 +150,7 @@ transition: box-shadow 0.3s ease;
 
 #player1.fold .card-crop{
     visibility: visible;
+    height: 25px;
 }
 
 
@@ -270,7 +271,7 @@ transition: box-shadow 0.3s ease;
     background-image: url("../img/cards/not-active-player.svg");
     position: absolute;
     width: 67px;
-    top: -14px;
+    top: 2px;
     height: 105px;
     -webkit-border-radius: 6px;
     -moz-border-radius: 6px;
@@ -1087,6 +1088,11 @@ button.betsizes.last {
     -moz-transition: all 0.4s ease;
     -o-transition: all 0.4s ease;
     transition: all 0.4s ease;
+}
+
+.fold .notPlaying {
+    margin-top: 0px;
+    opacity: 1 !important;
 }
 
 
