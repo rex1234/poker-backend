@@ -176,8 +176,7 @@ function gameRaise(amount) {
 }
 
 function rebuy() {
-    $("#rebuyMsg").show();
-    sendAction("rebuy", null, null)
+    sendAction("rebuy")
 }
 
 function showCards() {
@@ -218,7 +217,6 @@ function sendChatMessage(msg) {
     });
 }
 
-
 // MISC
 
 function print(data) {
@@ -240,7 +238,6 @@ function printPlayers(data) {
         } else {
             $("#player1 .player-chips").html(prevData.user.chips-prevData.user.currentBet);
         }
-
     } else {
         $("#player1 .player-chips").html(data.user.chips - data.user.currentBet);
     }

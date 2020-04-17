@@ -45,7 +45,7 @@ class Game constructor(
 
     // players active in the current game
     val players
-        get() = allPlayers.filter { !it.isFinished }
+        get() = allPlayers.filter { !it.isFinished && !it.isKicked }
 
     // players active in the current round (players that can still play in the street)
     val activePlayers
