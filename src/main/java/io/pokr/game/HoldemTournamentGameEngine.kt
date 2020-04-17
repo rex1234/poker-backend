@@ -3,7 +3,6 @@ package io.pokr.game
 import io.pokr.game.exceptions.*
 import io.pokr.game.model.*
 import io.pokr.game.tools.*
-import io.pokr.network.responses.*
 import kotlin.concurrent.*
 import kotlin.math.*
 
@@ -506,6 +505,7 @@ class HoldemTournamentGameEngine(
                     gameFinishedListener(this)
                 } else {
                     game.allPlayers.remove(it)
+                    game.allPlayers.first().isAdmin = true
                     updateStateListener(this)
                 }
             } else {
