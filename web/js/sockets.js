@@ -13,6 +13,9 @@ var prevStreet = "none";
 var prevRoundState = "none";
 
 var timerBlinds = -1;
+var showCardsDelay = 0;
+
+var showCardsInProgress = false;
 
 // inbound events
 
@@ -20,9 +23,7 @@ socket.on('gameState', function (data) {
     Cookies.set('player_uuid', data.user.uuid, { expires: 1 });
     Cookies.set('game_uuid', data.uuid, { expires: 1 });
     Cookies.set('nick', data.user.name, { expires: 100 });
-
     initializeVars(data);
-    console.log(isReconnect(data));
     //user is in game
     $("#loader").hide();
     $("#settings").hide();
@@ -67,6 +68,7 @@ socket.on('gameState', function (data) {
     printPlayers(data);
     print(data);
 
+    showCardsInProgress = false;
     prevRoundState = data.roundState;
     if(data.roundState !== "finished") {
         prevData = data;
@@ -174,6 +176,7 @@ function gameRaise(amount) {
 }
 
 function rebuy() {
+    $("#rebuyMsg").show();
     sendAction("rebuy", null, null)
 }
 
@@ -237,8 +240,22 @@ function printPlayers(data) {
         } else {
             $("#player1 .player-chips").html(prevData.user.chips-prevData.user.currentBet);
         }
+
     } else {
         $("#player1 .player-chips").html(data.user.chips - data.user.currentBet);
+    }
+
+    //rebuys
+    if(prevData.state === "active" && prevData.user.chips === 0 && data.lateRegistrationEnabled === true) {
+        $("#rebuys").removeClass("disabled");
+        $("#rebuys").addClass("rebuy");
+        $("#rebuys").show();
+        $("#rebuys").html("Rebuy");
+        $("#rebuys").attr("onclick","rebuy();");
+    }
+    if(data.user.chips > 0) {
+        $("#rebuys").removeClass("disabled");
+        $("#rebuys").hide();
     }
 
     betDesc = data.user.currentBet - data.previousTargetBet;
@@ -262,8 +279,21 @@ function printPlayers(data) {
           positions[0] = 1;
         }
     }
+    if(showCardsInProgress === false) {
+        dealCards(data);
+    }
 
-    showCards(data);
+    //show cards button
+     if(data.roundState === "finished" && data.user.action === "fold") {
+        setTimeout( function(){ $("#additional").removeClass("disabled"); }, showCardsDelay );
+        $("#additional").html("Show cards");
+        $("#additional").attr("onclick","showCards(); $('#player1').addClass('showCards');");
+        $('#additional').delay(showCardsDelay+2000).hide(0);
+        $('#additional').show();
+     } else {
+        $("#additional").addClass("disabled");
+    }
+    showCardsDelay = 0;
 
     //timer functionality
     if(data.user.onMove) {
@@ -288,18 +318,25 @@ function printPlayers(data) {
             }
         }
 
-
          players.push([position, data.players[i].dealer]);
 
         giveCSSClasses(data, position, i);
         $("#player"+ position +" .player-name").html(data.players[i].name);
         //hacky way to determine what to show when all in and last to act – otherwise you can see who won in advance
         if(data.roundState === "finished" && data.state === "active") {
+
             if(data.players[i].onMove) {
                 $("#player"+ position +" .player-chips").html(Math.max(0, prevData.players[i].chips - data.targetBet));
             } else {
                 $("#player"+ position +" .player-chips").html(prevData.players[i].chips-prevData.players[i].currentBet);
             }
+
+            //showCard fuctionality
+            if(typeof data.players[i].cards !== "undefined") {
+                $("#player"+ position).removeClass("fold");
+                $("#player"+ position).removeClass("fold");
+            }
+
         } else {
             $("#player"+ position +" .player-chips").html(data.players[i].chips-data.players[i].currentBet);
         }
@@ -395,8 +432,6 @@ function showControls(data) {
         if(data.targetBet > data.user.currentBet) {
             $("#fold").removeClass("disabled");
         }
-
-        console.log(currentBet);
 
         if(data.targetBet === data.user.currentBet) {
             $("#check").removeClass("disabled");
@@ -622,7 +657,7 @@ function isEveryoneElseAllin(data) {
 }
 
 //show cards
-function showCards(data) {
+function dealCards(data) {
    var cards = data.cards.split(" ");
     cards.reverse();
 
@@ -679,6 +714,7 @@ function showCards(data) {
         //animate allins streets = preflop allin
 
         if(street === "preflopShow" && data.cards.length === 14) {
+            showCardsDelay = 4000;
             $(".dealt-cards-5").css('opacity', 0);
             $(".dealt-cards-4").css('opacity', 0);
             addFlop();
@@ -688,6 +724,7 @@ function showCards(data) {
         }
 
         if(street === "flopShow" && data.cards.length === 14) {
+            showCardsDelay = 2500;
             $(".dealt-cards-4").css('opacity', 0);
             $(".dealt-cards-5").css('opacity', 0);
             addTurn();
@@ -696,6 +733,7 @@ function showCards(data) {
         }
 
         if(street === "turnShow" && data.cards.length === 14) {
+            showCardsDelay = 1500;
             addRiver();
             animationRiverShowdown();
         }
@@ -976,11 +1014,8 @@ function assignChipsImg(chipcount, player, data) {
 
         //for pot, change only when street changed
         if(player !== "pot" || (player === "pot" && street != prevStreet && street != "preflop")) {
-             console.log("pot update: " + player + " street: " + street + " prevStreet:" + prevStreet);
              var blinds = [1, 5, 20, 100, 500, 1000, 2000, 5000, 10000, 2000, 5000, 10000, 20000, 50000, 100000, 250000, 500000, 1000000];
              $("#" + player + " .stack-1").html(""); $("#" + player + " .stack-2").html(""); $("#" + player + " .stack-3").html(""); $("#" + player + " .stack-4").html(""); $("#" + player + " .stack-5").html("");
-
-
 
              //find the highest chip you can use
              function findHighestChip(chips) {
@@ -1055,11 +1090,43 @@ function lastOnMove(data) {
     return 0;
 }
 
+function isAllInShowdown(data) {
+    var peopleAllIn = 0;
+    var peopleActive = 0;
+    if(prevData.user.action !== "fold") {
+        peopleActive++;
+        if(data.user.chips === data.user.currentBet) {
+            peopleAllIn++;
+        }
+    }
+    for(i =0; i < data.players[i]; i++) {
+        if(prevData.players[i].action !== "fold") {
+            peopleActive++;
+            if(data.players[i].chips === data.players[i].currentBet) {
+                peopleAllIn++;
+            }
+        }
+    }
+    if(peopleActive - peopleAllIn <= 1) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 function initializeVars(data) {
     roundTurn++;
     prevStreet = street;
     if(roundTurn === 1) {
         refreshCards();
+    }
+
+    if(data.roundState === "active") {
+        $(".showCards").removeClass("showCards");
+    }
+
+    if(typeof finishedData !== "undefined" && data.roundState === finishedData.roundState && data.round === finishedData.round && finishedData.roundState !== "active") {
+        showCardsInProgress = true;
     }
 
     if((data.roundState === "finished" || typeof finishedData === "undefined") && data.state === "active") {

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Pokid-19</title>
+    <title>Calling Station Poker Home Games</title>
     <script src="js/jquery-3.4.1.min.js"></script>
     <script src="js/js.cookie.min.js"></script>
     <script src="js/socket.io.js"></script>
@@ -61,7 +61,7 @@
                     </div>
                     <div class="input-main">
                         <div class="label"><label for="userid-join">Rebuys</label></div>
-                        <input id="rebuy" name=" " type="number" value="0">
+                        <input id="rebuy" name=" " type="number" value="2">
                     </div>
 
 
@@ -70,7 +70,7 @@
                 <div class="advanced-inputs" style="display:none;">
                     <div class="input-main">
                         <div class="label"><label for="lateReg">Rebuys/reg. until level</label></div>
-                        <input id="lateReg" type="number" name="lateReg" value="0">
+                        <input id="lateReg" type="number" name="lateReg" value="120">
                     </div>
                     <div class="input-main">
                         <div class="label"><label for="blindIncreaseTime">Blinds level duration (s)</label></div>
@@ -400,6 +400,8 @@
             </div>
             <button id="fold" onclick="gameFold()" class="disabled">Fold</button>
             <button id="call" onclick="gameCall()" class="disabled"></button>
+            <button id="additional" onclick="showCards()" class="disabled"></button>
+            <button id="rebuys" onclick="rebuy()" class="disabled">Rebuy</button>
             <button id="check" onclick="gameCheck()" class="disabled">Check</button>
            <!-- <button onclick="sendReaction('sad')">Sad react</button> -->
             <button id="raise" type="submit" class="disabled"></button>

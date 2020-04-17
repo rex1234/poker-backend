@@ -14,7 +14,7 @@ $( "#createGame button" ).click(function() {
         startingBlinds: $("#startingBlinds").val(),
         blindIncreaseTime: $("#blindIncreaseTime").val(),
         playerMoveTime: $("#playerMoveTime").val(),
-        rebuyTime: $("#lateReg").val()
+        rebuyTime: $("#lateReg").val() * 60
     };
     createGame($('#userid-create').val(), gameConfig);
 });
@@ -200,5 +200,19 @@ function copyToClipboard(elem) {
     $("#copyButton").html("Copied!");
     return succeed;
 }
+
+// sidenav
+
+/* Set the width of the side navigation to 250px */
+function openNav() {
+    document.getElementById("sidenav").style.width = "300px";
+  }
+  
+  /* Set the width of the side navigation to 0 */
+  function closeNav() {
+    document.getElementById("sidenav").style.width = "0";
+  }
+
+
 
 //TODO add input validation

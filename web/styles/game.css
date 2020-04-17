@@ -148,11 +148,10 @@ transition: box-shadow 0.3s ease;
     visibility: hidden;
 }
 
-#player1 .card-crop{
+#player1 .card-crop, #player1.rfinished .card-crop {
     visibility: visible;
     height: 35px;
 }
-
 
 .folded .player-name, .finished .player-name {
     color: #1D4871;
@@ -258,6 +257,10 @@ transition: box-shadow 0.3s ease;
     background-image: none;
 }
 
+.fold .card-1, .fold .card-2 {
+    visibility: hidden;
+}
+
 .fold .card-1, .fold .card-2, .fold .player-timer-running, .fold .player-timer-bg {
     visibility: hidden;
 }
@@ -288,6 +291,15 @@ transition: box-shadow 0.3s ease;
 }
 
 #player1.fold:hover .card-1 img, #player1.fold:hover .card-2 img {
+    display: block;
+}
+
+#player1.showCards .card-1, #player1.showCards .card-2 {
+    visibility: visible;
+    top: -40px;
+}
+
+#player1.showCards .card-1 img, #player1.showCards .card-2 img {
     display: block;
 }
 
@@ -578,6 +590,16 @@ transition: box-shadow 0.3s ease;
 
 .disabled {
     visibility: hidden;
+}
+
+#additional {
+    width: 132px;
+    left: 151px;
+}
+
+#rebuys {
+    width: 100px;
+    left: 166px;
 }
 
 .raise-slider {
@@ -1312,3 +1334,28 @@ margin-left: 18px;
 #player6 .amount {
     margin: 18px 0 0 -23px;
 }
+
+
+/* sidenav menu / leaderboards */
+
+#sidenav {
+    height: 100%;
+    width: 0; 
+    position: fixed; 
+    z-index: 1; 
+    top: 0; 
+    right: 0;
+    background-color: #111; /* Black*/
+    overflow-x: hidden; /* Disable horizontal scroll */
+    padding-top: 60px; /* Place content 60px from the top */
+    transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+  }
+    
+  /* Position and style the close button (top right corner) */
+  #sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+  }
