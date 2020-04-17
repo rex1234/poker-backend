@@ -70,7 +70,7 @@ body {
     border: 2px solid #0F2E4B;
 }
 
-.folded .info-box, .busted .info-box {
+.folded .info-box, .finished .info-box {
     border: 2px solid #0F2E4B;
     background-color: #061727;
 }
@@ -148,13 +148,13 @@ transition: box-shadow 0.3s ease;
     visibility: hidden;
 }
 
-#player1.fold .card-crop{
+#player1 .card-crop{
     visibility: visible;
-    height: 25px;
+    height: 35px;
 }
 
 
-.folded .player-name, .busted .player-name {
+.folded .player-name, .finished .player-name {
     color: #1D4871;
 }
 
@@ -165,7 +165,7 @@ transition: box-shadow 0.3s ease;
     padding-top: 6px;
 }
 
-.folded .player-chips, .busted .player-chips {
+.folded .player-chips, .finished .player-chips {
     color: #1D4871;
 }
 
@@ -216,7 +216,11 @@ transition: box-shadow 0.3s ease;
     color: #061727;
 }
 
-.folded .cards, .busted .cards {
+.folded .cards, .finished .cards {
+    visibility: hidden;
+}
+
+.finished .dealer.is-dealer {
     visibility: hidden;
 }
 
@@ -408,17 +412,6 @@ transition: box-shadow 0.3s ease;
     left: -90px;
 }
 
-
-.pot {
-    text-align: center;
-    position: absolute;
-    top: 74px;
-    left: 219px;
-    margin: 0 auto;
-    width: 200px;
-    height: 50px;
-}
-
 .dealt-cards {
     position: absolute;
     top: 99px;
@@ -489,10 +482,10 @@ transition: box-shadow 0.3s ease;
 #player1 .dealer { left: -25px; top: 0px;}
 #player2 .dealer { left: 208px; top: 10px;}
 #player3 .dealer { left: 208px; top: 94px;}
-#player4 .dealer { left: 200px; top: 120px;}
+#player4 .dealer { left: 175px; top: 150px;}
 #player5 .dealer { left: 20px; top: 155px;}
 #player6 .dealer { left: 114px; top: 155px;}
-#player7 .dealer { left: -50px; top: 120px;}
+#player7 .dealer { left: -32px; top: 150px;}
 #player8 .dealer { left: -74px; top: 94px;}
 #player9 .dealer { left: -64px; top: 10px;}
 
@@ -1185,4 +1178,137 @@ margin-left: 18px;
   -moz-transition: none !important;
   -o-transition: none !important;
   transition: none !important;
+}
+
+/* chips and stacks */
+
+.stacks {
+  margin-top: 16px;
+  position: absolute;
+}
+.stack-1, .stack-2, .stack-3, .stack-4, .stack-5 {
+    position: absolute;
+    height: 30px;
+    top: 0px;
+}
+.stack-1 {
+    left: 40px;
+}
+.stack-2 {
+    left: 30px;
+}
+.stack-3 {
+    left: 20px;
+}
+.stack-4 {
+    left: 10px;
+}
+.chip {
+    width: 8px;
+    height: 8px;
+    background-color: red;
+    border: 2px solid #0F2E4B;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+    margin-bottom: -16px;
+}
+
+#pot {
+    text-align: center;
+    position: absolute;
+    top: 74px;
+    left: 219px;
+    margin: 0 auto;
+    width: 200px;
+    height: 50px;
+}
+
+#pot .stacks {
+    top: -34px;
+    left: 72px;
+}
+
+#pot .amount {
+    margin-top: -5px;
+}
+
+#player1 .stacks {
+    top: -23px;
+    left: 13px;
+}
+
+#player1 .amount {
+    margin-top: 6px;
+}
+
+#player2 .stacks {
+    top: -24px;
+    left: 0px;
+}
+
+#player2 .amount {
+    margin: 5px 0 0 8px;
+}
+
+#player9 .stacks {
+    top: -24px;
+    left: 34px;
+}
+
+#player9 .amount {
+    margin: 5px 0 0 10px;
+}
+
+#player3 .stacks {
+    top: -25px;
+    left: -7px;
+}
+
+#player3 .amount {
+    margin: 4px 0 0 0;
+}
+
+#player8 .stacks {
+    top: -25px;
+    left: 27px;
+}
+
+#player8 .amount {
+    margin: 4px 5px 0 0;
+}
+
+#player4 .stacks {
+    top: -25px;
+    left: -2px;
+}
+
+#player4 .amount {
+    margin: 3px 0 0 6px;
+}
+
+#player7 .stacks {
+    top: -25px;
+    left: 24px;
+}
+
+#player7 .amount {
+    margin: 3px 8px 0 0;
+}
+
+#player5 .stacks {
+    top: -10px;
+    left: 26px;
+}
+
+#player5 .amount {
+    margin: 18px 0 0 27px;
+}
+
+#player6 .stacks {
+    top: -10px;
+}
+
+#player6 .amount {
+    margin: 18px 0 0 -23px;
 }
