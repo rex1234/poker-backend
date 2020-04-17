@@ -23,7 +23,7 @@ fun main() {
 
     println("Server deployed at " + dotenv()["WEB_URL"])
 
-    println("Starting cron io.pokr.jobs")
+    println("Starting cron")
     CronJobManager(
         ClearGamesJob(gamePool)
     ).run()
