@@ -13,6 +13,7 @@ class Player(
     var isAdmin = false
     var isConnected = true
     var isFinished = false
+    var isKicked = false // like isFinished but cannot ever return
     var isDealer = false
     var isOnMove = false
     var moveStart = 0L
@@ -21,9 +22,11 @@ class Player(
     var hand: HandComparator.Hand? = null
     var currentBet = 0
     var chips = 0
-    var isRebuyNextRound = false
     var rebuyCount = 0
     var finalRank = 0
+
+    var isLeaveNextRound = false
+    var isRebuyNextRound = false
 
     // only for FE
     var bestCards: CardList? = null

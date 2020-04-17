@@ -152,6 +152,8 @@ class GamePool {
                 gameEngine.showCards(playerSession.uuid)
             PlayerAction.Action.KICK ->
                 gameEngine.kickPlayer(playerSession.uuid, action.numericValue!!)
+            PlayerAction.Action.LEAVE ->
+                gameEngine.leave(playerSession.uuid)
             PlayerAction.Action.DISCARD_GAME ->
                 null // TODO
             PlayerAction.Action.REBUY ->

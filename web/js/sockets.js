@@ -142,7 +142,7 @@ function requestGameState() {
 
 // player actions
 
-function sendAction(action, numericValue, textValue) {
+function sendAction(action, numericValue = null, textValue = null) {
     socket.emit("action", {
         action: action,
         numericValue: numericValue,
@@ -154,19 +154,23 @@ function changeName(name) {
     sendAction("changeName", null, name)
 }
 
+function leave() {
+    sendAction("leave")
+}
+
 function gameCall() {
     $("#autocheck").prop("checked", false);
-    sendAction("call", null, null)
+    sendAction("call")
 }
 
 function gameCheck() {
     $("#autocheck").prop("checked", false);
-    sendAction("check", null, null)
+    sendAction("check")
 }
 
 function gameFold() {
     $("#autofold").prop("checked", false);
-    sendAction("fold", null, null)
+    sendAction("fold")
 }
 
 function gameRaise(amount) {
@@ -174,17 +178,17 @@ function gameRaise(amount) {
 }
 
 function rebuy() {
-    sendAction("rebuy", null, null)
+    sendAction("rebuy")
 }
 
 function showCards() {
-    sendAction("showCards", null, null)
+    sendAction("showCards")
 }
 
 // Admin actions
 
 function startGame() {
-    sendAction("startGame", null, null)
+    sendAction("startGame")
 }
 
 function kick(playerIndex) {
@@ -214,7 +218,6 @@ function sendChatMessage(msg) {
         flash: false
     });
 }
-
 
 // MISC
 

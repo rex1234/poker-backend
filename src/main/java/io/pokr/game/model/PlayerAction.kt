@@ -18,6 +18,7 @@ data class PlayerAction(
 
         // player actions
         CHANGE_NAME("changeName"),
+        LEAVE("leave"),
         REBUY("rebuy"),
         SHOW_CARDS("showCards"),
 

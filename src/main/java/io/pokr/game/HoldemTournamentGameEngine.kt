@@ -117,6 +117,20 @@ class HoldemTournamentGameEngine(
             tableCards = CardList()
         }
 
+        // we will discard players that have left
+        game.allPlayers.filter { it.isLeaveNextRound }.forEach {
+            it.finalRank = game.players.size
+
+            it.isFinished = true
+            it.isLeaveNextRound = false
+            it.chips = 0
+            it.isAdmin = false
+
+            if(it.isAdmin && game.players.isNotEmpty()) {
+                game.players.first().isAdmin = true
+            }
+        }
+
         // we will add chips to players that rebought
         game.allPlayers.filter { it.isRebuyNextRound }.forEach {
             it.isFinished = false
@@ -133,6 +147,7 @@ class HoldemTournamentGameEngine(
             it.hand = null
             it.action = PlayerAction.Action.NONE
             it.lastWin = 0
+            it.currentBet = 0
             it.isWinner = false
         }
 
@@ -458,7 +473,7 @@ class HoldemTournamentGameEngine(
 
     fun rebuy(playerUuid: String) =
         applyOnPlayer(playerUuid) {
-            if(!game.isLateRegistrationEnabled) {
+            if(!game.isLateRegistrationEnabled || it.isKicked) {
                 throw GameException(11, "Rebuy is not possible")
             }
 
@@ -480,6 +495,18 @@ class HoldemTournamentGameEngine(
             it.name = name
         }
 
+    fun leave(playerUuid: String) =
+        applyOnPlayer(playerUuid) {
+            it.isLeaveNextRound = true
+            it.isKicked = true
+
+            if(it.isOnMove) {
+                nextPlayerMove(it.uuid, PlayerAction(PlayerAction.Action.FOLD))
+            } else {
+                it.action = PlayerAction.Action.FOLD
+            }
+        }
+
     fun pause(playerUuid: String, pause: Boolean) =
         applyOnAdminPlayer(playerUuid) {
             if (pause) {
@@ -499,14 +526,9 @@ class HoldemTournamentGameEngine(
         }
 
     fun kickPlayer(playerUuid: String, playerIndex: Int) =
-        applyOnAdminPlayer(playerUuid) {
-            if (game.gameState == Game.State.ACTIVE && game.roundState == Game.RoundState.FINISHED) {
-                game.allPlayers.firstOrNull { it.index == playerIndex }?.apply {
-                    isFinished = true
-                    chips = 0
-                }
-            } else {
-                throw GameException(15, "Player can be kicked a round is finished")
+        applyOnAdminPlayer(playerUuid) { admin ->
+            game.allPlayers.firstOrNull { it.index == playerIndex }?.let { player->
+                leave(player.uuid)
             }
         }
 
