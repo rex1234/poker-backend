@@ -1,4 +1,4 @@
-package jobs
+package io.pokr.jobs
 
 import kotlin.concurrent.*
 

@@ -1,8 +1,8 @@
 package io.pokr
 
 import io.github.cdimascio.dotenv.*
+import io.pokr.jobs.*
 import io.pokr.network.*
-import jobs.*
 import java.io.*
 
 fun main() {
@@ -23,7 +23,7 @@ fun main() {
 
     println("Server deployed at " + dotenv()["WEB_URL"])
 
-    println("Starting cron jobs")
+    println("Starting cron io.pokr.jobs")
     CronJobManager(
         ClearGamesJob(gamePool)
     ).run()

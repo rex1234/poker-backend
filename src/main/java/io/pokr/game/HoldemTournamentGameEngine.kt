@@ -117,24 +117,11 @@ class HoldemTournamentGameEngine(
             tableCards = CardList()
         }
 
-        // we will discard players that have left
-        game.allPlayers.filter { it.isLeaveNextRound }.forEach {
-            it.finalRank = game.players.size
-
-            it.isFinished = true
-            it.isLeaveNextRound = false
-            it.chips = 0
-            it.isAdmin = false
-
-            if(it.isAdmin && game.players.isNotEmpty()) {
-                game.players.first().isAdmin = true
-            }
-        }
-
         // we will add chips to players that rebought
         game.allPlayers.filter { it.isRebuyNextRound }.forEach {
             it.isFinished = false
             it.isRebuyNextRound = false
+            it.finalRank = 0
             it.chips = game.config.startingChips
         }
 
@@ -329,6 +316,20 @@ class HoldemTournamentGameEngine(
         // show cards of non folded players (if there is more than 1)
         if(game.players.count { it.action != PlayerAction.Action.FOLD } > 1) {
             game.players.filter { it.action != PlayerAction.Action.FOLD }.forEach { it.showCards = true }
+        }
+
+        // we will discard players that have left / have been kicked
+        game.allPlayers.filter { it.isLeaveNextRound }.forEach {
+            it.finalRank = game.players.size
+
+            it.isFinished = true
+            it.isLeaveNextRound = false
+            it.chips = 0
+            it.isAdmin = false
+
+            if(it.isAdmin && game.players.isNotEmpty()) {
+                game.players.first().isAdmin = true
+            }
         }
 
         // if a player has 0 chips, he is finished and won't play anymore (unless he rebuys)
