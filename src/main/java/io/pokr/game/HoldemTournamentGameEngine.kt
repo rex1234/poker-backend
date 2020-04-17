@@ -3,6 +3,7 @@ package io.pokr.game
 import io.pokr.game.exceptions.*
 import io.pokr.game.model.*
 import io.pokr.game.tools.*
+import io.pokr.network.responses.*
 import kotlin.concurrent.*
 import kotlin.math.*
 
@@ -500,10 +501,19 @@ class HoldemTournamentGameEngine(
             it.isLeaveNextRound = true
             it.isKicked = true
 
-            if(it.isOnMove) {
-                nextPlayerMove(it.uuid, PlayerAction(PlayerAction.Action.FOLD))
+            if(game.gameState == Game.State.CREATED) {
+                if(game.allPlayers.size == 1) {
+                    gameFinishedListener(this)
+                } else {
+                    game.allPlayers.remove(it)
+                    updateStateListener(this)
+                }
             } else {
-                it.action = PlayerAction.Action.FOLD
+                if (it.isOnMove) {
+                    nextPlayerMove(it.uuid, PlayerAction(PlayerAction.Action.FOLD))
+                } else {
+                    it.action = PlayerAction.Action.FOLD
+                }
             }
         }
 

@@ -156,6 +156,11 @@ function changeName(name) {
 
 function leave() {
     sendAction("leave")
+    Cookies.set("player_uuid", null);
+    Cookies.set("game_uuid", null);
+
+    socket.disconnect()
+    // TODO: reset variables / reload page
 }
 
 function gameCall() {
