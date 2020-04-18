@@ -49,7 +49,7 @@ class GamePool {
                     // remove player that were removed by game engine
                     // (left before the game started)
                     gameSession.playerSessions.removeAll {
-                        it.uuid !in gameEngine.game.players.map { it.uuid }
+                        it.uuid !in gameEngine.game.allPlayers.map { it.uuid }
                     }
 
                     updateStateListener?.invoke(gameSession.playerSessions)

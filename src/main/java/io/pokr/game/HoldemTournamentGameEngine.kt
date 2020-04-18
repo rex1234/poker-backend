@@ -480,6 +480,7 @@ class HoldemTournamentGameEngine(
 
             if(it.isFinished) {
                 it.rebuyCount++
+                it.finalRank = 0
                 it.isRebuyNextRound = true
             } else {
                 throw GameException(19, "Player has not finished yet")
