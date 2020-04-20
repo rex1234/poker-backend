@@ -204,12 +204,13 @@ function copyToClipboard(elem) {
 // sidenav
 
 function openNav() {
-    document.getElementById("sidenav").style.width = "300px";
+    document.getElementById("sidenav").style.marginRight = "0px";
     document.getElementById("main").style.marginRight = "300px";
   }
   
   function closeNav() {
-    document.getElementById("sidenav").style.width = "0";
+
+    document.getElementById("sidenav").style.marginRight = "-300px";
     document.getElementById("main").style.marginRight = "0";
   }
 

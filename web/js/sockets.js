@@ -48,16 +48,34 @@ socket.on('gameState', function (data) {
         }
     }
 
-    if(data.state === "active") {
+    if(data.state === "active" || data.state === "paused") {
         $(".pregame").hide();
         $(".game-info").show();
 
         //show blinds and othe info
         $(".blinds-state .current").html(data.smallBlind + " / " + data.smallBlind*2);
         $(".blinds-state .next").html(getNextSmallBlind(data.smallBlind) + " / " + getNextSmallBlind(data.smallBlind)*2);
-        blindsTimer(data.nextBlinds);
-        lateRegTimer(data.config.rebuyTime, data.gameStart);
+        blindsTimer(data.nextBlinds, data.state);
+        lateRegTimer(data.config.rebuyTime, data.gameStart, data.state);
+        updateLeaderboard(data);
         assignTags(data);
+    }
+
+    if(data.user.admin) {
+        if(data.state === "active") {
+            if(data.roundState === "finished") {
+                $("#pause").removeClass("disabled");
+                $("#unpause").addClass("disabled");
+            } else {
+                $("#pause").addClass("disabled");
+            }
+        }
+        if(data.state === "paused") {
+            refreshCards();
+            $(".showCards").removeClass("showCards");
+            $("#unpause").removeClass("disabled");
+            $("#pause").addClass("disabled");
+        }
     }
 
     if(data.state === "finished") {
@@ -405,7 +423,7 @@ function printPlayers(data) {
     $("#player"+ dealer +" .dealer").addClass("is-dealer");
 
      //at the end of the round, only if the showdown was at the river (no earlier allin runout)
-     if(data.roundState === "finished" && typeof data.bestCards !== "undefined" && $(".dealt-cards-5").css('opacity') === "1") {
+     if(data.roundState === "finished" && typeof data.bestCards !== "undefined" && $(".dealt-cards-5").css('opacity') === "1" && data.state !== "paused") {
         highlightCards(finishedData);
      }
 
@@ -902,7 +920,7 @@ function getNextSmallBlind(blinds) {
     return blinds*2;
 }
 
-function blindsTimer(nextBlinds) {
+function blindsTimer(nextBlinds, state) {
     var intervalID = setInterval(function () {
         if(timerBlinds !== intervalID) {
             if(timerBlinds !== -1) {
@@ -911,25 +929,44 @@ function blindsTimer(nextBlinds) {
             timerBlinds = intervalID;
         }
 
-        var remaining = nextBlinds - Date.now();
-        var minutes = parseInt(remaining/1000/60);
-        var seconds = parseInt(remaining/1000 - minutes*60);
-        if(minutes < 10) {
-            minutes = "0" + minutes;
-        }
-        if(seconds < 10) {
-            seconds = "0" + seconds;
-         }
-        $(".level-time span").html(minutes + ":" + seconds);
-
-        if (remaining <= 0) {
-            window.clearInterval(intervalID);
-            timerBlinds = -1;
+        if(state !== "paused") {
+            var remaining = nextBlinds - Date.now();
+            var minutes = parseInt(remaining/1000/60);
+            var seconds = parseInt(remaining/1000 - minutes*60);
+            if(minutes < 10) {
+                minutes = "0" + minutes;
+            }
+            if(seconds < 10) {
+                seconds = "0" + seconds;
+             }
+            $(".level-time span").html(minutes + ":" + seconds);
+            if (remaining <= 0) {
+                window.clearInterval(intervalID);
+                timerBlinds = -1;
+            }
         }
     }, 1000);
 }
 
-function lateRegTimer(rebuyTime, gameStart) {
+//TODO final ranks
+function updateLeaderboard(data) {
+    var pls = [];
+    for(i = 0; i < data.players.length; i++) {
+        pls.push([data.players[i].chips, data.players[i].name, data.players[i].rebuyCount]);
+    }
+    pls.push([data.user.chips, data.user.name, data.user.rebuyCount]);
+    pls.sort();
+    $("#leaderboard .inside table").html("");
+    for(i = pls.length - 1; i >= 0; i--) {
+        var middle = "";
+         if(pls[i][2] > 0) {
+            middle = "<div class='leaderboard-rebuys'>" + pls[i][2] + "</div>"
+         }
+        $("#leaderboard .inside table").append("<tr><td>" + (pls.length - i) + "</td><td>" + pls[i][1] + middle + "</td><td>" + pls[i][0] + "</td></tr>");
+    }
+}
+
+function lateRegTimer(rebuyTime, gameStart, state) {
     var intervalID = setInterval(function () {
         if(timerRebuys !== intervalID) {
             if(timerRebuys !== -1) {
@@ -938,27 +975,30 @@ function lateRegTimer(rebuyTime, gameStart) {
             timerRebuys = intervalID;
         }
 
-        var lateReg = rebuyTime*1000 + gameStart;
-        var remaining = lateReg - Date.now();
-        var hours = parseInt(remaining/1000/60/60);
-        var minutes = parseInt(remaining/1000/60);
-        var seconds = parseInt(remaining/1000 - minutes*60);
-        if(minutes < 10) {
-            minutes = "0" + minutes;
-        }
-        if(seconds < 10) {
-            seconds = "0" + seconds;
-         }
-         if(hours < 1) {
-            $(".rebuys-late-addon").html("Rebuy, Late reg. end: " + minutes + ":" + seconds);
-        } else {
-            $(".rebuys-late-addon").html("Rebuy, Late reg. end: " + hours + "." + (minutes - hours*60) + ":" + seconds);
-        }
+        if(state !== "paused") {
+             var lateReg = rebuyTime*1000 + gameStart;
+             var remaining = lateReg - Date.now();
+             var hours = parseInt(remaining/1000/60/60);
+             var minutes = parseInt(remaining/1000/60);
+             var seconds = parseInt(remaining/1000 - minutes*60);
+             if(minutes < 10) {
+                 minutes = "0" + minutes;
+             }
+             if(seconds < 10) {
+                 seconds = "0" + seconds;
+              }
+              if(hours < 1) {
+                 $(".rebuys-late-addon").html("Rebuy, Late reg. end: " + minutes + ":" + seconds);
+             } else {
+                 $(".rebuys-late-addon").html("Rebuy, Late reg. end: " + hours + "." + (minutes - hours*60) + ":" + seconds);
+             }
 
-        if (remaining <= 0) {
-            window.clearInterval(intervalID);
-            timerRebuys = -1;
-        }
+             if (remaining <= 0) {
+                  $(".rebuys-late-addon").html("Rebuy, Late reg. period ended.");
+                 window.clearInterval(intervalID);
+                 timerRebuys = -1;
+             }
+         }
     }, 1000);
 }
 

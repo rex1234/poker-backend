@@ -559,7 +559,7 @@ transition: box-shadow 0.3s ease;
    z-index: 5;
    width: 600px;
    text-align: center;
-   top: 226px;
+   top: 206px;
    left: 220px;
 }
 
@@ -1351,24 +1351,36 @@ margin-left: 18px;
 
 #sidenav {
     height: 100%;
-    width: 0; 
+    width: 300px;
+    margin-right: -300px;
     position: fixed; 
     z-index: 1; 
     top: 0; 
     right: 0;
     background-color: #FBF4EC; 
     overflow-x: hidden; /* Disable horizontal scroll */
-    padding-top: 60px; /* Place content 60px from the top */
     transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
   }
     
   /* Position and style the close button (top right corner) */
   #sidenav .closebtn {
     position: absolute;
-    top: 0;
+    top: 22px;
     right: 25px;
-    font-size: 36px;
-    margin-left: 50px;
+    width: 24px;
+    height: 24px;
+    padding: 3px;
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    -o-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+  }
+
+  #sidenav .closebtn:hover {
+    background-color: #F4E3D0;
   }
 
   #main {
@@ -1423,3 +1435,118 @@ margin-left: 18px;
   .game-menu button:hover svg {
     fill: #ffffff;
 }
+#sidenav .content {
+    padding: 20px;
+}
+
+#sidenav .section {
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+#sidenav .section h3 {
+    font-size: 12px;
+    font-weight: bold;
+    margin: 5px 0 0 8px;
+    color: #061727;
+}
+
+#sidenav .section .heading {
+    display: flex;
+}
+
+#sidenav .section button {
+    background-color: #EED3B5;
+    color: #ffffff;
+}
+
+#unpause {
+    margin-top: -30px;
+}
+
+#sidenav .section button:hover {
+    background-color: #E8C196;
+}
+
+#sidenav .section button svg {
+    fill: #ffffff;
+}
+
+#sidenav .leave {
+    position: absolute;
+    width: 300px;
+    bottom: 0;
+    right: 0;
+    height: 30px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    background-color: #FBF4EC;
+}
+
+#sidenav .leave button {
+    position: absolute;
+    margin: 0;
+    right: 20px;
+    background-color: transparent;
+    color: #BBBBBB;
+}
+
+#sidenav .leave button svg {
+    fill: #BBBBBB;
+}
+
+#sidenav .leave button:hover {
+    background-color: #F4E3D0;
+    color: #BBBBBB;
+}
+
+#sidenav .leave button:hover {
+    background-color: #F4E3D0;
+    color: #061727;
+}
+
+#sidenav .leave button:hover svg {
+    fill: #061727;
+}
+
+#sidenav .inside {
+    margin-top: 6px;
+}
+
+#sidenav table {
+    color: #061727;
+    width: 100%;
+}
+
+#sidenav tr td:first-child {
+    text-align: center;
+    width: 18px;
+    color: #BBBBBB;
+}
+
+#sidenav tr td:nth-child(2n+2) {
+    text-align: left;
+    width: auto;
+    padding-left: 7px;
+    display: flex;
+}
+
+#sidenav tr td:nth-child(3n+3) {
+    text-align: right;
+    width: 80px;
+}
+
+.leaderboard-rebuys {
+    text-align: center;
+    width: 14px;
+    height: 14px;
+    font-size: 12px;
+    background-color: #EED3B5;
+    color: #ffffff;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    border-radius: 7px;
+    margin-top: 3px;
+    margin-left: 2px;
+}
+
