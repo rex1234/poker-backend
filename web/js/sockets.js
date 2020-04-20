@@ -13,7 +13,10 @@ var prevStreet = "none";
 var prevRoundState = "none";
 
 var timerBlinds = -1;
+var timerRebuys = -1;
 var showCardsDelay = 0;
+var hasRebuyed = false;
+var rebuyRound = -1;
 
 var showCardsInProgress = false;
 
@@ -53,6 +56,7 @@ socket.on('gameState', function (data) {
         $(".blinds-state .current").html(data.smallBlind + " / " + data.smallBlind*2);
         $(".blinds-state .next").html(getNextSmallBlind(data.smallBlind) + " / " + getNextSmallBlind(data.smallBlind)*2);
         blindsTimer(data.nextBlinds);
+        lateRegTimer(data.config.rebuyTime, data.gameStart);
         assignTags(data);
     }
 
@@ -63,6 +67,12 @@ socket.on('gameState', function (data) {
         $(".admin-text").hide();
         $("#start").hide();
     }
+
+    //if user reconnects, set rebuy round to current round (so user don't show the rebuy button again)
+    if(reconnected) {
+        rebuyRound = data.round;
+    }
+
     console.log(data);
 
     printPlayers(data);
@@ -73,6 +83,7 @@ socket.on('gameState', function (data) {
     if(data.roundState !== "finished") {
         prevData = data;
     }
+
 
 });
 
@@ -153,61 +164,61 @@ function sendAction(action, numericValue = null, textValue = null) {
 }
 
 function changeName(name) {
-    sendAction("changeName", null, name)
+    sendAction("changeName", null, name);
 }
 
 function leave() {
-    sendAction("leave")
+    sendAction("leave");
     Cookies.set("player_uuid", null);
     Cookies.set("game_uuid", null);
 
-    socket.disconnect()
+    socket.disconnect();
     // TODO: reset variables / reload page
 }
 
 function gameCall() {
     $("#autocheck").prop("checked", false);
-    sendAction("call")
+    sendAction("call");
 }
 
 function gameCheck() {
     $("#autocheck").prop("checked", false);
-    sendAction("check")
+    sendAction("check");
 }
 
 function gameFold() {
     $("#autofold").prop("checked", false);
-    sendAction("fold")
+    sendAction("fold");
 }
 
 function gameRaise(amount) {
-    sendAction("raise", amount, null)
+    sendAction("raise", amount, null);
 }
 
 function rebuy() {
-    sendAction("rebuy")
+    sendAction("rebuy");
 }
 
 function showCards() {
-    sendAction("showCards")
+    sendAction("showCards");
 }
 
 // Admin actions
 
 function startGame() {
-    sendAction("startGame")
+    sendAction("startGame");
 }
 
 function kick(playerIndex) {
-    sendAction("kick", playerIndex, null)
+    sendAction("kick", playerIndex, null);
 }
 
 function pause() {
-    sendAction("pause", 1, null)
+    sendAction("pause", 1, null);
 }
 
 function unpause() {
-    sendAction("pause", 0, null)
+    sendAction("pause", 0, null);
 }
 
 // chat
@@ -251,18 +262,8 @@ function printPlayers(data) {
         $("#player1 .player-chips").html(data.user.chips - data.user.currentBet);
     }
 
-    //rebuys
-    if(prevData.state === "active" && prevData.user.chips === 0 && data.lateRegistrationEnabled === true) {
-        $("#rebuys").removeClass("disabled");
-        $("#rebuys").addClass("rebuy");
-        $("#rebuys").show();
-        $("#rebuys").html("Rebuy");
-        $("#rebuys").attr("onclick","rebuy();");
-    }
-    if(data.user.chips > 0) {
-        $("#rebuys").removeClass("disabled");
-        $("#rebuys").hide();
-    }
+    showRebuyControls(data);
+    showRebuyAndAddonsStats(data);
 
     betDesc = data.user.currentBet - data.previousTargetBet;
 
@@ -603,7 +604,7 @@ function autoControls(data) {
     } else {
 
          //show autofold button when out of turn and cannot check
-         if(data.roundState !== "finished" && (data.user.currentBet < checkHighestBet(data)) && data.user.action === "none") {
+         if(data.roundState !== "finished" && (data.user.currentBet < checkHighestBet(data)) && data.user.action === "none" && data.user.chips > 0) {
              $(".autofold").removeClass("disabled");
          }
 
@@ -928,6 +929,53 @@ function blindsTimer(nextBlinds) {
     }, 1000);
 }
 
+function lateRegTimer(rebuyTime, gameStart) {
+    var intervalID = setInterval(function () {
+        if(timerRebuys !== intervalID) {
+            if(timerRebuys !== -1) {
+                window.clearInterval(timerRebuys);
+            }
+            timerRebuys = intervalID;
+        }
+
+        var lateReg = rebuyTime*1000 + gameStart;
+        var remaining = lateReg - Date.now();
+        var hours = parseInt(remaining/1000/60/60);
+        var minutes = parseInt(remaining/1000/60);
+        var seconds = parseInt(remaining/1000 - minutes*60);
+        if(minutes < 10) {
+            minutes = "0" + minutes;
+        }
+        if(seconds < 10) {
+            seconds = "0" + seconds;
+         }
+         if(hours < 1) {
+            $(".rebuys-late-addon").html("Rebuy, Late reg. end: " + minutes + ":" + seconds);
+        } else {
+            $(".rebuys-late-addon").html("Rebuy, Late reg. end: " + hours + "." + (minutes - hours*60) + ":" + seconds);
+        }
+
+        if (remaining <= 0) {
+            window.clearInterval(intervalID);
+            timerRebuys = -1;
+        }
+    }, 1000);
+}
+
+function showRebuyAndAddonsStats(data) {
+    if(data.user.rebuyCount > 0) {
+        $("#player1 .player-rebuys").removeClass("disabled");
+        $("#player1 .player-rebuys").html(data.user.rebuyCount);
+    }
+    for(i = 0; i < data.players.length; i++) {
+        console.log(data.players[i].index);
+        if(data.players[i].rebuyCount > 0) {
+                $("#player" + getPlayerPosition(data, data.players[i].index) + " .player-rebuys").removeClass("disabled");
+                $("#player" + getPlayerPosition(data, data.players[i].index) + " .player-rebuys").html(data.players[i].rebuyCount);
+        }
+    }
+}
+
 function assignTags(data) {
     if (isReconnect(data) === false) {
         var players = [...data.players];
@@ -1186,6 +1234,43 @@ function initializeVars(data) {
         street = "done";
     }
 
+}
+function showRebuyControls(data) {
+    $("#player1").removeClass("rebuyed");
+
+    if(data.state === "active") {
+    //if he busts, show rebuys
+        if(data.roundState !== "finished" && data.user.chips === 0 && data.lateRegistrationEnabled === true && rebuyRound !== data.round && reconnected === false) {
+            $("#rebuys").removeClass("disabled");
+            $("#rebuys").addClass("rebuyed");
+            $("#rebuys").show();
+            $("#rebuys").html("Rebuy");
+            $("#rebuys").attr("onclick","addRebuy();");
+        }
+
+        //the round that he had rebuy
+        if(rebuyRound === data.round) {
+            $("#rebuyMsg").show();
+            $("#player1").addClass("rebuyed");
+            $("#rebuys").removeClass("disabled");
+            $("#rebuys").hide();
+        }
+
+        //after he rebought
+        if(data.user.chips > 0) {
+            $("#rebuyMsg").hide();
+            $("#player1").removeClass("rebuyed");
+            $("#rebuys").hide();
+        }
+    }
+}
+
+//add a rebuy to player
+function addRebuy() {
+    rebuy();
+    $("#player1").addClass("rebuyed");
+    $("#rebuyMsg").show();
+    rebuyRound = prevData.round;
 }
 
 //checks if the socket change is only in reconnection var

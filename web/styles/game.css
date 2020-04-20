@@ -194,11 +194,18 @@ transition: box-shadow 0.3s ease;
     font-weight: 700;
 }
 
+#rebuyMsg {
+    position: absolute;
+    top: 15px;
+    left: 80px;
+}
+
 .player-addons, .player-rebuys {
     text-align: center;
     width: 14px;
     height: 14px;
-    background: #484848 0% 0% no-repeat padding-box;
+    background-color: #1D4871;
+    color: #0F2E4B;
     -webkit-border-radius: 7px;
     -moz-border-radius: 7px;
     border-radius: 7px;
@@ -1139,6 +1146,10 @@ margin-left: 18px;
     color: #7D98B2;
 }
 
+#player1.rebuyed .cards {
+    visibility: hidden;
+}
+
 #copyButton {
   -moz-border-radius: 6px;
   -webkit-border-radius: 6px;
@@ -1345,7 +1356,7 @@ margin-left: 18px;
     z-index: 1; 
     top: 0; 
     right: 0;
-    background-color: #111; /* Black*/
+    background-color: #FBF4EC; 
     overflow-x: hidden; /* Disable horizontal scroll */
     padding-top: 60px; /* Place content 60px from the top */
     transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
@@ -1359,3 +1370,56 @@ margin-left: 18px;
     font-size: 36px;
     margin-left: 50px;
   }
+
+  #main {
+    transition: margin-right .5s;
+  }
+
+  .openbtn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+}
+
+.game-menu button {
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    height: 30px;
+    background-color: #0F2E4B;
+    font-family: 'Public Sans', sans-serif;
+    font-size: 16px;
+    color: #7D98B2;
+    padding: 0;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 0 15px;
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    -o-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    display: flex;
+  }
+
+  .game-menu button svg {
+      fill: #7D98B2;
+      -webkit-transition: all 0.2s ease;
+      -moz-transition: all 0.2s ease;
+      -o-transition: all 0.2s ease;
+      transition: all 0.2s ease;
+      margin: 0 6px 0 -3px;
+  }
+
+  .game-menu button div {
+    margin-top: 3px;
+  }
+  
+  .game-menu button:hover {
+      background-color: #3E6488;
+      color: #ffffff;
+  }
+
+  .game-menu button:hover svg {
+    fill: #ffffff;
+}
