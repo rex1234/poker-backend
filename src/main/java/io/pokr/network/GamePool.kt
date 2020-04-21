@@ -94,7 +94,7 @@ class GamePool {
             getGameDataForPlayerUuid(playerSession.uuid).second.isConnected = true
 
             executePlayerAction(playerSession.uuid,
-                PlayerAction( // replace with UUID
+                PlayerAction(
                     action = PlayerAction.Action.CHANGE_NAME,
                     textValue = playerName
                 )
