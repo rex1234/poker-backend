@@ -7,6 +7,7 @@ var reconnected = false;
 var finishedData;
 var prevData;
 var roundTurn = 0;
+var roundAfterReconnect = 0;
 var cardChanged = false;
 var street = "preflop";
 var prevStreet = "none";
@@ -84,6 +85,10 @@ socket.on('gameState', function (data) {
         $(".all-text").html("The game has ended, so fuck off.");
         $(".admin-text").hide();
         $("#start").hide();
+    }
+
+    if(data.roundState === "finished") {
+        roundAfterReconnect++;
     }
 
     //if user reconnects, set rebuy round to current round (so user don't show the rebuy button again)
@@ -187,11 +192,12 @@ function changeName(name) {
 
 function leave() {
     sendAction("leave");
-    Cookies.set("player_uuid", null);
-    Cookies.set("game_uuid", null);
-
     socket.disconnect();
-    // TODO: reset variables / reload page
+    Cookies.set("game_uuid", null);
+    Cookies.set("player_uuid", null);
+    //Cookies.remove('game_uuid');
+    location.reload(true);
+    // TODO: reset variables
 }
 
 function gameCall() {
@@ -282,6 +288,7 @@ function printPlayers(data) {
 
     showRebuyControls(data);
     showRebuyAndAddonsStats(data);
+    updateLastPlayedHand(data);
 
     betDesc = data.user.currentBet - data.previousTargetBet;
 
@@ -309,7 +316,7 @@ function printPlayers(data) {
     }
 
     //show cards button
-     if(data.roundState === "finished" && data.user.action === "fold") {
+     if((data.roundState === "finished" && data.user.action === "fold") || everyoneFolded(data)) {
         setTimeout( function(){ $("#additional").removeClass("disabled"); }, showCardsDelay );
         $("#additional").html("Show cards");
         $("#additional").attr("onclick","showCards(); $('#player1').addClass('showCards');");
@@ -948,21 +955,104 @@ function blindsTimer(nextBlinds, state) {
     }, 1000);
 }
 
-//TODO final ranks
 function updateLeaderboard(data) {
-    var pls = [];
-    for(i = 0; i < data.players.length; i++) {
-        pls.push([data.players[i].chips, data.players[i].name, data.players[i].rebuyCount]);
+    if(data.roundState !== "finished") {
+        var pls = [];
+        var bustedPls = [];
+        for(i = 0; i < prevData.players.length; i++) {
+            if(data.players[i].chips > 0) {
+                pls.push([data.players[i].chips, data.players[i].name, data.players[i].rebuyCount]);
+            } else {
+                bustedPls.push([data.players[i].finalRank, data.players[i].name, data.players[i].rebuyCount]);
+            }
+        }
+        if(data.user.chips > 0) {
+            pls.push([data.user.chips, data.user.name, data.user.rebuyCount]);
+        } else {
+            bustedPls.push([data.user.finalRank, data.user.name, data.user.rebuyCount]);
+        }
+        pls.sort();
+        bustedPls.sort();
+        $("#leaderboard .inside table").html("");
+        for(i = pls.length - 1; i >= 0; i--) {
+            var middle = "";
+             if(pls[i][2] > 0) {
+                middle = "<div class='leaderboard-rebuys'>" + pls[i][2] + "</div>"
+             }
+            $("#leaderboard .inside table").append("<tr><td>" + (pls.length - i) + "</td><td>" + pls[i][1] + middle + "</td><td>" + pls[i][0] + "</td></tr>");
+        }
+        for(i = bustedPls.length - 1; i >= 0; i--) {
+            var middle = "";
+             if(bustedPls[i][2] > 0) {
+                middle = "<div class='leaderboard-rebuys'>" + bustedPls[i][2] + "</div>"
+             }
+            $("#leaderboard .inside table").append("<tr><td>" + (pls.length + bustedPls.length - i) + "</td><td>" + bustedPls[i][1] + middle + "</td><td>Busted!</td></tr>");
+        }
     }
-    pls.push([data.user.chips, data.user.name, data.user.rebuyCount]);
-    pls.sort();
-    $("#leaderboard .inside table").html("");
-    for(i = pls.length - 1; i >= 0; i--) {
-        var middle = "";
-         if(pls[i][2] > 0) {
-            middle = "<div class='leaderboard-rebuys'>" + pls[i][2] + "</div>"
-         }
-        $("#leaderboard .inside table").append("<tr><td>" + (pls.length - i) + "</td><td>" + pls[i][1] + middle + "</td><td>" + pls[i][0] + "</td></tr>");
+}
+
+function updateLastPlayedHand(data) {
+    if(data.roundState !== "finished" && roundAfterReconnect !== 0) {
+        $("#last-hand-h").html("LAST HAND (" + prevData.round + ")");
+
+        //dealt cards
+        var cards = finishedData.cards.split(" ");
+        var cardsStr = "";
+        if(cards.length >= 3) {
+            for(i = cards.length - 1; i >= 0; i--) {
+                cardsStr += "<img src='img/cards/" + cards[i] + ".svg' width='30' height='47'>";
+            }
+        }
+        for(i = cards.length; i < 5; i++) {
+            cardsStr += "<img src='img/cards/unknown.svg' width='30' height='47'>";
+        }
+        if(cards.length === 1) {
+            cardsStr += "<img src='img/cards/unknown.svg' width='30' height='47'>";
+        }
+        $(".lh-dealt").html(cardsStr);
+
+        //get players who were in the pot and sort them by winnings
+        var pls = [];
+        if(finishedData.user.action !== "fold") {
+            pls.push([finishedData.user.lastWin, finishedData.user.cards, finishedData.user.hand, finishedData.user.name]);
+        }
+        for(i = 0; i < finishedData.players.length; i++) {
+            if(finishedData.players[i].action !== "fold") {
+                pls.push([finishedData.players[i].lastWin, finishedData.players[i].cards, finishedData.players[i].hand, finishedData.players[i].name]);
+            }
+        }
+        pls.sort();
+        totalWinnings = 0;
+        var plsStr = "";
+        for(i = pls.length - 1; i >= 0; i--) {
+            plsStr += "<div class='inside'>";
+
+            var winStr = " ";
+            if(pls[i][0] > 0) {
+                winStr += "wins " + pls[i][0];
+                totalWinnings += pls[i][0];
+            } else {
+                winStr += "loses"
+            }
+
+            if(typeof pls[i][1] === "undefined" && typeof pls[i][2] === "undefined") {
+                //player made everyone folded
+                plsStr += "<div class='lh-messageplayer'><b>"+ pls[i][3] + winStr +" </b><br>w/o showdown</div><div class='lh-cardsplayer'><img src='img/cards/unknown.svg' width='30' height='47'><img src='img/cards/unknown.svg' width='30' height='47'></div>";
+
+            } else if (typeof pls[i][2] === "undefined") {
+                //user made everyone folded or player showed cards after everyone folded
+                plsStr += "<div class='lh-messageplayer'><b>"+ pls[i][3] + winStr +" </b><br>w/o showdown</div><div class='lh-cardsplayer'><img src='img/cards/" + pls[i][1].split(" ")[0] + ".svg' width='30' height='47'><img src='img/cards/" + pls[i][1].split(" ")[1] + ".svg' width='30' height='47'></div>";
+
+            } else {
+                plsStr += "<div class='lh-messageplayer'><b>"+ pls[i][3] + winStr +" </b><br>with " + pls[i][2] + "</div><div class='lh-cardsplayer'><img src='img/cards/" + pls[i][1].split(" ")[0] + ".svg' width='30' height='47'><img src='img/cards/" + pls[i][1].split(" ")[1] + ".svg' width='30' height='47'></div>";
+            }
+
+            plsStr += "</div>";
+
+        }
+        $(".last-hand-report").html(plsStr);
+
+        $(".lh-message").html("<b>Cards:</b><br>Pot " + totalWinnings);
     }
 }
 
@@ -1008,7 +1098,6 @@ function showRebuyAndAddonsStats(data) {
         $("#player1 .player-rebuys").html(data.user.rebuyCount);
     }
     for(i = 0; i < data.players.length; i++) {
-        console.log(data.players[i].index);
         if(data.players[i].rebuyCount > 0) {
                 $("#player" + getPlayerPosition(data, data.players[i].index) + " .player-rebuys").removeClass("disabled");
                 $("#player" + getPlayerPosition(data, data.players[i].index) + " .player-rebuys").html(data.players[i].rebuyCount);
@@ -1280,7 +1369,7 @@ function showRebuyControls(data) {
 
     if(data.state === "active") {
     //if he busts, show rebuys
-        if(data.roundState !== "finished" && data.user.chips === 0 && data.lateRegistrationEnabled === true && rebuyRound !== data.round && reconnected === false) {
+        if(data.roundState !== "finished" && data.user.chips === 0 && data.lateRegistrationEnabled === true && data.user.rebuyNextRound === false) {
             $("#rebuys").removeClass("disabled");
             $("#rebuys").addClass("rebuyed");
             $("#rebuys").show();
@@ -1289,7 +1378,7 @@ function showRebuyControls(data) {
         }
 
         //the round that he had rebuy
-        if(rebuyRound === data.round) {
+        if(data.user.rebuyNextRound === true) {
             $("#rebuyMsg").show();
             $("#player1").addClass("rebuyed");
             $("#rebuys").removeClass("disabled");
@@ -1303,6 +1392,16 @@ function showRebuyControls(data) {
             $("#rebuys").hide();
         }
     }
+}
+
+function everyoneFolded(data) {
+    for(i = 0; i < data.players.length; i++) {
+        if(data.players[i].action !== "fold") {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 //add a rebuy to player
