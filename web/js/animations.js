@@ -1,3 +1,6 @@
+var thirdCard = $(".dealt-cards-3").css("left");
+console.log(thirdCard);
+
 /* dealt cards */
 var flop = anime.timeline({
     autoplay: false,
@@ -65,7 +68,7 @@ preflop
     .add({
         targets: '.dealt-cards-3',
         scaleX: [-1,-1],
-        translateX: 154,
+        translateX: thirdCard,
         rotateY: [0, 90],
         duration: 1
     }, 700)
@@ -130,7 +133,7 @@ flop
     .add({
         targets: '.dealt-cards-3',
         scaleX: [-1,-1],
-        translateX: 154,
+        translateX: thirdCard,
         rotateY: [0, 90],
         duration: 0
     }, 700)

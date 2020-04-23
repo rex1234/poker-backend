@@ -32,6 +32,7 @@ socket.on('gameState', function (data) {
     $("#loader").hide();
     $("#settings").hide();
     $(".left-container").hide();
+    $("#main-screen").hide();
     $(".game-container").show();
     $(".pregame").show();
 
@@ -318,7 +319,7 @@ function printPlayers(data) {
     }
 
     //show cards button
-     if((data.roundState === "finished" && data.user.action === "fold") || everyoneFolded(data)) {
+     if((data.roundState === "finished" && data.user.action === "fold") || (everyoneFolded(data) && data.state === "active")) {
         setTimeout( function(){ $("#additional").removeClass("disabled"); }, showCardsDelay );
         $("#additional").html("Show cards");
         $("#additional").attr("onclick","showCards(); $('#player1').addClass('showCards');");

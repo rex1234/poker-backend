@@ -12,7 +12,7 @@ $( "#createGame button" ).click(function() {
     var gameConfig = {
         startingChips: $("#startingChips").val(),
         startingBlinds: $("#startingBlinds").val(),
-        blindIncreaseTime: $("#blindIncreaseTime").val(),
+        blindIncreaseTime: $("#blindIncreaseTime").val() * 60,
         playerMoveTime: $("#playerMoveTime").val(),
         rebuyTime: $("#lateReg").val() * 60
     };
@@ -32,12 +32,8 @@ $(document).bind('keypress', function(e) {
 });
 
 //Settings
-$("#settings h2")
-    .click (function () {
-        $("#joinGame .toggler").slideToggle();
-        $("#createGame .toggler").slideToggle();
-        $(this).parent().css("background-color", "#0F2E4B");
-    }).hover (
+
+$("#settings h2").hover (
         function () {
             if($(this).parent().children(".toggler").css('display') == 'none') { 
                 $(this).parent().css("background-color", "#1D4871");
@@ -47,6 +43,38 @@ $("#settings h2")
             $(this).parent().css("background-color", "#0F2E4B");
         }
 );
+
+$("#joinGame h2").click (function () {
+    console.log($("this"));
+    if($(window).width() <= 812) {
+        $("#joinGame .toggler").slideToggle();
+    } else {
+        $("#joinGame .toggler").slideToggle();
+        $("#createGame .toggler").slideToggle();
+    }
+
+    $(this).parent().css("background-color", "#0F2E4B");
+});
+
+$("#createGame h2").click (function () {
+    console.log($("this"));
+    if($(window).width() <= 812) {
+        $("#createGame .toggler").slideToggle();
+    } else {
+        $("#createGame .toggler").slideToggle();
+        $("#joinGame .toggler").slideToggle();
+    }
+
+    $(this).parent().css("background-color", "#0F2E4B");
+});
+
+//collapse Join and Create game on small devices
+$(document).ready(function(){
+    if($(window).width() <= 812) {
+        $("#joinGame .toggler").hide();
+        $("#createGame .toggler").hide();
+    }
+});
 
 $('#userid-join').change(function() {
       $('#userid-create').val($(this).val());

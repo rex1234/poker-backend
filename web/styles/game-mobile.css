@@ -11,8 +11,37 @@
         height: 460px;
     }
 
+    /* Landing page*/
+
+    .left-container .content {
+        margin: 40px 40px 0 40px;
+        margin-top: 80px;
+    }
+
+    h1 {
+        font-size: 30px;
+        line-height: 37px;
+    }
+
+    .subH1 {
+        font-size: 16px;
+        line-height: 22px;
+    }
+
+    .logo img {
+        width: 180px;
+    }
+
+    #settings {
+        padding-top: 100px;
+    }
+
     .game-container {
-        width: 100%;
+        width: auto;
+        height: 100%;
+    }
+
+    #main {
         height: 100%;
     }
 
@@ -490,6 +519,13 @@
         left: 154px;
     }
 
+    #start {
+        top: -235px;
+        margin: 0 auto;
+    left: 0;
+    right: 0;
+    }
+
     .raise-slider {
         left: 79px;
         width: 218px;
@@ -579,8 +615,11 @@
     /* PREGAME */
 
     .pregame {
-        top: 371px;
+        top: 367px;
         left: 0;
+        right: 0;
+        margin: 0 auto;
+        max-width: 320px;
         position: fixed;
     }
 
@@ -606,6 +645,75 @@
 
     .pregame .admin-text {
         top: -228px;
+        max-width: 90%;
+    padding-left: 5%;
+    }
+
+}
+
+/*landing screen fix small screens */
+@media only screen and (max-width: 719px)  {
+    #settings {
+        padding-top: 40px;
+        width: 100%;
+        position: static;
+    }
+    .left-container {
+        width: 100%;
+        height: auto;
+        position: static;
+    }
+
+    h1 {
+        font-size: 25px;
+        line-height: 30px;
+    }
+
+    .left-container .content {
+        margin: 30px 20px 40px 20px;
+    }
+
+    .logo {
+        margin: 10px 0 0 20px;
+    }
+
+    .logo img {
+        width: 160px;
+    }
+
+    #createGame {
+        margin-bottom: 30px;
+    }
+}
+
+/*landing screen fix big screens */
+@media only screen and (min-width: 1440px)  {
+    body, #main {
+        height: 100%;
+    }
+    #main-screen {
+        width: 1440px;
+        margin: 0 auto;
+        display: flex;
+        height: 100vh;
+        align-items: stretch;
+    }
+    .left-container {
+        position: static;
+        height: auto;
+        width: 40%;
+        align-self: auto;
+    }
+    #settings {
+        position: static;
+        height: auto;
+        width: 60%;
+        padding-top: 0;
+        align-self: center;
+    }
+
+    #createGame {
+        margin-bottom: 112px;
     }
 
 }

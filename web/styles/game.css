@@ -755,7 +755,7 @@ input[type=number] {
 }
 
 .left-container .content {
-    margin: 40px 0 0 40px;
+    margin: 40px 40px 0 40px;
     margin-top: 200px;
 }
 
@@ -813,6 +813,7 @@ h1 {
     margin: 0 auto;
     padding-top: 1px;
     background-color: #0F2E4B;
+    margin-bottom: 180px;
 }
 
 .input-wrapper {
