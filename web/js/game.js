@@ -205,13 +205,17 @@ function copyToClipboard(elem) {
 
 function openNav() {
     document.getElementById("sidenav").style.marginRight = "0px";
-    document.getElementById("main").style.marginRight = "300px";
+    if($(window).width() > 1204) {
+        document.getElementById("main").style.marginRight = "300px";
+    }
   }
   
   function closeNav() {
-
+    
     document.getElementById("sidenav").style.marginRight = "-300px";
-    document.getElementById("main").style.marginRight = "0";
+    if($(window).width() > 1204) {
+        document.getElementById("main").style.marginRight = "0";
+    }
   }
 
 

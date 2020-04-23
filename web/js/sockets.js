@@ -55,7 +55,9 @@ socket.on('gameState', function (data) {
 
         //show blinds and othe info
         $(".blinds-state .current").html(data.smallBlind + " / " + data.smallBlind*2);
-        $(".blinds-state .next").html(getNextSmallBlind(data.smallBlind) + " / " + getNextSmallBlind(data.smallBlind)*2);
+        if($(window).width() > 1023) {
+            $(".blinds-state .next").html(getNextSmallBlind(data.smallBlind) + " / " + getNextSmallBlind(data.smallBlind)*2);
+        }
         blindsTimer(data.nextBlinds, data.state);
         lateRegTimer(data.config.rebuyTime, data.gameStart, data.state);
         updateLeaderboard(data);
@@ -1071,6 +1073,14 @@ function lateRegTimer(rebuyTime, gameStart, state) {
              var hours = parseInt(remaining/1000/60/60);
              var minutes = parseInt(remaining/1000/60);
              var seconds = parseInt(remaining/1000 - minutes*60);
+
+             var txt = "Rebuy, Late reg. end: ";
+             var endedtxt = "Rebuy, Late reg. period ended.";
+             if($(window).width() < 1024) {
+              txt = "Rebuy: "
+              endedtxt = "Rebuys ended."
+             }
+
              if(minutes < 10) {
                  minutes = "0" + minutes;
              }
@@ -1078,13 +1088,13 @@ function lateRegTimer(rebuyTime, gameStart, state) {
                  seconds = "0" + seconds;
               }
               if(hours < 1) {
-                 $(".rebuys-late-addon").html("Rebuy, Late reg. end: " + minutes + ":" + seconds);
+                 $(".rebuys-late-addon").html(txt + minutes + ":" + seconds);
              } else {
-                 $(".rebuys-late-addon").html("Rebuy, Late reg. end: " + hours + "." + (minutes - hours*60) + ":" + seconds);
+                 $(".rebuys-late-addon").html(txt + hours + "." + (minutes - hours*60) + ":" + seconds);
              }
 
              if (remaining <= 0) {
-                  $(".rebuys-late-addon").html("Rebuy, Late reg. period ended.");
+                  $(".rebuys-late-addon").html(endedtxt);
                  window.clearInterval(intervalID);
                  timerRebuys = -1;
              }

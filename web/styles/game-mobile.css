@@ -1,0 +1,611 @@
+@media only screen and (max-width: 1023px)  {
+
+    html, body {
+        overflow-x: hidden;
+      }
+
+    body {
+        position: relative;
+        font-size: 13px;
+        line-height: 15px;
+        height: 460px;
+    }
+
+    .game-container {
+        width: 100%;
+        height: 100%;
+    }
+
+    .pregame {
+        width: 100%;
+    }
+    .table {
+        width: 94px;
+        height: 237px;
+        top: 70px;
+        left: 0;
+        margin: 0 auto;
+        z-index: -3;
+    }
+
+    .info-box {
+        width: 100px;
+        height: 42px;
+        top: 38px;
+        -webkit-border-radius: 2px;
+        -moz-border-radius: 2px;
+        border-radius: 2px;
+    }
+
+    .player-name {
+        height: 18px;
+    }
+
+    .card-1, .card-2 {
+        width: 29px;
+        height: 47px;
+    }
+
+    .card-2 {
+        left: 35px;
+    }
+
+    .glow-box {
+        width: 104px;
+        top: 38px;
+        height: 46px;  
+        -webkit-border-radius: 2px;
+        -moz-border-radius: 2px;
+        border-radius: 2px;  
+    }
+
+    .card-crop {
+        height: 10px;
+        top: 46px;
+        width: 72px;
+        margin: 0 auto;
+        height: 1px;
+    }
+
+    .cards {
+        position: absolute;
+        width: 73px;
+        left: 17px;
+        top: 44px;
+    }
+
+    .player-chips {
+        font-size: 13px;
+        padding-top: 0;
+    }
+
+    .players>div {
+        position: relative;
+        width: 104px;
+    }
+    .players {
+        left: 50%;
+        height: 100%;
+    }
+
+    #sidenav {
+        z-index: 999;
+    }
+
+    #player1 {
+        top: 287px;
+        left: -50%;
+        z-index: 2;
+    }
+
+    #player1 .card-1, #player1 .card-2 {
+        top: -36px;
+    }
+
+    #player2 {
+        top: 119px;
+        left: -150%;
+        z-index: 2;
+    }
+
+    #player3 {
+        top: -55px;
+        left: -150%;
+        z-index: 1;
+    }
+
+    #player4 {
+        top: -276px;
+        left: -150%;
+        z-index: -1;
+    }
+
+    #player5 {
+        top: -440px;
+        left: -102%;
+        z-index: -2;
+    }
+
+    #player6 {
+        top: -545px;
+        left: 2%;
+        z-index: -2;
+    }
+
+    #player7 {
+        top: -591px;
+        left: 50%;
+        z-index: -1;
+    }
+    
+    #player8 {
+        top: -580px;
+        left: 50%;
+        z-index: 1;
+    }
+
+    #player9 {
+        top: -616px;
+        left: 50%;
+        z-index: 2;
+    }
+
+    #pot {
+        position: relative;
+        top: 110px;
+        left: -54%;
+        font-size: 11px;
+    }
+
+    .chip {
+        width: 4px;
+        height: 4px;
+        border: none;
+        margin-bottom: -6px;
+        
+    }
+    #pot .stacks {
+        top: 0px;
+        left: 83px;
+    }
+
+    .dealt-cards {
+        position: absolute;
+        left: -30%;
+        width: 153px;
+        height: 47px;
+        top: 60px;
+    }
+
+    .dealt-cards-1, .dealt-cards-2, .dealt-cards-3, .dealt-cards-4, .dealt-cards-5 {
+        width: 29px;
+        height: 47px;
+        -webkit-border-radius: 6px;
+        -moz-border-radius: 6px;
+        border-radius: 2px;
+        left: 0;
+    }
+
+    .dealt-cards-1 {
+        left: 0;
+    }
+    .dealt-cards-2 {
+        left: 31px;
+    }
+    .dealt-cards-3 {
+        left: 62px;
+    }
+    .dealt-cards-4 {
+        left: 93px;
+        
+    }
+    .dealt-cards-5 {
+        left: 124px;
+        
+    }
+
+    .stack-1 {
+        left: 16px;
+    }
+
+    .stack-2 {
+        left: 12px;
+    }
+    .stack-3 {
+        left: 8px;
+    }
+    .stack-4 {
+        left: 4px;
+    }
+    .stack-5 {
+        left: 0px;
+    }
+
+    .openbtn {
+        padding: 0 !important;
+        width: 30px;
+        top: 5px;
+        right: 5px;
+    }
+
+    .openbtn>div {
+        display: none;
+    }
+
+    .game-menu button svg {
+        margin: 0 auto;
+    }
+
+    .dealer {
+        width: 11px;
+        height: 11px;
+        font-size: 10px;
+        line-height: 11.5px;
+    
+    }
+
+    #player1 .dealer {
+        left: 25px;
+        top: -6px;
+    }
+    #player2 .dealer {
+        left: 112px;
+        top: 28px;
+    }
+    #player3 .dealer {
+        left: 112px;
+        top: 28px;
+    }
+    #player4 .dealer {
+        left: 112px;
+        top: 72px;
+    }
+    #player5 .dealer {
+        left: 90px;
+        top: 103px;
+    }
+    #player6 .dealer {
+        left: 16px;
+        top: 102px;
+    }
+    #player7 .dealer {
+        left: -15px;
+        top: 64px;
+    }
+    #player8 .dealer {
+        left: -19px;
+        top: 70px;
+    }
+    #player9 .dealer {
+        left: -24px;
+        top: 48px;
+    }
+
+    .bet {
+        width: 50px;
+        height: 26px;
+        font-size: 11px;
+    }
+
+    #player1 .amount {
+        margin-top: -4px;
+        margin-left: 2px;
+    }
+
+    #player1 .bet {
+        top: -2px;
+        left: 28px;
+    }
+
+    #player2 .amount {
+        margin-top: -4px;
+        margin-left: 0px;
+    }
+
+    #player2 .bet {
+        text-align: left;
+        top: 26px;
+        left: 127px;
+    }
+
+    #player3 .amount {
+        margin-top: -4px;
+        margin-left: -7px;
+    }
+
+    #player3 .bet {
+        text-align: left;
+        top: 62px;
+        left: 120px;
+    }
+
+    #player4 .amount {
+        margin-top: -4px;
+        margin-left: -2px;
+    }
+
+    #player4 .bet {
+        text-align: left;
+        top: 80px;
+        left: 127px;
+    
+    }
+    
+    #player5 .amount {
+        margin: -15px 0 0 24px;
+    }
+
+    #player5 .bet {
+        text-align: left;
+        top: 103px;
+        left: 38px;
+    
+    }
+
+    
+    #player6 .amount {
+        margin: -15px 0 0 0px;
+    }
+
+    #player6 .bet {
+        text-align: left;
+        top: 104px;
+        left: 0px;
+    }
+
+    #player7 .amount {
+        margin: -4px 0 0 24px;
+    }
+
+    #player7 .bet {
+        text-align: left;
+        top: 80px;
+        left: -66px;
+    }
+
+    #player8 .amount {
+        margin-top: -4px;
+        margin-right: -4px;
+    }
+
+    #player8 .bet {
+        text-align: right;
+        top: 58px;
+        left: -63px;
+    }
+
+    
+    #player9 .amount {
+        margin-top: -4px;
+        margin-right: -10px;
+    }
+
+    #player9 .bet {
+        text-align: right;
+        top: 34px;
+        left: -71px;
+    }
+
+    .player-timer-bg {
+        width: 103px;
+        height: 4px;
+        -webkit-border-radius: 2px 2px 0 0;
+        -moz-border-radius: 2px 2px 0 0;
+        border-radius: 2px 2px 0 0;
+    }
+
+    .player-timer-running {
+        -webkit-border-radius: 2px 0 0 0;
+        -moz-border-radius: 2px 0 0 0;
+        border-radius: 2px 0 0 0;
+        height: 4px;
+        margin-top: -4px;
+    }
+
+    #player1.fold .card-1, #player1.fold .card-2 {
+        top: -8px;
+        opacity: 0;
+        transition: all 0.6s ease;
+    }
+
+    .onMove.ractive .info-box {
+        box-shadow: 0px 0px 15px #2F06FC;
+        }
+             
+        .onMove.ractive .glow-box {
+        box-shadow: 0px 0px 15px #2F06FC;
+        }
+
+        .game-info {
+            margin-top: 84px;
+            margin-left: 10px;
+        }
+
+        .blinds-state {
+            margin-top: 3px;
+        }
+
+        .rebuys-late-addon {
+            margin-top: -2px;
+        }
+    /*CONTROLS*/
+
+    .autocheck {
+        margin-left: 54px;
+    }
+
+    .autoactions div {
+        margin-top: -5px;
+    }
+
+    .player-tag {
+        top: 4px;
+        left: 4%;
+    }
+
+    .controls {
+        left: 0px;
+        top: 186px;
+        width: 300px;
+        height: auto;
+        margin: 0 auto;
+    }
+
+    .controls button, #start {
+        position: absolute;
+        width: 68px;
+        height: 32px;
+        font-size: 13px;
+        -webkit-border-radius: 2px;
+        -moz-border-radius: 2px;
+        border-radius: 2px;
+    }
+
+    #raise {
+        left: 232px;
+    }
+
+    #call {
+        left: 154px;
+    }
+
+    #additional {
+        width: 98px;
+        left: 102px;
+    }
+
+    #rebuys {
+        width: 74px;
+        left: 113px;
+    }
+
+    #rebuyMsg {
+        position: absolute;
+        top: 15px;
+        left: 40px;
+        width: 300px;
+    }
+
+    #check {
+        left: 154px;
+    }
+
+    .raise-slider {
+        left: 79px;
+        width: 218px;
+        height: 24px;
+        z-index: 2;
+        -moz-border-radius: 2px 0 2px 2px;
+        -webkit-border-radius: 2px 0 2px 2px;
+        border-radius: 2px 0 2px 2px;
+        top: -38px;
+    }
+
+    .raise-input {
+        width: 71px;
+        height: 22px;
+        font-size: 13px;
+    }
+
+    .slider {
+        top: 13px;
+        left: 83px;
+        width: 125px;
+    }
+
+    #range-slider {
+        top: -3px;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+        width: 20px;
+        height: 20px;
+      }
+      
+      input[type=range]::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+      }
+      
+      input[type=range]::-ms-thumb {
+        width: 20px;
+        height: 20px;
+      }
+
+      .container-betsizes {
+        top: -23px;
+        left: -2px;
+      }
+
+      .container-betsizes button {
+          width: 45px;
+          height: 29px;
+          font-size: 13px;
+      }
+
+      
+      button.betsizes.first {
+        left: 130px;
+        top: -39px;
+        -moz-border-radius: 2px 0 0 0;
+        -webkit-border-radius: 2px 0 0 0;
+        border-radius: 2px 0 0 0;
+    }
+
+      button.betsizes.second {
+        left: 177px;
+        top: -39px;
+        -moz-border-radius: 0 2px 0 0;
+        -webkit-border-radius: 0 2px 0 0;
+        border-radius: 0 2px 0 0;
+    }
+
+    button.betsizes.third {
+        left: 130px;
+        top: -8px;
+        -moz-border-radius: 0;
+        -webkit-border-radius: 0;
+        border-radius: 0;
+    }
+
+    button.betsizes.last {
+        left: 177px;
+        top: -8px;
+        -moz-border-radius: 0;
+        -webkit-border-radius: 0;
+        border-radius: 0;
+    }
+
+    /* PREGAME */
+
+    .pregame {
+        top: 371px;
+        left: 0;
+        position: fixed;
+    }
+
+    .all-text #code {
+        padding: 10px 0 0 0;
+    }
+
+    #code {
+        font-size: 26px;
+    }
+
+    #copyButton {
+        font-size: 13px;
+        border-radius: 2px;
+        padding: 0 8px;
+        margin-top: 12px;
+        -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    padding: 0 8px 2px 8px;
+    line-height: 4px;
+    }
+
+    .pregame .admin-text {
+        top: -228px;
+    }
+
+}
