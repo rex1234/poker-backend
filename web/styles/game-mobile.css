@@ -8,7 +8,7 @@
         position: relative;
         font-size: 13px;
         line-height: 15px;
-        height: 460px;
+        min-height: 460px;
     }
 
     /* Landing page*/
