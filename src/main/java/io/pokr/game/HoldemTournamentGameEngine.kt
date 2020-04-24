@@ -199,7 +199,7 @@ class HoldemTournamentGameEngine(
 
             // we can check only if we match the target bet
             PlayerAction.Action.CHECK ->
-                player.currentBet == game.targetBet
+                player.currentBet == game.targetBet || player.isAllIn
 
             // raise and reset other players' actions
             PlayerAction.Action.RAISE -> {
@@ -304,6 +304,8 @@ class HoldemTournamentGameEngine(
     }
 
     private fun finishRound() {
+        val chipsBeforeWinnings = game.players.map { it to it.chips }.toMap()
+
         calculateWinnings()
 
         // calculate hands
@@ -333,15 +335,12 @@ class HoldemTournamentGameEngine(
         }
 
         // if a player has 0 chips, he is finished and won't play anymore (unless he rebuys)
-        game.allPlayers.filter { it.chips == 0 }.forEach {
-            it.isFinished = true
-        }
-
-        // set player's final rank (if it was not already set before)
-        game.allPlayers.filter { it.finalRank == 0 && it.chips == 0 }.forEach {
-            it.finalRank = game.players.size + 1
-
-            // TODO: player with more chips at the round end should have better final rank
+        // player with more chips at the round start has better final rank
+        game.allPlayers.filter { it.finalRank == 0 && it.chips == 0 }.sortedByDescending {
+            chipsBeforeWinnings[it]
+        }.forEachIndexed { i, player ->
+            player.finalRank = game.players.size + 1 + i
+            player.isFinished = true
         }
 
         // switch to the FINISHED state, no actions and be performed anymore and the results of the round are shown
@@ -389,7 +388,7 @@ class HoldemTournamentGameEngine(
             ranks.forEach { it.player.bestCards = it.bestCards!!.first }
             game.bestCards = ranks[0].bestCards!!.second
 
-            ranks.filter { it.rank == ranks[0].rank }.map { it.player }.forEach { it.isWinner = true }
+            ranks.filter { it.rank == ranks[0].rank }.forEach { it.player.isWinner = true }
 
             WinningsCalculator.calculateWinnings(ranks)
         }

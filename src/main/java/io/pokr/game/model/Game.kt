@@ -73,7 +73,6 @@ class Game constructor(
             return@run get(0)
         }
 
-
     fun pause(pause: Boolean) {
         if(pause) {
             gameState = State.PAUSED

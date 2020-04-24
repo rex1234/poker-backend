@@ -8,22 +8,22 @@ import io.pokr.game.tools.*
 class Player(
     val uuid: String
 ) {
-    var index: Int = 0
+    var index: Int = 0 // player's position on the table
     var name: String = "Player " + System.currentTimeMillis()
     var isAdmin = false
     var isConnected = true
-    var isFinished = false
-    var isKicked = false // like isFinished but cannot ever return
+    var isFinished = false // whether the player already lost
+    var isKicked = false // like isFinished but permanent (cannot rebuy)
     var isDealer = false
     var isOnMove = false
-    var moveStart = 0L
+    var moveStart = 0L // time when the player's action began
     var action = PlayerAction.Action.NONE
     var cards = CardList()
     var hand: HandComparator.Hand? = null
     var currentBet = 0
     var chips = 0
     var rebuyCount = 0
-    var finalRank = 0
+    var finalRank = 0 // final game rank
 
     var isLeaveNextRound = false
     var isRebuyNextRound = false
