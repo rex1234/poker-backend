@@ -1,4 +1,5 @@
 var timerOn = -1;
+var beepCounter = 0;
 
 $( "#joinGame button").click(function() {
     $("#loader .wrapper .text").html("Feeding you to the sharks…");
@@ -127,6 +128,19 @@ function playerCountdown(start, playerPosition, limit, cards) {
         var now = d.getTime();
         var prc = 100 - 100*((now - start)/(limit*1000));
         var crd = cards.split(" ");
+
+        if((lastAction !== "none" || roundTurn === 1) && playerPosition === 1) {
+             if(x === 10) {
+                 onturnSound.play();
+                 beepCounter++;
+             }
+
+             if(x === parseInt(limit*18.75)) {
+                 warningSound.play();
+                 beepCounter++;
+             }
+        }
+
 
         var crdflop = $(".dealt-cards-1").html().charAt(20) + $(".dealt-cards-1").html().charAt(21);
         var crdturn = $(".dealt-cards-4").html().charAt(20) + $(".dealt-cards-4").html().charAt(21);
@@ -265,6 +279,16 @@ $('#foursuits:checkbox').change(function() {
    }
 });
 
+$('#sound:checkbox').change(function() {
+   if ($(this).is(':checked')) {
+       soundOn = true;
+       Cookies.set('sound', 'on', { expires: 1000 });
+   } else {
+       soundOn = false;
+       Cookies.set('sound', 'off', { expires: 1000 });
+   }
+});
+
 function changeSuits(suit) {
      var card1 = $("#player1 .card-1 img").attr("src").split("/");
      var card2 = $("#player1 .card-2 img").attr("src").split("/");
@@ -283,5 +307,29 @@ function changeSuits(suit) {
      }
 
 }
+
+var checkSound = new sound("sounds/check.mp3");
+var chipsSound = new sound("sounds/chips.mp3");
+var warningSound = new sound("sounds/warning.mp3");
+var onturnSound = new sound("sounds/onturn.mp3");
+var cardSound = new sound("sounds/card.mp3");
+
+//sounds
+function sound(src) {
+    this.sound = document.createElement("audio");
+    this.sound.src = src;
+    this.sound.setAttribute("preload", "auto");
+    this.sound.setAttribute("controls", "none");
+    this.sound.style.display = "none";
+    document.body.appendChild(this.sound);
+    this.play = function(){
+      if(soundOn === true) {
+        this.sound.play();
+      }
+    }
+    this.stop = function(){
+      this.sound.pause();
+    }
+  }
 
 //TODO add input validation
