@@ -1625,5 +1625,11 @@ margin-left: 18px;
     height: 47px;
 }
 
+.allow-audio {
+    top: -320px;
+    left: 158px;
+    width: 120px !important;
+}
+
 
 

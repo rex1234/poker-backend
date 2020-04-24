@@ -13,8 +13,8 @@ var street = "preflop";
 var prevStreet = "none";
 var prevRoundState = "none";
 var lastAction = "none";
-var soundOn = "false";
-
+var soundOn = false;
+var messageShown = false;
 
 var timerBlinds = -1;
 var timerRebuys = -1;
@@ -306,7 +306,7 @@ function printPlayers(data) {
 
     assignChipsImg(betDesc, "player1", data);
 
-    if(data.user.cards.length > 0) {
+    if(data.user.cards.length > 0 && (prevData.user.cards !== data.user.cards || reconnected)) {
         cards = data.user.cards.split(" ");
         $("#player1 .card-1").html('<img src="img/cards/' + cardsSettings + cards[0] +'.svg"/>');
         $("#player1 .card-2").html('<img src="img/cards/' + cardsSettings + cards[1] +'.svg"/>');
@@ -1368,7 +1368,7 @@ function initializeVars(data) {
 
     cardChanged = (prevData.cards !== data.cards);
     if(cardChanged) {
-        cardSound.play();
+        play("cards");
     }
 
     if (data.roundState === "active") {
@@ -1462,14 +1462,29 @@ function addRebuy() {
 }
 
 function playSound(data) {
+if(soundOn) {
+    var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    if(snd != null && isSafari && messageShown === false) {
+        var promise = document.querySelector('audio').play();
+        if (promise !== undefined) {
+            promise.catch(error => {
+                    $(".allow-audio").show();
+                    messageShown = true;
+            }).then(() => {
+                // Auto-play started
+            });
+        }
+    }
+
     lastAction = getLastAction(data);
     if(reconnected === false) {
-    if(prevData.round === data.round) {
-        if (lastAction === "call" || lastAction === "raise") {
-            chipsSound.play();
-        }
-        if (lastAction === "check") {
-            checkSound.play();
+        if(prevData.round === data.round) {
+            if (lastAction === "call" || lastAction === "raise") {
+                play("chips");
+            }
+            if (lastAction === "check") {
+                play("check");
+            }
         }
     }
     }
