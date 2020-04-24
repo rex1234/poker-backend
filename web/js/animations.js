@@ -1,5 +1,19 @@
 var thirdCard = $(".dealt-cards-3").css("left");
-console.log(thirdCard);
+var loader = anime({
+    targets: '#loader .wrapper img',
+    easing: 'easeInOutSine',
+    keyframes: [
+        {translateY: [0,0]},
+        {translateY: [0,-20]},
+        {translateY: [-20,0]}
+      ],
+      loop: true,
+    delay: anime.stagger(200)
+});
+
+$( window ).resize(function() {
+    thirdCard = $(".dealt-cards-3").css("left");
+});
 
 /* dealt cards */
 var flop = anime.timeline({
@@ -68,7 +82,7 @@ preflop
     .add({
         targets: '.dealt-cards-3',
         scaleX: [-1,-1],
-        translateX: thirdCard,
+        translateX: [0, thirdCard],
         rotateY: [0, 90],
         duration: 1
     }, 700)
@@ -80,6 +94,7 @@ preflop
     .add({
         targets: '.dealt-cards-3',
         rotateY: [90, 180],
+        rotate: 0.001,  
         easing: 'easeOutQuad',
         duration: 300
     })
@@ -109,6 +124,7 @@ preflop
     .add({
         targets: '.dealt-cards-4',
         rotateY: [90, 180],
+        rotate: 0.001,    
         duration: 1000
     })
     .add({
@@ -121,6 +137,7 @@ preflop
     .add({
          targets: '.dealt-cards-5',
          rotateY: [90, 180],
+         rotate: 0.001,  
          duration: 1000,
          complete: function(anim) {
              refreshCards();
@@ -133,8 +150,8 @@ flop
     .add({
         targets: '.dealt-cards-3',
         scaleX: [-1,-1],
-        translateX: thirdCard,
-        rotateY: [0, 90],
+        translateX: [0, thirdCard],
+        rotateY: ['0deg', '90deg'],
         duration: 0
     }, 700)
     .add({
@@ -144,7 +161,8 @@ flop
     })
     .add({
         targets: '.dealt-cards-3',
-        rotateY: [90, 180],
+        rotateY: ['90deg', '180deg'],
+        rotate: 0.001,  
         easing: 'easeOutQuad',
         duration: 300
     })
@@ -207,6 +225,7 @@ turnAlone
         targets: '.dealt-cards-4',
         scaleX: [-1,-1],
         rotateY: [0, 90],
+        rotate: 0.001,  
         opacity: [0,1],
         duration: 1
     })
@@ -221,6 +240,7 @@ riverAlone
         targets: '.dealt-cards-5',
         scaleX: [-1,-1],
         rotateY: [0, 90],
+        rotate: 0.001,  
         opacity: [0,1],
         duration: 1
     })
@@ -236,6 +256,7 @@ riverShow
         targets: '.dealt-cards-5',
         scaleX: [-1,-1],
         rotateY: [0, 90],
+        rotate: 0.001,  
         opacity: [0,1],
         duration: 1
     })
@@ -256,11 +277,13 @@ turnAndRiver
         scaleX: [-1,-1],
         opacity: [0,1],
         rotateY: [0, 90],
+        rotate: 0.001,  
         duration: 1
     })
     .add({
         targets: '.dealt-cards-4',
         rotateY: [90, 180],
+        rotate: 0.001,  
         duration: 1000
     }, 700)
     .add({
@@ -268,11 +291,13 @@ turnAndRiver
         scaleX: [-1,-1],
         opacity: [0,1],
         rotateY: [0, 90],
+        rotate: 0.001,  
         duration: 1
     })
     .add({
         targets: '.dealt-cards-5',
         rotateY: [90, 180],
+        rotate: 0.001,  
         duration: 1000,
         complete: function(anim) {
             refreshCards();
@@ -318,17 +343,3 @@ function animationRiverInstant() {
     riverInstant.play();
 }
 
-//loader
-function animationLoader() {
-    anime({
-        targets: '#loader .wrapper img',
-        easing: 'easeInOutSine',
-        keyframes: [
-            {translateY: 0},
-            {translateY: -20},
-            {translateY: 0}
-          ],
-          loop: true,
-        delay: anime.stagger(200) // increase delay by 100ms for each elements.
-    });
-}

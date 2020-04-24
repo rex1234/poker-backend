@@ -18,9 +18,10 @@ var timerRebuys = -1;
 var showCardsDelay = 0;
 var hasRebuyed = false;
 var rebuyRound = -1;
+var cardsSettings = Cookies.get("suits");
+
 
 var showCardsInProgress = false;
-
 // inbound events
 
 socket.on('gameState', function (data) {
@@ -30,6 +31,7 @@ socket.on('gameState', function (data) {
     initializeVars(data);
     //user is in game
     $("#loader").hide();
+    loader.pause();
     $("#settings").hide();
     $(".left-container").hide();
     $("#main-screen").hide();
@@ -194,13 +196,17 @@ function changeName(name) {
 }
 
 function leave() {
-    sendAction("leave");
     socket.disconnect();
-    Cookies.set("game_uuid", null);
-    Cookies.set("player_uuid", null);
-    //Cookies.remove('game_uuid');
-    location.reload(true);
-    // TODO: reset variables
+    sendAction("leave");
+    Cookies.remove('game_uuid');
+    Cookies.remove('player_uuid');
+
+
+    $("#settings").show();
+    $(".left-container").show();
+    $("#main-screen").show();
+    $(".game-container").hide();
+    $(".pregame").hide();
 }
 
 function gameCall() {
@@ -299,8 +305,8 @@ function printPlayers(data) {
 
     if(data.user.cards.length > 0) {
         cards = data.user.cards.split(" ");
-        $("#player1 .card-1").html('<img src="img/cards/' + cards[0] +'.svg"/>');
-        $("#player1 .card-2").html('<img src="img/cards/' +cards[1] +'.svg"/>');
+        $("#player1 .card-1").html('<img src="img/cards/' + cardsSettings + cards[0] +'.svg"/>');
+        $("#player1 .card-2").html('<img src="img/cards/' + cardsSettings + cards[1] +'.svg"/>');
     }
 
     var positions = [1,0,0,0,0,0,0,0,0];
@@ -382,8 +388,8 @@ function printPlayers(data) {
         if(typeof data.players[i].cards !== "undefined" && data.roundState === "finished" ) {
             if(data.players[i].cards.length > 0) {
                 var cards = data.players[i].cards.split(" ");
-                $("#player"+ position +" .card-1").html('<img src="img/cards/' + cards[0] +'.svg"/>');
-                $("#player"+ position +" .card-2").html('<img src="img/cards/' +cards[1] +'.svg"/>');
+                $("#player"+ position +" .card-1").html('<img src="img/cards/'+ cardsSettings + cards[0] +'.svg"/>');
+                $("#player"+ position +" .card-2").html('<img src="img/cards/' + cardsSettings + cards[1] +'.svg"/>');
                 $("#player"+ position).addClass("showdown");
             }
         } else {
@@ -697,17 +703,17 @@ function dealCards(data) {
     cards.reverse();
 
     function addFlop() {
-        $(".dealt-cards-1").html('<img src="img/cards/' + cards[0] +'.svg"/>');
-        $(".dealt-cards-2").html('<img src="img/cards/' + cards[1] +'.svg"/>');
-        $(".dealt-cards-3").html('<img src="img/cards/' + cards[2] +'.svg"/>');
+        $(".dealt-cards-1").html('<img src="img/cards/' + cardsSettings + cards[0] +'.svg"/>');
+        $(".dealt-cards-2").html('<img src="img/cards/' + cardsSettings + cards[1] +'.svg"/>');
+        $(".dealt-cards-3").html('<img src="img/cards/' + cardsSettings + cards[2] +'.svg"/>');
     }
 
     function addTurn() {
-        $(".dealt-cards-4").html('<img src="img/cards/' + cards[3] +'.svg"/>');
+        $(".dealt-cards-4").html('<img src="img/cards/' + cardsSettings + cards[3] +'.svg"/>');
     }
 
     function addRiver() {
-        $(".dealt-cards-5").html('<img src="img/cards/' + cards[4] +'.svg"/>');
+        $(".dealt-cards-5").html('<img src="img/cards/' + cardsSettings + cards[4] +'.svg"/>');
     }
 
      //delete cards from previous game
@@ -1003,7 +1009,7 @@ function updateLastPlayedHand(data) {
         var cardsStr = "";
         if(cards.length >= 3) {
             for(i = cards.length - 1; i >= 0; i--) {
-                cardsStr += "<img src='img/cards/" + cards[i] + ".svg' width='30' height='47'>";
+                cardsStr += "<img src='img/cards/"+ cardsSettings + cards[i] + ".svg' width='30' height='47'>";
             }
         }
         for(i = cards.length; i < 5; i++) {
@@ -1044,10 +1050,10 @@ function updateLastPlayedHand(data) {
 
             } else if (typeof pls[i][2] === "undefined") {
                 //user made everyone folded or player showed cards after everyone folded
-                plsStr += "<div class='lh-messageplayer'><b>"+ pls[i][3] + winStr +" </b><br>w/o showdown</div><div class='lh-cardsplayer'><img src='img/cards/" + pls[i][1].split(" ")[0] + ".svg' width='30' height='47'><img src='img/cards/" + pls[i][1].split(" ")[1] + ".svg' width='30' height='47'></div>";
+                plsStr += "<div class='lh-messageplayer'><b>"+ pls[i][3] + winStr +" </b><br>w/o showdown</div><div class='lh-cardsplayer'><img src='img/cards/" + cardsSettings + pls[i][1].split(" ")[0] + ".svg' width='30' height='47'><img src='img/cards/" + cardsSettings + pls[i][1].split(" ")[1] + ".svg' width='30' height='47'></div>";
 
             } else {
-                plsStr += "<div class='lh-messageplayer'><b>"+ pls[i][3] + winStr +" </b><br>with " + pls[i][2] + "</div><div class='lh-cardsplayer'><img src='img/cards/" + pls[i][1].split(" ")[0] + ".svg' width='30' height='47'><img src='img/cards/" + pls[i][1].split(" ")[1] + ".svg' width='30' height='47'></div>";
+                plsStr += "<div class='lh-messageplayer'><b>"+ pls[i][3] + winStr +" </b><br>with " + pls[i][2] + "</div><div class='lh-cardsplayer'><img src='img/cards/" + cardsSettings + pls[i][1].split(" ")[0] + ".svg' width='30' height='47'><img src='img/cards/" + cardsSettings + pls[i][1].split(" ")[1] + ".svg' width='30' height='47'></div>";
             }
 
             plsStr += "</div>";
@@ -1321,6 +1327,18 @@ function initializeVars(data) {
 
     if(typeof finishedData !== "undefined" && data.roundState === finishedData.roundState && data.round === finishedData.round && finishedData.roundState !== "active") {
         showCardsInProgress = true;
+    }
+
+    if(reconnected === true) {
+        if(typeof cardsSettings === "undefined") {
+            cardsSettings = "";
+        }
+        console.log(cardsSettings);
+        if(cardsSettings === "4c/") {
+            $("#foursuits:checkbox").prop("checked", true);
+        } else {
+            $("#foursuits:checkbox").prop("checked", false);
+        }
     }
 
     if((data.roundState === "finished" || typeof finishedData === "undefined") && data.state === "active") {

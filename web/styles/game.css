@@ -1557,6 +1557,56 @@ margin-left: 18px;
     align-items: flex-end;
 }
 
+.game-controls, #game-id {
+    color: #061727;
+}
+
+.game-controls {
+    margin-top: 5px;
+}
+
+.game-controls input {
+	-webkit-appearance: none;
+	background-color: transparent;
+	border: 2px solid #EED3B5;
+	padding: 9px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+	display: inline-block;
+    position: relative;
+    margin-bottom: -6px;
+    outline: none;
+    cursor: pointer;
+}
+
+.game-controls input:active, .game-controls input:checked:active {
+    border: 2px solid #EED3B5;
+}
+
+.game-controls input:hover {
+    border: 2px solid #E8C196;
+}
+
+.game-controls input:checked:hover {
+    background-color: #E8C196;
+    border: 2px solid #E8C196;
+}
+
+.game-controls input:checked {
+    border: 2px solid #EED3B5;
+    background-color: #EED3B5;
+}
+
+.game-controls input:checked:after {
+	content: '\2714';
+	font-size: 16px;
+	position: absolute;
+	top: -2px;
+	left: 3px;
+	color: #ffffff;
+}
+
 .lh-dealt {
     width: 162px;
     height: 47px;
@@ -1575,12 +1625,5 @@ margin-left: 18px;
     height: 47px;
 }
 
-.lh-message {
-
-}
-
-.lh-messageplayer {
-
-}
 
 

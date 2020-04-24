@@ -39,6 +39,7 @@
     .game-container {
         width: auto;
         height: 100%;
+        margin-top: 18px;
     }
 
     #main {
@@ -96,6 +97,11 @@
         height: 1px;
     }
 
+    #player1 .card-crop, #player1.rfinished .card-crop {
+        visibility: visible;
+        height: 28px;
+    }
+    
     .cards {
         position: absolute;
         width: 73px;
@@ -474,7 +480,7 @@
 
     .controls {
         left: 0px;
-        top: 186px;
+        top: 168px;
         width: 300px;
         height: auto;
         margin: 0 auto;
@@ -534,7 +540,7 @@
         -moz-border-radius: 2px 0 2px 2px;
         -webkit-border-radius: 2px 0 2px 2px;
         border-radius: 2px 0 2px 2px;
-        top: -38px;
+        top: -31px;
     }
 
     .raise-input {

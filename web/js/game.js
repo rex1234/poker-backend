@@ -3,12 +3,14 @@ var timerOn = -1;
 $( "#joinGame button").click(function() {
     $("#loader .wrapper .text").html("Feeding you to the sharks…");
     $("#loader").show();
+    loader.play();
     connectToGame($('#userid-join').val(), $('#gameid').val());
 });
 
 $( "#createGame button" ).click(function() {
     $("#loader .wrapper .text").html("Cleaning shark tank…");
     $("#loader").show();
+    loader.play();
     var gameConfig = {
         startingChips: $("#startingChips").val(),
         startingBlinds: $("#startingBlinds").val(),
@@ -158,7 +160,6 @@ $(document).ready(function () {
         if (Cookies.get('game_uuid') && Cookies.get('player_uuid')) {
             $("#loader .wrapper .text").html("Reconnecting…");
             $("#loader").show();
-            animationLoader();
             reconnected = true;
             console.log("reconnecting to an existing game");
             connectToGame(Cookies.get("nick"), Cookies.get("game_uuid"));
@@ -246,6 +247,41 @@ function openNav() {
     }
   }
 
+  $( window ).resize(function() {
+    if($(window).width() <= 1204) {
+        document.getElementById("main").style.marginRight = "0";
+    }
+  });
 
+$('#foursuits:checkbox').change(function() {
+   if ($(this).is(':checked')) {
+       cardsSettings = "4c/";
+       changeSuits(cardsSettings);
+       Cookies.set('suits', '4c/', { expires: 1000 });
+   } else {
+       cardsSettings = "";
+       changeSuits(cardsSettings);
+       Cookies.set('suits', '', { expires: 1000 });
+   }
+});
+
+function changeSuits(suit) {
+     var card1 = $("#player1 .card-1 img").attr("src").split("/");
+     var card2 = $("#player1 .card-2 img").attr("src").split("/");
+     var c1 = "img/cards/" + suit + card1[card1.length - 1];
+     var c2 = "img/cards/" + suit + card2[card2.length - 1];
+     $("#player1 .card-1 img").attr("src", c1);
+     $("#player1 .card-2 img").attr("src", c2);
+
+     for(i = 1; i <= 5; i++) {
+        var card = $(".dealt-cards-" + i + " img").attr("src");
+        if(typeof card !== "undefined") {
+            card = card.split("/");
+            var c = "img/cards/" + suit + card[card.length - 1];
+            $(".dealt-cards-" + i + " img").attr("src", c);
+         }
+     }
+
+}
 
 //TODO add input validation
