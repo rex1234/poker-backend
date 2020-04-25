@@ -84,7 +84,7 @@ class GameResponse(
                 name = name,
                 isDealer = isDealer,
                 isOnMove = isOnMove,
-                hasLeft = isKicked,
+                hasLeft = isKicked || isLeaveNextRound,
                 isRebuyNextRound = isRebuyNextRound,
                 rebuyCount = rebuyCount,
                 moveStart = moveStart,

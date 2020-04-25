@@ -177,6 +177,8 @@ class HoldemTournamentGameEngine(
                 }
             }
         }
+
+        tryShowdown()
     }
 
     fun nextPlayerMove(playerUuid: String, playerAction: PlayerAction) {
@@ -244,9 +246,7 @@ class HoldemTournamentGameEngine(
             if(game.tableCards.cards.size < 5) {
                 // ((if one player is not all in AND all the rest is all in) OR everyone is all in)
                 // AND all other players are folded
-                if(game.players.none { it.action == PlayerAction.Action.NONE } &&
-                    (game.players.size - game.players.count { it.isAllIn } - game.players.count { it.action == PlayerAction.Action.FOLD } <= 1)) {
-                    showdown()
+                if(tryShowdown()) {
                     return
                 }
             }
@@ -288,19 +288,29 @@ class HoldemTournamentGameEngine(
     }
 
 
-    private fun showdown() {
-        System.err.println("Showdown")
+    private fun tryShowdown(): Boolean {
+        if (game.players.size
+            - game.players.count { it.isAllIn }
+            - game.players.count { it.action == PlayerAction.Action.FOLD } <= 1 &&
+            (game.players.none {it.action == PlayerAction.Action.NONE} || game.players.all { it.isAllIn })) {
 
-        extraRoundTime = when(game.tableCards.size) {
-            0 -> 4200L
-            3 -> 2700L
-            else -> 1700L
+            System.err.println("Showdown")
+
+            extraRoundTime = when (game.tableCards.size) {
+                0 -> 4200L
+                3 -> 2700L
+                else -> 1700L
+            }
+
+            game.tableCards = game.tableCards.with(game.cardStack.drawCards(5 - game.tableCards.cards.size))
+            game.players.filter { it.action != PlayerAction.Action.FOLD }.forEach { it.showCards = true }
+
+            finishRound()
+
+            return true
+        } else {
+            return false
         }
-
-        game.tableCards = game.tableCards.with(game.cardStack.drawCards( 5 - game.tableCards.cards.size))
-        game.players.filter { it.action != PlayerAction.Action.FOLD }.forEach { it.showCards = true }
-
-        finishRound()
     }
 
     private fun finishRound() {
@@ -339,7 +349,7 @@ class HoldemTournamentGameEngine(
         game.allPlayers.filter { it.finalRank == 0 && it.chips == 0 }.sortedByDescending {
             chipsBeforeWinnings[it]
         }.forEachIndexed { i, player ->
-            player.finalRank = game.players.size + 1 + i
+            player.finalRank = game.players.size + i
             player.isFinished = true
         }
 

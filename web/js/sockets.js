@@ -123,8 +123,8 @@ socket.on('error', function (data) {
     $("#loader").hide();
 
     if(data.code == 20) { // invalid game UUID
-        Cookies.set('player_uuid', null);
-        Cookies.set('game_uuid', null);
+        Cookies.remove('player_uuid');
+        Cookies.remove('game_uuid');
     }
 
     // TODO: show dialog with error message
@@ -196,11 +196,11 @@ function changeName(name) {
 }
 
 function leave() {
-    socket.disconnect();
     sendAction("leave");
+
     Cookies.remove('game_uuid');
     Cookies.remove('player_uuid');
-
+    Cookies.remove('io');
 
     $("#settings").show();
     $(".left-container").show();
