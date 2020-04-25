@@ -12,14 +12,16 @@ var cardChanged = false;
 var street = "preflop";
 var prevStreet = "none";
 var prevRoundState = "none";
+var lastAction = "none";
+var soundOn = false;
+var messageShown = false;
 
 var timerBlinds = -1;
 var timerRebuys = -1;
 var showCardsDelay = 0;
 var hasRebuyed = false;
 var rebuyRound = -1;
-var cardsSettings = Cookies.get("suits");
-
+var cardsSettings = "";
 
 var showCardsInProgress = false;
 // inbound events
@@ -279,6 +281,7 @@ function print(data) {
 //TODO refactor, split into multiple functions
 function printPlayers(data) {
     giveCSSClasses(data, 1, -1);
+    playSound(data);
 
     var pot = data.user.currentBet;
     var players = [[1, data.user.dealer]];
@@ -303,7 +306,7 @@ function printPlayers(data) {
 
     assignChipsImg(betDesc, "player1", data);
 
-    if(data.user.cards.length > 0) {
+    if(data.user.cards.length > 0 && (prevData.user.cards !== data.user.cards || reconnected)) {
         cards = data.user.cards.split(" ");
         $("#player1 .card-1").html('<img src="img/cards/' + cardsSettings + cards[0] +'.svg"/>');
         $("#player1 .card-2").html('<img src="img/cards/' + cardsSettings + cards[1] +'.svg"/>');
@@ -350,12 +353,14 @@ function printPlayers(data) {
          }
 
         if(data.state === "active") {
-            if(prevData.players[i].finalRank !== 0) {
-                positions[position-1] = 0;
-            } else if(data.roundState !== "finished" && data.players[i].finalRank !== 0) {
-                positions[position-1] = 0;
-            } else {
-               positions[position-1] = 1;
+            if(typeof prevData.players[i] !== "undefined") {
+                if(prevData.players[i].finalRank !== 0) {
+                    positions[position-1] = 0;
+                } else if(data.roundState !== "finished" && data.players[i].finalRank !== 0) {
+                    positions[position-1] = 0;
+                } else {
+                   positions[position-1] = 1;
+                }
             }
         }
 
@@ -1129,7 +1134,10 @@ function assignTags(data) {
         var prevPlayers = [...prevData.players];
         prevPlayers.push(prevData.user);
         for(i = 0; i < players.length; i++) {
-            var prevAction = prevPlayers[i].action;
+            var prevAction = "new";
+            if(typeof prevPlayers[i] !== "undefined") {
+                prevAction = prevPlayers[i].action;
+            }
             var action = players[i].action;
             var position = getPlayerPosition(data, players[i].index);
             $("#player" + position + " .player-tag").removeClass("check call raise");
@@ -1321,6 +1329,8 @@ function initializeVars(data) {
         refreshCards();
     }
 
+    $("#game-id").html("<b>Game ID: </b>" + data.uuid);
+
     if(data.roundState === "active") {
         $(".showCards").removeClass("showCards");
     }
@@ -1330,14 +1340,20 @@ function initializeVars(data) {
     }
 
     if(reconnected === true) {
+        cardsSettings = Cookies.get("suits");
         if(typeof cardsSettings === "undefined") {
             cardsSettings = "";
         }
-        console.log(cardsSettings);
         if(cardsSettings === "4c/") {
             $("#foursuits:checkbox").prop("checked", true);
         } else {
             $("#foursuits:checkbox").prop("checked", false);
+        }
+
+        var snd = Cookies.get("sound");
+        if(snd === "on") {
+            soundOn = true;
+            $("#sound:checkbox").prop("checked", true);
         }
     }
 
@@ -1351,6 +1367,10 @@ function initializeVars(data) {
     }
 
     cardChanged = (prevData.cards !== data.cards);
+    if(cardChanged) {
+        play("cards");
+    }
+
     if (data.roundState === "active") {
         var x;
             x = data.cards.split(" ").length;
@@ -1441,6 +1461,61 @@ function addRebuy() {
     rebuyRound = prevData.round;
 }
 
+function playSound(data) {
+if(soundOn) {
+    var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    if(snd != null && isSafari && messageShown === false) {
+        var promise = document.querySelector('audio').play();
+        if (promise !== undefined) {
+            promise.catch(error => {
+                    $(".allow-audio").show();
+                    messageShown = true;
+            }).then(() => {
+                // Auto-play started
+            });
+        }
+    }
+
+    lastAction = getLastAction(data);
+    if(reconnected === false) {
+        if(prevData.round === data.round) {
+            if (lastAction === "call" || lastAction === "raise") {
+                play("chips");
+            }
+            if (lastAction === "check") {
+                play("check");
+            }
+        }
+    }
+    }
+}
+
+function getLastAction(data) {
+    if(reconnected === false && data.state === "active") {
+        if(data.user.action !== prevData.user.action && data.user.action !== "none") {
+            return data.user.action;
+        }
+        for(i = 0; i < data.players.length; i++) {
+             if(typeof prevData.players[i] !== "undefined") {
+                if(data.players[i].action !== prevData.players[i].action && data.players[i].action !== "none") {
+                    return data.players[i].action;
+                }
+           }
+        }
+        if(cardChanged) {
+            if((prevData.targetBet === prevData.previousTargetBet || data.targetBet === 2*data.smallBlind)) {
+                return "check";
+            } else {
+                return "call";
+            }
+        } else {
+            return "none";
+        }
+    } else {
+        return "none";
+    }
+}
+
 //checks if the socket change is only in reconnection var
 function isReconnect(data) {
     if(data.state === "created") {
@@ -1456,8 +1531,10 @@ function isReconnect(data) {
         return false;
     }
     for(i = 0; i < data.players.length; i++) {
-        if(data.players[i].onMove !== prevData.players[i].onMove) {
-            return false;
+        if(typeof prevData.players[i] !== "undefined") {
+            if(data.players[i].onMove !== prevData.players[i].onMove) {
+                return false;
+            }
         }
     }
     return true;
@@ -1493,3 +1570,5 @@ function wait(ms) {
     do { d2 = new Date(); }
     while(d2-d < ms);
 }
+
+

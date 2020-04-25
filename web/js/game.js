@@ -1,4 +1,5 @@
 var timerOn = -1;
+var beepCounter = 0;
 
 $( "#joinGame button").click(function() {
     $("#loader .wrapper .text").html("Feeding you to the sharks…");
@@ -19,6 +20,11 @@ $( "#createGame button" ).click(function() {
         rebuyTime: $("#lateReg").val() * 60
     };
     createGame($('#userid-create').val(), gameConfig);
+});
+
+$( ".allow-audio").click(function() {
+    snd.play();
+    $( ".allow-audio").hide();
 });
 
 $( "#start" ).click(function() {
@@ -127,6 +133,19 @@ function playerCountdown(start, playerPosition, limit, cards) {
         var now = d.getTime();
         var prc = 100 - 100*((now - start)/(limit*1000));
         var crd = cards.split(" ");
+
+        if((lastAction !== "none" || roundTurn === 1) && playerPosition === 1) {
+             if(x === 10) {
+                 play("turn");
+                 beepCounter++;
+             }
+
+             if(x === parseInt(limit*18.75)) {
+                 play("warning");
+                 beepCounter++;
+             }
+        }
+
 
         var crdflop = $(".dealt-cards-1").html().charAt(20) + $(".dealt-cards-1").html().charAt(21);
         var crdturn = $(".dealt-cards-4").html().charAt(20) + $(".dealt-cards-4").html().charAt(21);
@@ -265,6 +284,16 @@ $('#foursuits:checkbox').change(function() {
    }
 });
 
+$('#sound:checkbox').change(function() {
+   if ($(this).is(':checked')) {
+       soundOn = true;
+       Cookies.set('sound', 'on', { expires: 1000 });
+   } else {
+       soundOn = false;
+       Cookies.set('sound', 'off', { expires: 1000 });
+   }
+});
+
 function changeSuits(suit) {
      var card1 = $("#player1 .card-1 img").attr("src").split("/");
      var card2 = $("#player1 .card-2 img").attr("src").split("/");
@@ -283,5 +312,41 @@ function changeSuits(suit) {
      }
 
 }
+
+var snd;
+
+//sounds
+function play(src) {
+    var elem = document.querySelector('audio');
+    if(elem != null) {
+        elem.parentNode.removeChild(elem);
+    }
+    snd = document.createElement("audio");
+    if (src === "check") {
+        src = "sounds/check.mp3";
+    }
+    if (src === "chips") {
+        src = "sounds/chips.mp3";
+    }
+    if (src === "warning") {
+        src = "sounds/warning.mp3";
+    }
+    if (src === "turn") {
+        src = "sounds/onturn.mp3";
+    }
+    if (src === "cards") {
+        src = "sounds/card.mp3";
+    }
+
+
+    snd.src = src;
+    snd.setAttribute("preload", "auto");
+    snd.setAttribute("controls", "none");
+    snd.style.display = "none";
+    document.body.appendChild(snd);
+      if(soundOn === true) {
+        snd.play();
+      }
+  }
 
 //TODO add input validation
