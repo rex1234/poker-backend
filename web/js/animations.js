@@ -343,3 +343,36 @@ function animationRiverInstant() {
     riverInstant.play();
 }
 
+
+
+//returns random int with random sign
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    var sign = Math.random();
+    //if(sign > .5) {
+    //    sign = -1;
+    //}
+    return (Math.floor(Math.random() * (max - min)) + min); //The maximum is exclusive and the minimum is inclusive
+  }
+
+  function randomColor() {
+    var colors = ['#2F06FC', '#00CF75', '#FF5500'];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+
+for(i = 0; i < 100; i++) {
+    $("#player2 .player-animation").append("<div class='confetti conf" + i +"'></div>");
+    $(".conf"+i).css("background-color", randomColor());
+    var randSize = getRandomInt(2, 8);
+    $(".conf"+i).css("width", randSize);
+    $(".conf"+i).css("height", randSize);
+    anime({
+        targets: '.conf'+i,
+        translateX: getRandomInt(-120, 120),
+        translateY: getRandomInt(-120, 120),
+        opacity: [1,0],
+        easing: "easeOutQuad",
+        duration: getRandomInt(1000, 2000)
+      })
+}

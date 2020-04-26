@@ -45,7 +45,8 @@ socket.on('gameState', function (data) {
         //user is admin
         if(data.user.admin) {
             $(".admin-text").html("You will be able to start the game when there are 2 or more players.");
-            if(typeof data.players[0] !== "undefined") {
+
+            if(data.players.length > 0) {
                 $(".admin-text").html("");
                 $("#start").show();
             }
@@ -1428,6 +1429,11 @@ function showRebuyControls(data) {
 
         //the round that he had rebuy
         if(data.user.rebuyNextRound === true) {
+            if(data.user.rebuyCount === 0) {
+                $("#rebuyMsg").html("Successfully joined. You will play next hand.");
+            } else {
+                $("#rebuyMsg").html("Rebuy added. You will play next hand.");
+            }
             $("#rebuyMsg").show();
             $("#player1").addClass("rebuyed");
             $("#rebuys").removeClass("disabled");
