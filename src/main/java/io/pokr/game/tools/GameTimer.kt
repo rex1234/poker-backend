@@ -19,7 +19,6 @@ class GameTimer(
                 tickListener()
                 Thread.sleep(100)
             }
-
         }
     }
 

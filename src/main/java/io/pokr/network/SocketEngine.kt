@@ -90,7 +90,7 @@ class SocketEngine(
                         throw GameException(30, "Missing game config param")
                     }
 
-                    gamePool.createGame(data.gameConfig!!, client.sessionId.toString(), data.name                        )
+                    gamePool.createGame(data.gameConfig!!, client.sessionId.toString(), data.name)
                 } else {
                     gamePool.connectToGame(client.sessionId.toString(), data.gameUUID.toUpperCase(), data.playerUUID, data.name)
                 }
@@ -99,16 +99,22 @@ class SocketEngine(
             }
 
             addEventListener(Events.ACTION.key, PlayerActionRequest::class.java) { client, data, ackRequest ->
-                gamePool.executePlayerActionOnSession(
-                    client.sessionId.toString(),
-                    PlayerAction(
-                        PlayerAction.Action.values().first { it.key == data.action },
-                        data.numericValue,
-                        data.textValue
+                PlayerAction.Action.values().firstOrNull { it.key == data.action }?.let { action ->
+                    gamePool.executePlayerActionOnSession(
+                        client.sessionId.toString(),
+                        PlayerAction(
+                            action,
+                            data.numericValue,
+                            data.textValue
+                        )
                     )
-                )
 
-                sendGameState(client)
+                    if(action == PlayerAction.Action.LEAVE) {
+                        client.disconnect()
+                    }
+
+                    sendGameState(client)
+                }
             }
 
             addEventListener(Events.GAME_REQUEST.key, String::class.java) { client, data, ackRequest ->
