@@ -382,10 +382,10 @@ class HoldemTournamentGameEngine(
     private fun calculateWinnings() {
         // calculate winnings before round ended (all folded)
         // we just take the pot and put it to non-folded player's chips
-        if(game.allPlayers.count { !it.isFinished && it.action != PlayerAction.Action.FOLD } == 1) {
-            val winner = game.allPlayers.first { it.action != PlayerAction.Action.FOLD }
-            val pot = game.allPlayers.sumBy { it.currentBet }
-            game.allPlayers.forEach {
+        if(game.players.count { it.action != PlayerAction.Action.FOLD } == 1) {
+            val winner = game.players.first { it.action != PlayerAction.Action.FOLD }
+            val pot = game.players.sumBy { it.currentBet }
+            game.players.forEach {
                 it.chips -= it.currentBet
                 it.currentBet = 0
             }
