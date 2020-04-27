@@ -68,11 +68,17 @@ body {
     border-radius: 6px;
     background-color: #0F2E4B;
     border: 2px solid #0F2E4B;
+    transition: box-shadow 1s ease, border 1s ease; 
 }
 
 .folded .info-box, .finished .info-box {
     border: 2px solid #0F2E4B;
     background-color: #061727;
+}
+
+.seatopen .info-box {
+    border: 2px solid #0F2E4B;
+    opacity: 0.4;
 }
 
 .player-timer-bg {
@@ -1641,10 +1647,20 @@ margin-left: 18px;
     top: 78%;
     width: 6px;
     height: 6px;
-    z-index: -15;
+    z-index: 5;
     -moz-border-radius: 50%;
     -webkit-border-radius: 50%;
     border-radius: 50%;
     background-color: #00CF75;    
 }
 
+.errmsg {
+    color: #FF5500;
+    margin-top: -20px;
+    padding: 0 0 20px 0;
+}
+
+.winning .info-box {
+    box-shadow: 0px 0px 20px #1C15FF;
+    border: 2px solid #1C15FF;
+}

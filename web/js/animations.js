@@ -142,6 +142,10 @@ preflop
          complete: function(anim) {
              refreshCards();
              highlightCards(finishedData);
+             var winners = getBiggestWinner(finishedData);
+             for(i = 0; i < winners.length; i++) {
+                 winningAnimation(getPlayerPosition(finishedData, winners[i]));
+             }
          }
      });
 
@@ -267,6 +271,10 @@ riverShow
         complete: function(anim) {
             refreshCards();
             highlightCards(finishedData);
+            var winners = getBiggestWinner(finishedData);
+            for(i = 0; i < winners.length; i++) {
+                winningAnimation(getPlayerPosition(finishedData, winners[i]));
+            }
         }
     }, 700);
 
@@ -302,6 +310,10 @@ turnAndRiver
         complete: function(anim) {
             refreshCards();
             highlightCards(finishedData);
+            var winners = getBiggestWinner(finishedData);
+            for(i = 0; i < winners.length; i++) {
+                winningAnimation(getPlayerPosition(finishedData, winners[i]));
+            }
         }
     });
 
@@ -344,6 +356,29 @@ function animationRiverInstant() {
 }
 
 
+var confettiReach = 100;
+var confettiSize = 8;
+var confettiYoffset = 0;
+
+if($(window).width() < 1024) {
+    confettiReach = 50;
+    confettiSize = 5;
+    confettiYoffset = 20;
+}
+
+$( window ).resize(function() {
+    if($(window).width() < 1024) {
+        confettiReach = 50;
+        confettiSize = 5;
+        confettiYoffset = 20;
+    } else {
+        confettiReach = 100;
+        confettiSize = 8;
+        confettiYoffset = 0;
+
+    }
+  });
+
 
 //returns random int with random sign
 function getRandomInt(min, max) {
@@ -357,22 +392,48 @@ function getRandomInt(min, max) {
   }
 
   function randomColor() {
-    var colors = ['#2F06FC', '#00CF75', '#FF5500'];
+    var colors = ['#2F06FC', '#67FFBD', '#FF5500'];
     return colors[Math.floor(Math.random() * colors.length)];
   }
 
-for(i = 0; i < 100; i++) {
-    $("#player2 .player-animation").append("<div class='confetti conf" + i +"'></div>");
-    $(".conf"+i).css("background-color", randomColor());
-    var randSize = getRandomInt(2, 8);
-    $(".conf"+i).css("width", randSize);
-    $(".conf"+i).css("height", randSize);
-    anime({
-        targets: '.conf'+i,
-        translateX: getRandomInt(-120, 120),
-        translateY: getRandomInt(-120, 120),
-        opacity: [1,0],
-        easing: "easeOutQuad",
-        duration: getRandomInt(1000, 2000)
-      })
+function winningAnimation(position) {
+    $("#player" + position).addClass("winning");
+    for(i = 0; i < 100; i++) {
+        $("#player" + position + " .player-animation").append("<div class='confetti conf" + i +"'></div>");
+        $(".conf"+i).css("background-color", randomColor());
+        var randSize = getRandomInt(2, confettiSize);
+        $(".conf"+i).css("width", randSize);
+        $(".conf"+i).css("height", randSize);
+        if(i === 0) {
+        anime({
+            targets: '.conf'+i,
+            translateX: getRandomInt(-confettiReach, confettiReach),
+            translateY: getRandomInt(-confettiReach - confettiYoffset, confettiReach - confettiYoffset),
+            opacity: [1,0],
+            easing: "easeOutQuad",
+            complete: function(anim) {
+                $("#player" + position).removeClass("winning");
+                $("#player" + position + " .player-animation").html("");
+            },
+            duration: 2000
+          });
+        } else {
+            var dur = getRandomInt(1000, 2000);
+           anime({
+               targets: '.conf'+i,
+               translateX: getRandomInt(-confettiReach, confettiReach),
+               translateY: getRandomInt(-confettiReach - confettiYoffset, confettiReach - confettiYoffset),
+
+               opacity: [1,0],
+               easing: "easeOutQuad",
+               duration: dur
+             });
+             anime({
+                targets: '.conf'+i,
+                opacity: [1,0],
+                easing: "linear",
+                duration: dur*1.2
+              });
+        }
+    }
 }

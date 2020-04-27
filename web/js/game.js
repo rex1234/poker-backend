@@ -13,11 +13,11 @@ $( "#createGame button" ).click(function() {
     $("#loader").show();
     loader.play();
     var gameConfig = {
-        startingChips: $("#startingChips").val(),
-        startingBlinds: $("#startingBlinds").val(),
-        blindIncreaseTime: $("#blindIncreaseTime").val() * 60,
-        playerMoveTime: $("#playerMoveTime").val(),
-        rebuyTime: $("#lateReg").val() * 60
+        startingChips: Math.max(1, $("#startingChips").val()),
+        startingBlinds: Math.max(1, $("#startingBlinds").val()),
+        blindIncreaseTime: Math.max(1, $("#blindIncreaseTime").val() * 60),
+        playerMoveTime: Math.max(10, $("#playerMoveTime").val()),
+        rebuyTime: Math.max(0, $("#lateReg").val() * 60)
     };
     createGame($('#userid-create').val(), gameConfig);
 });
@@ -53,7 +53,6 @@ $("#settings h2").hover (
 );
 
 $("#joinGame h2").click (function () {
-    console.log($("this"));
     if($(window).width() <= 812) {
         $("#joinGame .toggler").slideToggle();
     } else {
@@ -65,7 +64,6 @@ $("#joinGame h2").click (function () {
 });
 
 $("#createGame h2").click (function () {
-    console.log($("this"));
     if($(window).width() <= 812) {
         $("#createGame .toggler").slideToggle();
     } else {
@@ -195,7 +193,6 @@ $(document).ready(function () {
 //Copy code to clipboard
 $("#copyButton").click(function() {
     copyToClipboard(document.getElementById("code"));
-    console.log("sss");
 });
 
 function copyToClipboard(elem) {
@@ -253,7 +250,7 @@ function copyToClipboard(elem) {
 
 function openNav() {
     document.getElementById("sidenav").style.marginRight = "0px";
-    if($(window).width() > 1204) {
+    if($(window).width() >= 1024) {
         document.getElementById("main").style.marginRight = "300px";
     }
   }
@@ -261,13 +258,13 @@ function openNav() {
   function closeNav() {
     
     document.getElementById("sidenav").style.marginRight = "-300px";
-    if($(window).width() > 1204) {
+    if($(window).width() >= 1024) {
         document.getElementById("main").style.marginRight = "0";
     }
   }
 
   $( window ).resize(function() {
-    if($(window).width() <= 1204) {
+    if($(window).width() < 1024) {
         document.getElementById("main").style.marginRight = "0";
     }
   });
