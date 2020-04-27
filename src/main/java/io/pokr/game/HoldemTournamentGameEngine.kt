@@ -178,6 +178,11 @@ class HoldemTournamentGameEngine(
             }
         }
 
+        // check players that are all in after cards are dealt (so we can showdown automatically)
+        game.players.filter { it.isAllIn }.forEach {
+            it.action = PlayerAction.Action.CHECK
+        }
+
         tryShowdown()
     }
 
