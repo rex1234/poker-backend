@@ -144,7 +144,6 @@ function playerCountdown(start, playerPosition, limit, cards) {
              }
         }
 
-
         var crdflop = $(".dealt-cards-1").html().charAt(20) + $(".dealt-cards-1").html().charAt(21);
         var crdturn = $(".dealt-cards-4").html().charAt(20) + $(".dealt-cards-4").html().charAt(21);
         var crdriver = $(".dealt-cards-5").html().charAt(20) + $(".dealt-cards-5").html().charAt(21);
@@ -162,6 +161,7 @@ function playerCountdown(start, playerPosition, limit, cards) {
         if (crd[crd.length-1] !== crdflop) {
             cardsCheck = true;
         }
+
 
         if (++x === limit*25 || $("#player" + playerPosition).hasClass("none") === false || $("#player" + playerPosition).hasClass("onMove") === false || cardsCheck || prc < 1) {
             window.clearInterval(intervalID);

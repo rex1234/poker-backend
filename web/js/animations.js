@@ -142,10 +142,7 @@ preflop
          complete: function(anim) {
              refreshCards();
              highlightCards(finishedData);
-             var winners = getBiggestWinner(finishedData);
-             for(i = 0; i < winners.length; i++) {
-                 winningAnimation(getPlayerPosition(finishedData, winners[i]));
-             }
+             winningAnimationHandler();
          }
      });
 
@@ -271,10 +268,7 @@ riverShow
         complete: function(anim) {
             refreshCards();
             highlightCards(finishedData);
-            var winners = getBiggestWinner(finishedData);
-            for(i = 0; i < winners.length; i++) {
-                winningAnimation(getPlayerPosition(finishedData, winners[i]));
-            }
+            winningAnimationHandler();
         }
     }, 700);
 
@@ -310,10 +304,7 @@ turnAndRiver
         complete: function(anim) {
             refreshCards();
             highlightCards(finishedData);
-            var winners = getBiggestWinner(finishedData);
-            for(i = 0; i < winners.length; i++) {
-                winningAnimation(getPlayerPosition(finishedData, winners[i]));
-            }
+            winningAnimationHandler();
         }
     });
 
@@ -434,6 +425,20 @@ function winningAnimation(position) {
                 easing: "linear",
                 duration: dur*1.2
               });
+        }
+    }
+}
+
+// triggers animation for all winners
+function winningAnimationHandler() {
+    if(winningAnimationInProgress === false) {
+        var winners = getBiggestWinner(finishedData);
+        for(j = 0; j < winners.length; j++) {
+            winningAnimation(getPlayerPosition(finishedData, winners[j]));
+            //pause animations after the last player was animated
+            if (j === winners.length - 1) {
+                winningAnimationInProgress = true;
+            }
         }
     }
 }

@@ -1196,6 +1196,7 @@ margin-left: 18px;
 
 .player-tag.allin {
     background-color: #FF5500;
+    top: 30px;
 }
 
 .player-tag.raise {

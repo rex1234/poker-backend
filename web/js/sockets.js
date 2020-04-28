@@ -17,6 +17,7 @@ var lastAction = "none";
 var soundOn = false;
 var messageShown = false;
 var switchedTab = false;
+var winningAnimationInProgress = false;
 
 var timerBlinds = -1;
 var timerRebuys = -1;
@@ -306,15 +307,6 @@ function printPlayers(data) {
     var pot = data.user.currentBet;
     var players = [[1, data.user.dealer]];
 
-    //winning animation if everyone folded
-    if(data.roundState === "finished" && data.cards === "" && data.state === "active" && showCardsInProgress === false && reconnected === false) {
-         var winners = getBiggestWinner(data);
-         for(i = 0; i < winners.length; i++) {
-             winningAnimation(getPlayerPosition(data, winners[i]));
-         }
-    }
-
-
     $("#player1 .player-name").html(data.user.name);
     //hacky way to determine what to show when all in and last to act – otherwise you can see who won in advance
     if(data.roundState === "finished" && data.state === "active") {
@@ -474,12 +466,16 @@ function printPlayers(data) {
         }
     $("#player"+ dealer +" .dealer").addClass("is-dealer");
 
-     //at the end of the round, only if the showdown was at the river (no earlier allin runout)
-     if(data.roundState === "finished" && typeof data.bestCards !== "undefined" && $(".dealt-cards-5").css('opacity') === "1" && data.state !== "paused" && data.state != "finished") {
-        highlightCards(finishedData);
-        var winners = getBiggestWinner(data);
-        for(i = 0; i < winners.length; i++) {
-            winningAnimation(getPlayerPosition(data, winners[i]));
+     if(data.roundState === "finished" && data.state !== "paused" && data.state !== "finished") {
+
+        //Highlight cards at the end of the round, only if the showdown was at the river (no earlier allin runout)
+        if($(".dealt-cards-5").css('opacity') === "1" && typeof data.bestCards !== "undefined") {
+            highlightCards(finishedData);
+        }
+
+        //Show winner, but exclude showdowns
+        if(typeof data.bestCards === "undefined") {
+            winningAnimationHandler();
         }
      }
 
@@ -996,12 +992,16 @@ function getPlayerPosition(data, index) {
 //returns biggest winner index, the function works with effective chipcounts and only on finished state
 function getBiggestWinner(data) {
     var index = [];
-    index.push(data.user.index);
-    var amount = data.user.chips - finishedPrev.user.chips;
+    var amount = 0;
+    if(data.user.action !== "fold") {
+        index.push(data.user.index);
+        amount = data.user.chips - finishedPrev.user.chips;
+    }
     for(i = 0; i < data.players.length; i++) {
-        if(finishedPrev.players[i].finalRank === 0) {
+        if(data.players[i].finalRank === 0 && data.players[i].action !== "fold") {
             if(data.players[i].chips - finishedPrev.players[i].chips > amount) {
                 index = [];
+                amount = data.players[i].chips - finishedPrev.players[i].chips;
                 index.push(data.players[i].index);
             } else if (data.players[i].chips - finishedPrev.players[i].chips === amount) {
                 index.push(data.players[i].index);
@@ -1414,6 +1414,7 @@ function initializeVars(data) {
 
     if(data.roundState === "active") {
         $(".showCards").removeClass("showCards");
+        winningAnimationInProgress = false;
     }
 
     if(typeof finishedData !== "undefined" && data.roundState === finishedData.roundState && data.round === finishedData.round && finishedData.roundState !== "active") {

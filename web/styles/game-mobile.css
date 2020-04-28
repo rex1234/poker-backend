@@ -443,6 +443,11 @@
         transition: all 0.6s ease;
     }
 
+    #player1.fold:hover .card-1, #player1.fold:hover .card-2, #player1.showCards .card-1, #player1.showCards .card-2  {
+        opacity: 1 !important;
+        top: -36px;
+    }
+
     .onMove.ractive .info-box {
         box-shadow: 0px 0px 15px #2F06FC;
         }
@@ -477,6 +482,10 @@
     .player-tag {
         top: 4px;
         left: 4%;
+    }
+
+    .player-tag.allin {
+        top: 21px;
     }
 
     .controls {
