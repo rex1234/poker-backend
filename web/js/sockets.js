@@ -96,7 +96,7 @@ socket.on('gameState', function (data) {
     if(data.state === "finished") {
         $(".game-info").hide();
         $("#pot").hide();
-        $(".all-text").html("The game has ended. Please leave to Hostimil.");
+        $(".all-text").html("What a beautiful game that was, too bad it's over.");
         $(".admin-text").hide();
         $("#start").hide();
         $("#rebuys").hide();
@@ -362,7 +362,7 @@ function printPlayers(data) {
 
     //timer functionality
     if(data.user.onMove) {
-        playerCountdown(data.user.moveStart, 1, data.config.playerMoveTime, data.cards);
+        playerCountdown(data.user.moveStart, 1, data.config.playerMoveTime);
     }
 
     for(i = 0; i < data.players.length; i++) {
@@ -427,7 +427,7 @@ function printPlayers(data) {
         }
 
         if(data.players[i].onMove) {
-            playerCountdown(data.players[i].moveStart, position, data.config.playerMoveTime, data.cards);
+            playerCountdown(data.players[i].moveStart, position, data.config.playerMoveTime);
         }
 
         pot += data.players[i].currentBet;

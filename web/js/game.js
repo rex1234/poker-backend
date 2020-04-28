@@ -116,7 +116,7 @@ $( ".advanced-settings" ).click(function() {
     $(".advanced-inputs").slideToggle();
 });
 
-function playerCountdown(start, playerPosition, limit, cards) {
+function playerCountdown(start, playerPosition, limit) {
     var x = 0;
     var intervalID = setInterval(function () {
 
@@ -130,7 +130,6 @@ function playerCountdown(start, playerPosition, limit, cards) {
         var d = new Date();
         var now = d.getTime();
         var prc = 100 - 100*((now - start)/(limit*1000));
-        var crd = cards.split(" ");
 
         if((lastAction !== "none" || roundTurn === 1) && playerPosition === 1) {
              if(x === 10) {
@@ -144,10 +143,6 @@ function playerCountdown(start, playerPosition, limit, cards) {
              }
         }
 
-        var crdflop = $(".dealt-cards-1").html().charAt(20) + $(".dealt-cards-1").html().charAt(21);
-        var crdturn = $(".dealt-cards-4").html().charAt(20) + $(".dealt-cards-4").html().charAt(21);
-        var crdriver = $(".dealt-cards-5").html().charAt(20) + $(".dealt-cards-5").html().charAt(21);
-
         $("#player" + playerPosition + " .player-timer-running").css( "width", prc + "%" );
         if(prc < 25) {
             $("#player" + playerPosition + " .player-timer-running").css( "background-color", "#FF5500" );
@@ -157,13 +152,7 @@ function playerCountdown(start, playerPosition, limit, cards) {
             $("#player" + playerPosition + " .player-timer-running").css( "background-color", "#2F06FC" );
         }
 
-        var cardsCheck = false;
-        if (crd[crd.length-1] !== crdflop) {
-            cardsCheck = true;
-        }
-
-
-        if (++x === limit*25 || $("#player" + playerPosition).hasClass("none") === false || $("#player" + playerPosition).hasClass("onMove") === false || cardsCheck || prc < 1) {
+        if (++x === limit*25 || $("#player" + playerPosition).hasClass("none") === false || $("#player" + playerPosition).hasClass("onMove") === false || prc < 1) {
             window.clearInterval(intervalID);
             timerOn = 0;
         }
