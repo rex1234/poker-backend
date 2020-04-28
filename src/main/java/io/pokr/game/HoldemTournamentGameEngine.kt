@@ -249,8 +249,6 @@ class HoldemTournamentGameEngine(
 
             // S H O W D O W N bitch
             if(game.tableCards.cards.size < 5) {
-                // ((if one player is not all in AND all the rest is all in) OR everyone is all in)
-                // AND all other players are folded
                 if(tryShowdown()) {
                     return
                 }
@@ -294,6 +292,8 @@ class HoldemTournamentGameEngine(
 
 
     private fun tryShowdown(): Boolean {
+        // ((if one player is not all in AND all the rest is all in) OR everyone is all in)
+        // AND all other players are folded
         if (game.players.size
             - game.players.count { it.isAllIn }
             - game.players.count { it.action == PlayerAction.Action.FOLD } <= 1 &&
@@ -301,6 +301,7 @@ class HoldemTournamentGameEngine(
 
             System.err.println("Showdown")
 
+            // add extra round time for showdown card animation
             extraRoundTime = when (game.tableCards.size) {
                 0 -> 4200L
                 3 -> 2700L
@@ -372,7 +373,7 @@ class HoldemTournamentGameEngine(
             extraRoundTime = 0L
 
             // if there is only one player with chips we will finish the game
-            if (game.allPlayers.count { it.chips > 0 } == 1) {
+            if (game.allPlayers.count { it.chips > 0 || it.isRebuyNextRound} == 1) {
                 game.allPlayers.first { it.chips > 0 }.finalRank = 1
                 finishGame()
             } else {

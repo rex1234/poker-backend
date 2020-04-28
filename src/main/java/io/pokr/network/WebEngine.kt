@@ -11,6 +11,7 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import org.slf4j.*
 import java.io.*
 import java.security.KeyStore.*
 import kotlin.concurrent.*
@@ -18,6 +19,8 @@ import kotlin.concurrent.*
 class WebEngine(
     val gamePool: GamePool
 ) {
+    val logger = LoggerFactory.getLogger(WebEngine::class.java)
+
     fun start() {
         thread {
             embeddedServer(Netty, applicationEngineEnvironment {
@@ -49,6 +52,10 @@ class WebEngine(
                         port = 443
                         keyStorePath = keyStoreFile
                     }
+
+                    logger.info("WebEngine initialized with SSL")
+                } else {
+                    logger.info("WebEngine initialized without SSL")
                 }
             }).start(wait = true)
         }

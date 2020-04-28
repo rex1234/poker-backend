@@ -5,6 +5,7 @@ import io.pokr.game.exceptions.*
 import io.pokr.game.model.*
 import io.pokr.network.model.*
 import io.pokr.network.util.*
+import org.slf4j.*
 
 /**
  * Class holding player and game sessions and their respective mappings to Game objects
@@ -24,6 +25,8 @@ class GamePool {
      */
     var updateStateListener: ((List<PlayerSession>) -> Unit)? = null
 
+    val logger = LoggerFactory.getLogger(GamePool::class.java)
+
     /**
      * Created a new game game discarding any previous games with the same UUID (should not happen outside of debugging).
      * It contains the starting player as an admin.
@@ -40,7 +43,7 @@ class GamePool {
 
         gameSessions.add(gameSession)
 
-        System.err.println("Created game session: ${gameSession.uuid}")
+        logger.info("Created game session: ${gameSession.uuid}")
 
         gameEngines[gameSession] =
             HoldemTournamentGameEngine(
@@ -63,7 +66,7 @@ class GamePool {
 
         gameEngines[gameSession]!!.addPlayer(playerSession.uuid)
 
-        System.err.println("Added player ${playerSession.uuid} to ${gameSession.uuid}")
+        logger.info("Added player ${playerSession.uuid} to ${gameSession.uuid}")
 
         executePlayerAction(playerSession.uuid, PlayerAction(
             action = PlayerAction.Action.CHANGE_NAME,
@@ -147,7 +150,7 @@ class GamePool {
         val gameEngine = gameEngines[gameSession]!!
 
         val player = gameEngine.game.allPlayers.firstOrNull { it.uuid == playerSession.uuid }
-        System.err.println("Executing action {$action} on player ${player?.name} [${gameSession.uuid}]")
+        logger.info("Executing action {$action} on player ${player?.name} [${gameSession.uuid}]")
 
         when(action.action) {
             PlayerAction.Action.CHANGE_NAME ->

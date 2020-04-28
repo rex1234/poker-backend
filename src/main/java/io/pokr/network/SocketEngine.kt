@@ -8,6 +8,7 @@ import io.pokr.game.exceptions.*
 import io.pokr.game.model.*
 import io.pokr.network.requests.*
 import io.pokr.network.responses.*
+import org.slf4j.*
 import java.io.*
 import java.util.*
 
@@ -38,6 +39,8 @@ class SocketEngine(
 
     lateinit var server: SocketIOServer
 
+    private val logger = LoggerFactory.getLogger(SocketEngine::class.java)
+
     fun start() {
         val config = Configuration().apply {
             hostname = "0.0.0.0"
@@ -48,6 +51,10 @@ class SocketEngine(
             if(keyStoreFile.exists()) {
                 keyStore = FileInputStream(keyStoreFile)
                 keyStorePassword = dotenv()["KEYSTORE_PASSWORD"]!!
+
+                logger.info("Socket.io server with SSL")
+            } else {
+                logger.info("Socket.io server without SSL")
             }
 
             exceptionListener = object: com.corundumstudio.socketio.listener.ExceptionListener {
@@ -61,6 +68,7 @@ class SocketEngine(
                             e.code, e.message ?: ""
                         ))
                     } else {
+                        logger.error("Event exception", e)
                         e.printStackTrace()
                     }
                 }
@@ -84,7 +92,7 @@ class SocketEngine(
 
             // called when players connects to the server (after sending CONNECT event)
             addEventListener(Events.CONNECT.key, ConnectionRequest::class.java) { client, data, ackRequest ->
-                System.err.println("Connection request: " + data.name)
+                logger.debug("Connection request", data)
                 if(data.gameUUID == null) {
                     if(data.gameConfig == null) {
                         throw GameException(30, "Missing game config param")
@@ -99,6 +107,7 @@ class SocketEngine(
             }
 
             addEventListener(Events.ACTION.key, PlayerActionRequest::class.java) { client, data, ackRequest ->
+                logger.debug("Action request", data)
                 PlayerAction.Action.values().firstOrNull { it.key == data.action }?.let { action ->
                     gamePool.executePlayerActionOnSession(
                         client.sessionId.toString(),
@@ -135,7 +144,7 @@ class SocketEngine(
             }
 
             start()
-            println("socket.io server is running")
+            logger.info("socket.io server is running")
         }
 
         gamePool.gameDisbandedListener = { sessions ->

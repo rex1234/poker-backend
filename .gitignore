@@ -138,3 +138,5 @@ gradle-app.setting
 
 .env
 /web/chips-stacking.html
+
+logs/*

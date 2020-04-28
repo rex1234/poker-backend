@@ -3,27 +3,25 @@ package io.pokr
 import io.github.cdimascio.dotenv.*
 import io.pokr.jobs.*
 import io.pokr.network.*
+import org.slf4j.*
 import java.io.*
 
 fun main() {
+    val logger = LoggerFactory.getLogger("Main")
+
     if(!File(".env").exists()) {
-        System.err.println(".env file not found")
-        return
+        logger.error(".env file not found")
+        throw Exception(".env file not found")
     }
 
-    println("Initializing GamePool")
     val gamePool = GamePool()
-
-    println("Initializing sockets")
     SocketEngine(gamePool).start()
-
-    println("Initializing Web")
 
     WebEngine(gamePool).start()
 
-    println("Server deployed at " + dotenv()["WEB_URL"])
+    logger.info("Server deployed at " + dotenv()["WEB_URL"])
 
-    println("Starting cron")
+    logger.info("Starting cron")
     CronJobManager(
         ClearGamesJob(gamePool)
     ).run()
