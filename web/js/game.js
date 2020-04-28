@@ -292,19 +292,21 @@ $('#sound:checkbox').change(function() {
 });
 
 function changeSuits(suit) {
-     var card1 = $("#player1 .card-1 img").attr("src").split("/");
-     var card2 = $("#player1 .card-2 img").attr("src").split("/");
-     var c1 = "img/cards/" + suit + card1[card1.length - 1];
-     var c2 = "img/cards/" + suit + card2[card2.length - 1];
-     $("#player1 .card-1 img").attr("src", c1);
-     $("#player1 .card-2 img").attr("src", c2);
+     if(typeof $("#player1 .card-1 img").html() !== "undefined") {
+         var card1 = $("#player1 .card-1 img").attr("src").split("/");
+         var card2 = $("#player1 .card-2 img").attr("src").split("/");
+         var c1 = "img/cards/" + suit + card1[card1.length - 1];
+         var c2 = "img/cards/" + suit + card2[card2.length - 1];
+         $("#player1 .card-1 img").attr("src", c1);
+         $("#player1 .card-2 img").attr("src", c2);
 
-     for(i = 1; i <= 5; i++) {
-        var card = $(".dealt-cards-" + i + " img").attr("src");
-        if(typeof card !== "undefined") {
-            card = card.split("/");
-            var c = "img/cards/" + suit + card[card.length - 1];
-            $(".dealt-cards-" + i + " img").attr("src", c);
+         for(i = 1; i <= 5; i++) {
+            var card = $(".dealt-cards-" + i + " img").attr("src");
+            if(typeof card !== "undefined") {
+                card = card.split("/");
+                var c = "img/cards/" + suit + card[card.length - 1];
+                $(".dealt-cards-" + i + " img").attr("src", c);
+             }
          }
      }
 

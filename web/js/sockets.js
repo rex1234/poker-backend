@@ -471,6 +471,7 @@ function printPlayers(data) {
         //Highlight cards at the end of the round, only if the showdown was at the river (no earlier allin runout)
         if($(".dealt-cards-5").css('opacity') === "1" && typeof data.bestCards !== "undefined") {
             highlightCards(finishedData);
+            winningAnimationHandler();
         }
 
         //Show winner, but exclude showdowns
@@ -1041,6 +1042,10 @@ function blindsTimer(nextBlinds, state) {
             if(seconds < 10) {
                 seconds = "0" + seconds;
              }
+             if(remaining < 0) {
+                minutes = "00";
+                seconds = "00";
+             }
             $(".level-time span").html(minutes + ":" + seconds);
             if (remaining <= 0) {
                 window.clearInterval(intervalID);
@@ -1066,8 +1071,8 @@ function updateLeaderboard(data) {
         } else {
             bustedPls.push([data.user.finalRank, data.user.name, data.user.rebuyCount]);
         }
-        pls.sort();
-        bustedPls.sort();
+        pls.sort(function(a, b){return a[0]-b[0]});
+        bustedPls.sort(function(a, b){return b[0]-a[0]});
         $("#leaderboard .inside table").html("");
         for(i = pls.length - 1; i >= 0; i--) {
             var middle = "";
@@ -1116,7 +1121,7 @@ function updateLastPlayedHand(data) {
                 pls.push([finishedData.players[i].lastWin, finishedData.players[i].cards, finishedData.players[i].hand, finishedData.players[i].name]);
             }
         }
-        pls.sort();
+        pls.sort(function(a, b){return b-a});
         totalWinnings = 0;
         var plsStr = "";
         for(i = pls.length - 1; i >= 0; i--) {
@@ -1180,6 +1185,7 @@ function lateRegTimer(rebuyTime, gameStart, state) {
              if(seconds < 10) {
                  seconds = "0" + seconds;
               }
+
               if(hours < 1) {
                  $(".rebuys-late-addon").html(txt + minutes + ":" + seconds);
              } else {
@@ -1535,6 +1541,12 @@ function showRebuyControls(data) {
             $("#player1").removeClass("rebuyed");
             $("#rebuys").hide();
         }
+
+        //hide it after the late reg is over
+         if(data.lateRegistrationEnabled === false) {
+            $("#rebuys").hide();
+            $("#rebuyMsg").hide();
+         }
     }
 }
 
