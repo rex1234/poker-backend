@@ -1551,6 +1551,7 @@ function showResults(data) {
     $(".finished").removeClass("finished folded");
     $(".players .cards").addClass("disabled");
     $(".dealt-cards").addClass("disabled");
+    $(".dealer").hide();
 
     var pls = data.players;
     pls.push(data.user);
@@ -1558,14 +1559,20 @@ function showResults(data) {
     for(i = 0; i < pls.length; i++) {
         if (pls[i].finalRank === 1) {
             $("#player" + getPlayerPosition(data, pls[i].index) + " .player-chips").html("Winner!");
+            $("#player" + getPlayerPosition(data, pls[i].index)).addClass("winner");
+            $("#player" + getPlayerPosition(data, pls[i].index)).append("<img src='img/winner.svg'>");
         }
 
         if (pls[i].finalRank === 2) {
             $("#player" + getPlayerPosition(data, pls[i].index) + " .player-chips").html("Runner up!");
+            $("#player" + getPlayerPosition(data, pls[i].index)).addClass("runnerup");
+            $("#player" + getPlayerPosition(data, pls[i].index)).append("<img src='img/runnerup.svg'>");
         }
 
         if (pls[i].finalRank === 3) {
             $("#player" + getPlayerPosition(data, pls[i].index) + " .player-chips").html("Potato King!");
+            $("#player" + getPlayerPosition(data, pls[i].index)).addClass("potato");
+            $("#player" + getPlayerPosition(data, pls[i].index)).append("<img src='img/potato.svg'>");
         }
     }
 

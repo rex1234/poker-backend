@@ -675,6 +675,10 @@
     padding-left: 5%;
     }
 
+    .winner img, .runnerup img, .potato img {
+        top: -16px;
+    }
+
 }
 
 /*landing screen fix small screens */
