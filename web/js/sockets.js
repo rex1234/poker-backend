@@ -29,9 +29,11 @@ var showCardsInProgress = false;
 
 // inbound events
 socket.on('gameState', function (data) {
-    Cookies.set('player_uuid', data.user.uuid, { expires: 1 });
-    Cookies.set('game_uuid', data.uuid, { expires: 1 });
-    Cookies.set('nick', data.user.name, { expires: 100 });
+    if(data.state !== "finished") {
+        Cookies.set('player_uuid', data.user.uuid, { expires: 1 });
+        Cookies.set('game_uuid', data.uuid, { expires: 1 });
+        Cookies.set('nick', data.user.name, { expires: 100 });
+    }
     initializeVars(data);
     //user is in game
     $("#loader").hide();
@@ -120,7 +122,10 @@ socket.on('gameState', function (data) {
 
     //results of the game
     if(data.state === "finished") {
+        updateLeaderboard(data);
         showResults(data);
+        Cookies.remove('player_uuid');
+        Cookies.remove('game_uuid');
     }
 });
 
@@ -994,11 +999,13 @@ function getBiggestWinner(data) {
     index.push(data.user.index);
     var amount = data.user.chips - finishedPrev.user.chips;
     for(i = 0; i < data.players.length; i++) {
-        if(data.players[i].chips - finishedPrev.players[i].chips > amount) {
-            index = [];
-            index.push(data.players[i].index);
-        } else if (data.players[i].chips - finishedPrev.players[i].chips == amount) {
-            index.push(data.players[i].index);
+        if(finishedPrev.players[i].finalRank === 0) {
+            if(data.players[i].chips - finishedPrev.players[i].chips > amount) {
+                index = [];
+                index.push(data.players[i].index);
+            } else if (data.players[i].chips - finishedPrev.players[i].chips === amount) {
+                index.push(data.players[i].index);
+            }
         }
     }
     return index;
@@ -1044,7 +1051,7 @@ function blindsTimer(nextBlinds, state) {
 }
 
 function updateLeaderboard(data) {
-    if(data.roundState !== "finished") {
+    if(data.roundState !== "finished" || data.state === "finished") {
         var pls = [];
         var bustedPls = [];
         for(i = 0; i < prevData.players.length; i++) {
@@ -1101,11 +1108,11 @@ function updateLastPlayedHand(data) {
 
         //get players who were in the pot and sort them by winnings
         var pls = [];
-        if(finishedData.user.action !== "fold") {
+        if(finishedData.user.action !== "fold" && finishedData.user.finalRank === 0) {
             pls.push([finishedData.user.lastWin, finishedData.user.cards, finishedData.user.hand, finishedData.user.name]);
         }
         for(i = 0; i < finishedData.players.length; i++) {
-            if(finishedData.players[i].action !== "fold") {
+            if(finishedData.players[i].action !== "fold" && finishedData.players[i].finalRank === 0) {
                 pls.push([finishedData.players[i].lastWin, finishedData.players[i].cards, finishedData.players[i].hand, finishedData.players[i].name]);
             }
         }
