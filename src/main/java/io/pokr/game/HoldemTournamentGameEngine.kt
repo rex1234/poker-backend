@@ -369,7 +369,7 @@ class HoldemTournamentGameEngine(
 
             isRoundEndThreadRunning = true
             // recap timer - the more cards there are, the longer we will show the recap
-            Thread.sleep(min(3_000 + max((game.players.count { it.showCards } - 1), 0) * 1500L, 6000L) + extraRoundTime)
+            Thread.sleep(2_000 + min(3_000 + max((game.players.count { it.showCards } - 1), 0) * 1500L, 6000L) + extraRoundTime)
             extraRoundTime = 0L
 
             // if there is only one player with chips we will finish the game
