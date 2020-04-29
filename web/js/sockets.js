@@ -18,6 +18,7 @@ var soundOn = false;
 var messageShown = false;
 var switchedTab = false;
 var winningAnimationInProgress = false;
+var showedCards = 0;
 
 var timerBlinds = -1;
 var timerRebuys = -1;
@@ -256,6 +257,7 @@ function rebuy() {
 }
 
 function showCards() {
+    showedCards = finishedData.round;
     sendAction("showCards");
 }
 
@@ -1113,12 +1115,19 @@ function updateLastPlayedHand(data) {
 
         //get players who were in the pot and sort them by winnings
         var pls = [];
+        var foldedPls = [];
+
         if(finishedData.user.action !== "fold" && finishedData.user.finalRank === 0) {
             pls.push([finishedData.user.lastWin, finishedData.user.cards, finishedData.user.hand, finishedData.user.name]);
+            //check uf user folded and showed
+        } else if(finishedData.user.action === "fold" && showedCards === data.round - 1) {
+            foldedPls.push([finishedData.user.lastWin, finishedData.user.cards, finishedData.user.hand, finishedData.user.name]);
         }
         for(i = 0; i < finishedData.players.length; i++) {
             if(finishedData.players[i].action !== "fold" && finishedData.players[i].finalRank === 0) {
                 pls.push([finishedData.players[i].lastWin, finishedData.players[i].cards, finishedData.players[i].hand, finishedData.players[i].name]);
+            } else if(finishedData.players[i].action === "fold" && typeof finishedData.players[i].cards !== "undefined") {
+                 foldedPls.push([finishedData.players[i].lastWin, finishedData.players[i].cards, finishedData.players[i].hand, finishedData.players[i].name]);
             }
         }
         pls.sort(function(a, b){return b-a});
@@ -1139,16 +1148,20 @@ function updateLastPlayedHand(data) {
                 //player made everyone folded
                 plsStr += "<div class='lh-messageplayer'><b>"+ pls[i][3] + winStr +" </b><br>w/o showdown</div><div class='lh-cardsplayer'><img src='img/cards/unknown.svg' width='30' height='47'><img src='img/cards/unknown.svg' width='30' height='47'></div>";
 
-            } else if (typeof pls[i][2] === "undefined") {
+            } else if (typeof data.bestCards === "undefined") {
                 //user made everyone folded or player showed cards after everyone folded
                 plsStr += "<div class='lh-messageplayer'><b>"+ pls[i][3] + winStr +" </b><br>w/o showdown</div><div class='lh-cardsplayer'><img src='img/cards/" + cardsSettings + pls[i][1].split(" ")[0] + ".svg' width='30' height='47'><img src='img/cards/" + cardsSettings + pls[i][1].split(" ")[1] + ".svg' width='30' height='47'></div>";
-
             } else {
                 plsStr += "<div class='lh-messageplayer'><b>"+ pls[i][3] + winStr +" </b><br>with " + pls[i][2] + "</div><div class='lh-cardsplayer'><img src='img/cards/" + cardsSettings + pls[i][1].split(" ")[0] + ".svg' width='30' height='47'><img src='img/cards/" + cardsSettings + pls[i][1].split(" ")[1] + ".svg' width='30' height='47'></div>";
             }
-
             plsStr += "</div>";
+        }
 
+        //show players who showed their cards
+        for(i = foldedPls.length - 1; i >= 0; i--) {
+            plsStr += "<div class='inside'>";
+            plsStr += "<div class='lh-messageplayer'><b>"+ foldedPls[i][3] + " </b><br>folds and shows</div><div class='lh-cardsplayer'><img src='img/cards/" + cardsSettings + foldedPls[i][1].split(" ")[0] + ".svg' width='30' height='47'><img src='img/cards/" + cardsSettings + foldedPls[i][1].split(" ")[1] + ".svg' width='30' height='47'></div>";
+            plsStr += "</div>";
         }
         $(".last-hand-report").html(plsStr);
 
