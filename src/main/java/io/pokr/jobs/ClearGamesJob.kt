@@ -10,8 +10,6 @@ class ClearGamesJob(
     val logger = LoggerFactory.getLogger(ClearGamesJob::class.java)
 
     override fun execute() {
-        logger.info("Executing job")
-
         gamePool.gameSessions.filter {
             val age = System.currentTimeMillis() - it.created
 

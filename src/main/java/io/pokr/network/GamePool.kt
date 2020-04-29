@@ -92,7 +92,7 @@ class GamePool {
                 gameEngines[gameSession]!!.addPlayer(it.uuid)
             }
 
-            System.err.println("Added player ${playerName} to ${gameSession.uuid}")
+            logger.info("Added player ${playerName} to ${gameSession.uuid}")
 
             getGameDataForPlayerUuid(playerSession.uuid).second.isConnected = true
 
@@ -114,6 +114,8 @@ class GamePool {
             it.playerSessions.clear()
             gameEngines.remove(it)
             gameSessions.remove(it)
+
+            logger.info("Game session ${it.uuid} discarded")
         }
     }
 

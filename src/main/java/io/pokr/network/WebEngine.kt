@@ -57,6 +57,7 @@ class WebEngine(
                 } else {
                     logger.info("WebEngine initialized without SSL")
                 }
+                logger.info("Server deployed at " + dotenv()["WEB_URL"])
             }).start(wait = true)
         }
     }

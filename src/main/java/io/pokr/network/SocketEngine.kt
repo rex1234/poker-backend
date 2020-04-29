@@ -92,7 +92,7 @@ class SocketEngine(
 
             // called when players connects to the server (after sending CONNECT event)
             addEventListener(Events.CONNECT.key, ConnectionRequest::class.java) { client, data, ackRequest ->
-                logger.debug("Connection request", data)
+                logger.debug("{}", data)
                 if(data.gameUUID == null) {
                     if(data.gameConfig == null) {
                         throw GameException(30, "Missing game config param")
@@ -107,7 +107,7 @@ class SocketEngine(
             }
 
             addEventListener(Events.ACTION.key, PlayerActionRequest::class.java) { client, data, ackRequest ->
-                logger.debug("Action request", data)
+                logger.debug("{}", data)
                 PlayerAction.Action.values().firstOrNull { it.key == data.action }?.let { action ->
                     gamePool.executePlayerActionOnSession(
                         client.sessionId.toString(),
@@ -127,14 +127,10 @@ class SocketEngine(
             }
 
             addEventListener(Events.GAME_REQUEST.key, String::class.java) { client, data, ackRequest ->
-                System.err.println("Game state request")
-
                 sendGameState(client)
             }
 
             addEventListener(Events.CHAT_MESSAGE.key, ChatRequest::class.java) { client, data, ackRequest ->
-                System.err.println("Game state request")
-
                 sendMessage(client, data.message, data.flash)
             }
 
