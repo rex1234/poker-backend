@@ -91,6 +91,10 @@ class WebEngine(
                         call.respondText("v1.0")
                     }
 
+                    get("log") {
+                        call.respondFile(File("logs/pokrio.log"))
+                    }
+
                     get("games") {
                         call.respondText(
                             gamePool.gameSessions.map {

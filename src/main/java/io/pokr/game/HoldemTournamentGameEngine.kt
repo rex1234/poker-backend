@@ -3,6 +3,7 @@ package io.pokr.game
 import io.pokr.game.exceptions.*
 import io.pokr.game.model.*
 import io.pokr.game.tools.*
+import org.slf4j.*
 import kotlin.concurrent.*
 import kotlin.math.*
 
@@ -20,6 +21,8 @@ class HoldemTournamentGameEngine(
     private val gameTimer = GameTimer {
         gameTick()
     }
+
+    private val logger = LoggerFactory.getLogger(HoldemTournamentGameEngine::class.java)
 
     // extra time that is added after round finishes so that the animations can be performed
     private var extraRoundTime = 0L
@@ -72,7 +75,7 @@ class HoldemTournamentGameEngine(
             throw GameException(12, "Cannot start a game with only 1 player")
         }
 
-        System.err.println("Game ${game.uuid} started")
+        logger.info("Game ${game.uuid} started")
 
         // set initial game state
         game.gameState = Game.State.ACTIVE
@@ -299,7 +302,7 @@ class HoldemTournamentGameEngine(
             - game.players.count { it.action == PlayerAction.Action.FOLD } <= 1 &&
             (game.players.none {it.action == PlayerAction.Action.NONE} || game.players.all { it.isAllIn })) {
 
-            System.err.println("Showdown")
+            logger.debug("Showdown")
 
             // add extra round time for showdown card animation
             extraRoundTime = when (game.tableCards.size) {
@@ -411,7 +414,7 @@ class HoldemTournamentGameEngine(
     }
 
     fun finishGame() {
-        System.err.println("Game ${game.uuid} finished")
+        logger.info("Game ${game.uuid} finished")
 
         gameTimer.stop()
 

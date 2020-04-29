@@ -150,7 +150,7 @@ class GamePool {
         val gameEngine = gameEngines[gameSession]!!
 
         val player = gameEngine.game.allPlayers.firstOrNull { it.uuid == playerSession.uuid }
-        logger.info("Executing action {$action} on player ${player?.name} [${gameSession.uuid}]")
+        logger.debug("Executing action {$action} on player ${player?.name} [${gameSession.uuid}]")
 
         when(action.action) {
             PlayerAction.Action.CHANGE_NAME ->
