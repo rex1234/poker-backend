@@ -8,6 +8,7 @@ import io.pokr.game.exceptions.*
 import io.pokr.game.model.*
 import io.pokr.network.requests.*
 import io.pokr.network.responses.*
+import org.apache.commons.text.*
 import org.slf4j.*
 import java.io.*
 import java.util.*
@@ -92,7 +93,7 @@ class SocketEngine(
 
             // called when players connects to the server (after sending CONNECT event)
             addEventListener(Events.CONNECT.key, ConnectionRequest::class.java) { client, data, ackRequest ->
-                logger.debug("{}", data)
+                logger.info("{}", data)
                 if(data.gameUUID == null) {
                     if(data.gameConfig == null) {
                         throw GameException(30, "Missing game config param")
@@ -177,10 +178,10 @@ class SocketEngine(
             server.allClients.filter { it.sessionId == UUID.fromString(playerSession.sessionId) }.forEach {
                 val playerData = gamePool.getGameDataForPlayerUuid(playerSession.uuid).second
                 it.sendEvent(Events.CHAT_MESSAGE.key, ChatResponse(
-                    playerData.name,
+                    StringEscapeUtils.escapeHtml4(playerData.name),
                     playerData.index.toString(),
                     System.currentTimeMillis(),
-                    message,
+                    StringEscapeUtils.escapeHtml4(message),
                     flash
                 ))
             }

@@ -1,6 +1,7 @@
 package io.pokr.network.responses
 
 import io.pokr.game.model.*
+import org.apache.commons.text.*
 
 class GameResponse(
     val game: GameState
@@ -81,7 +82,7 @@ class GameResponse(
                 index = index,
                 isConnected = isConnected,
                 isAdmin = isAdmin,
-                name = name,
+                name = StringEscapeUtils.escapeHtml4(name),
                 isDealer = isDealer,
                 isOnMove = isOnMove,
                 hasLeft = isKicked || isLeaveNextRound,

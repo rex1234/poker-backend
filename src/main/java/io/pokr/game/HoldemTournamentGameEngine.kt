@@ -414,7 +414,9 @@ class HoldemTournamentGameEngine(
     }
 
     fun finishGame() {
-        logger.info("Game ${game.uuid} finished")
+        logger.info("Game ${game.uuid} finished. {}", game.allPlayers.joinToString(" ") {
+            "[${it.finalRank} - ${it.name} (${it.rebuyCount})]"
+        })
 
         gameTimer.stop()
 
@@ -439,6 +441,7 @@ class HoldemTournamentGameEngine(
         }
     }
 
+    // switches move to the next player
     private fun nextPlayer() {
         val playerOnMove = game.currentPlayerOnMove
         val nextPlayerOnMove = game.nextPlayerOnMove
@@ -447,6 +450,7 @@ class HoldemTournamentGameEngine(
         nextPlayerOnMove.startMove()
     }
 
+    // moves dealer token to the next player
     fun nextDealer() {
         val currentDealer = game.currentDealer
         val nextDealer = game.nextDealer
@@ -467,6 +471,7 @@ class HoldemTournamentGameEngine(
         }
     }
 
+    // automatically executes default action on player when he did not play in the time limit
     private fun checkCurrentPlayerMoveTimeLimit() {
         // we want to check player's time limits only when he is on move and the round is in active state
         if(game.roundState != Game.RoundState.ACTIVE) {
