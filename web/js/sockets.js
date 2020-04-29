@@ -1094,7 +1094,7 @@ function updateLeaderboard(data) {
 }
 
 function updateLastPlayedHand(data) {
-    if(data.roundState !== "finished" && roundAfterReconnect !== 0) {
+    if((data.roundState !== "finished" && roundAfterReconnect !== 0) || data.state === "finished") {
         $("#last-hand-h").html("LAST HAND (" + prevData.round + ")");
 
         //dealt cards
@@ -1143,12 +1143,11 @@ function updateLastPlayedHand(data) {
             } else {
                 winStr += "loses"
             }
-
             if(typeof pls[i][1] === "undefined" && typeof pls[i][2] === "undefined") {
                 //player made everyone folded
                 plsStr += "<div class='lh-messageplayer'><b>"+ pls[i][3] + winStr +" </b><br>w/o showdown</div><div class='lh-cardsplayer'><img src='img/cards/unknown.svg' width='30' height='47'><img src='img/cards/unknown.svg' width='30' height='47'></div>";
 
-            } else if (typeof data.bestCards === "undefined") {
+            } else if (typeof finishedData.bestCards === "undefined") {
                 //user made everyone folded or player showed cards after everyone folded
                 plsStr += "<div class='lh-messageplayer'><b>"+ pls[i][3] + winStr +" </b><br>w/o showdown</div><div class='lh-cardsplayer'><img src='img/cards/" + cardsSettings + pls[i][1].split(" ")[0] + ".svg' width='30' height='47'><img src='img/cards/" + cardsSettings + pls[i][1].split(" ")[1] + ".svg' width='30' height='47'></div>";
             } else {
