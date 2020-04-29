@@ -355,7 +355,7 @@ function printPlayers(data) {
         setTimeout( function(){ $("#additional").removeClass("disabled"); }, showCardsDelay );
         $("#additional").html("Show cards");
         $("#additional").attr("onclick","showCards(); $('#player1').addClass('showCards');");
-        $('#additional').delay(showCardsDelay+2000).hide(0);
+        $('#additional').delay(showCardsDelay+3000).hide(0);
         $('#additional').show();
      } else {
         $("#additional").addClass("disabled");
@@ -811,7 +811,7 @@ function dealCards(data) {
             }
             }
         if(street === "preflopShow" && data.cards.length === 14) {
-            showCardsDelay = 4000;
+            showCardsDelay = 5000;
             $(".dealt-cards-5").css('opacity', 0);
             $(".dealt-cards-4").css('opacity', 0);
             addFlop();
@@ -821,7 +821,7 @@ function dealCards(data) {
         }
 
         if(street === "flopShow" && data.cards.length === 14) {
-            showCardsDelay = 2500;
+            showCardsDelay = 3500;
             $(".dealt-cards-4").css('opacity', 0);
             $(".dealt-cards-5").css('opacity', 0);
             addTurn();
@@ -830,7 +830,7 @@ function dealCards(data) {
         }
 
         if(street === "turnShow" && data.cards.length === 14) {
-            showCardsDelay = 1500;
+            showCardsDelay = 2500;
             addRiver();
             animationRiverShowdown();
         }
