@@ -85,6 +85,10 @@ class GamePool {
         playerName: String
     ) {
         gameSessions.firstOrNull { it.uuid == gameUuid }?.let { gameSession ->
+            if(playerName.length > 10 || playerName.length == 0) {
+                throw GameException(7, "Invalid name")
+            }
+
             val playerSession = gameSession.playerSessions.firstOrNull { it.uuid == playerUuid }?.also {
                 it.sessionId = session
             } ?: PlayerSession(session, TokenGenerator.nextPlayerToken()).also {

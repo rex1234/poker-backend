@@ -517,6 +517,9 @@ class HoldemTournamentGameEngine(
 
     fun changeName(playerUuid: String, name: String) =
         applyOnPlayer(playerUuid) {
+            if(name.length > 10 || name.length == 0) {
+                throw GameException(7, "Invalid name")
+            }
             it.name = name
         }
 

@@ -65,7 +65,11 @@ class GameResponse(
                     user = player.playerState(true, game),
                     cards = if(game.gameState == Game.State.ACTIVE) game.tableCards.toString() else "",
                     bestCards = game.bestCards?.toString(),
-                    pot = game.allPlayers.sumBy { it.currentBet },
+                    pot = game.allPlayers.sumBy { it.currentBet }, //
+                            // TODO: subtract the highest bet that cannot be matched from the pot
+                            //game.allPlayers.map { it.currentBet }.sortedDescending().run {
+                            //    get(0) - if(size > 1) get(1) else get(0)
+                            //},
                     smallBlind = game.smallBlind,
                     bigBlind = game.bigBlind,
                     nextBlinds = game.nextBlinds,

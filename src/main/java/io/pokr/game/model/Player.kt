@@ -9,7 +9,7 @@ class Player(
     val uuid: String
 ) {
     var index: Int = 0 // player's position on the table
-    var name: String = "Player " + System.currentTimeMillis()
+    var name: String = "Nameless"
     var isAdmin = false
     var isConnected = true
     var isFinished = false // whether the player already lost
