@@ -28,7 +28,8 @@ $( "#createGame button" ).click(function() {
             startingBlinds: Math.max(1, $("#startingBlinds").val()),
             blindIncreaseTime: Math.max(1, $("#blindIncreaseTime").val() * 60),
             playerMoveTime: Math.max(10, $("#playerMoveTime").val()),
-            rebuyTime: Math.max(0, $("#lateReg").val() * 60)
+            rebuyTime: Math.max(0, $("#lateReg").val() * 60),
+            maxRebuys: Math.max(0, $("#rebuy").val())
         };
         createGame($('#userid-create').val(), gameConfig);
      } else {

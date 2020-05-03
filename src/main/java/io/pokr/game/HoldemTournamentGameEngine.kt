@@ -502,6 +502,10 @@ class HoldemTournamentGameEngine(
                 throw GameException(11, "Rebuy is not possible")
             }
 
+            if(game.config.maxRebuys == it.rebuyCount) {
+                throw GameException(11, "Max rebuy count exceeded")
+            }
+
             if(it.isFinished) {
                 it.rebuyCount++
                 it.finalRank = 0

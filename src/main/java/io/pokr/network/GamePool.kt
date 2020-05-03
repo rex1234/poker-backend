@@ -32,6 +32,11 @@ class GamePool {
      * It contains the starting player as an admin.
      */
     fun createGame(gameConfig: GameConfig, session: String, playerName: String) {
+
+        if(!gameConfig.isValid) {
+            throw GameException(1, "Invalid gameConfig")
+        }
+
         val playerSession = PlayerSession(session, TokenGenerator.nextPlayerToken())
 
         val gameSession = GameSession(TokenGenerator.nextGameToken()).apply {
