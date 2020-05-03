@@ -49,16 +49,20 @@ class GamePool {
             HoldemTournamentGameEngine(
                 gameUuid = gameSession.uuid,
                 updateStateListener = { gameEngine ->
-                    // remove player that were removed by game engine
-                    // (left before the game started)
-                    gameSession.playerSessions.removeAll {
-                        it.uuid !in gameEngine.game.allPlayers.map { it.uuid }
-                    }
-
                     updateStateListener?.invoke(gameSession.playerSessions)
                 },
                 gameFinishedListener = {
                     discardGame(it.game.uuid)
+                },
+                playerKickedListener = { gameEngine, player ->
+                    gameSession.playerSessions.removeIf {
+                        if(it.uuid == player.uuid) {
+                            logger.debug("Player ${it.uuid} removed from game session ${gameSession.uuid}")
+                            true
+                        } else {
+                            false
+                        }
+                    }
                 }
             ).apply {
                 initGame(gameConfig)

@@ -10,7 +10,8 @@ import kotlin.math.*
 class HoldemTournamentGameEngine(
     gameUuid: String,
     val updateStateListener: (HoldemTournamentGameEngine) -> Unit,
-    val gameFinishedListener: (HoldemTournamentGameEngine) -> Unit
+    val gameFinishedListener: (HoldemTournamentGameEngine) -> Unit,
+    val playerKickedListener: (HoldemTournamentGameEngine, Player) -> Unit
 ) {
     private val handComparator = HandComparator()
 
@@ -524,25 +525,29 @@ class HoldemTournamentGameEngine(
         }
 
     fun leave(playerUuid: String) =
-        applyOnPlayer(playerUuid) {
-            it.isLeaveNextRound = true
-            it.isKicked = true
+        applyOnPlayer(playerUuid) { kickedPlayer ->
+            kickedPlayer.isLeaveNextRound = true
+            kickedPlayer.isKicked = true
 
             if(game.gameState == Game.State.CREATED) {
                 if(game.allPlayers.size == 1) {
                     gameFinishedListener(this)
                 } else {
-                    game.allPlayers.remove(it)
+                    game.allPlayers.remove(kickedPlayer)
                     game.allPlayers.first().isAdmin = true
                     updateStateListener(this)
                 }
             } else {
-                if (it.isOnMove) {
-                    nextPlayerMove(it.uuid, PlayerAction(PlayerAction.Action.FOLD))
+                if (kickedPlayer.isOnMove) {
+                    nextPlayerMove(kickedPlayer.uuid, PlayerAction(PlayerAction.Action.FOLD))
                 } else {
-                    it.action = PlayerAction.Action.FOLD
+                    kickedPlayer.action = PlayerAction.Action.FOLD
                 }
             }
+
+            logger.info("Player ${kickedPlayer.name} has been kicked or has left")
+
+            playerKickedListener(this, kickedPlayer)
         }
 
     fun pause(playerUuid: String, pause: Boolean) =
