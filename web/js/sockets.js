@@ -1722,14 +1722,6 @@ function wait(ms) {
     while(d2-d < ms);
 }
 
-
-$(window).blur(function() {
-    //if(roundTurn !== 0) {
-    //    refreshCards();
-    //}
-    //switchedTab = true;
-});
-
 //check if the page is minimized or user swicthed tab
 (function() {
   var hidden = "hidden";
