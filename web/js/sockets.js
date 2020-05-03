@@ -138,7 +138,7 @@ socket.on('error', function (data) {
     //hide loader if err
     $("#loader").hide();
 
-    if(data.code == 20) { // invalid game UUID
+    if(data.code == 20 && $("gameid".val() > 0)) { // invalid game UUID
         Cookies.remove('player_uuid');
         Cookies.remove('game_uuid');
         $(".mainerr").show();

@@ -187,9 +187,11 @@ $(document).ready(function () {
             connectToGame(Cookies.get("nick"), Cookies.get("game_uuid"));
         }
 
-        if(Cookies.get('player_uuid')) {
+        if(Cookies.get('nick')) {
             $('#userid-create').val(Cookies.get("nick"));
             $('#userid-join').val(Cookies.get("nick"));
+            joinInputValidated = nameValidation('#userid-join', 1);
+            createInputValidated[0] = nameValidation('#userid-create', 1);
         }
     }
 );
