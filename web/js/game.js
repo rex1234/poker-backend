@@ -392,7 +392,6 @@ function nameValidation(obj, elem) {
     } else {
         $("#userid-join").val($(obj).val());
     }
-    console.log($(obj).val().length);
     if($(obj).val().length < 1) {
          $(obj + ' ~ .errmsginput').show();
          $(obj + ' ~ .errmsginput').html("The name has to be at least one character long.");

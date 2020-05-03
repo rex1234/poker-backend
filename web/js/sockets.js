@@ -769,8 +769,8 @@ function dealCards(data) {
          $(".dealt-cards-1").css('opacity', 0);
      }
 
-    if(reconnected) {
-        if(street === "flop") {
+    if(reconnected || switchedTab) {
+        if(street === "flop" ) {
             addFlop();
             animationFlopInstant();
         }
@@ -794,14 +794,13 @@ function dealCards(data) {
     } else {
         //animate allins streets = preflop allin
         if(switchedTab){
-            if (street === "turn" && $(".dealt-cards-3").css("opacity") === 0) {
+            if ((street === "turn" || switchedTab) && $(".dealt-cards-3").css("opacity") === 0) {
                     addFlop();
                     addTurn();
                     animationFlopInstant();
                     animationTurnInstant();
-                    switchedTab = false;
             }
-            if(street === "river" && $(".dealt-cards-4").css("opacity") === 0) {
+            if((street === "river" || switchedTab) && $(".dealt-cards-4").css("opacity") === 0) {
                 addFlop();
                 addTurn();
                 addRiver();
@@ -844,7 +843,6 @@ function dealCards(data) {
              addTurn();
              if(switchedTab && $(".dealt-cards-3").css("opacity") === 0) {
                 animationFlopInstant();
-                switchedTab = false;
              }
              animationTurn();
         }
@@ -857,7 +855,6 @@ function dealCards(data) {
              if(switchedTab && $(".dealt-cards-4").css("opacity") === 0) {
                 animationTurnInstant();
              }
-             switchedTab = false;
              animationRiver();
         }
     }
@@ -1725,17 +1722,55 @@ function wait(ms) {
     while(d2-d < ms);
 }
 
-$(window).focus(function() {
-    if(roundTurn !== 0) {
-        refreshCards();
-    }
-    switchedTab = true;
-});
 
 $(window).blur(function() {
-    if(roundTurn !== 0) {
-        refreshCards();
-    }
-    switchedTab = true;
+    //if(roundTurn !== 0) {
+    //    refreshCards();
+    //}
+    //switchedTab = true;
 });
 
+//check if the page is minimized or user swicthed tab
+(function() {
+  var hidden = "hidden";
+
+  // Standards:
+  if (hidden in document)
+    document.addEventListener("visibilitychange", onchange);
+  else if ((hidden = "mozHidden") in document)
+    document.addEventListener("mozvisibilitychange", onchange);
+  else if ((hidden = "webkitHidden") in document)
+    document.addEventListener("webkitvisibilitychange", onchange);
+  else if ((hidden = "msHidden") in document)
+    document.addEventListener("msvisibilitychange", onchange);
+  // IE 9 and lower:
+  else if ("onfocusin" in document)
+    document.onfocusin = document.onfocusout = onchange;
+  // All others:
+  else
+    window.onpageshow = window.onpagehide
+    = window.onfocus = window.onblur = onchange;
+
+  function onchange (evt) {
+    var v = "visible", h = "hidden",
+        evtMap = {
+          focus:v, focusin:v, pageshow:v, blur:h, focusout:h, pagehide:h
+        };
+
+    evt = evt || window.event;
+    if (evt.type in evtMap) {
+
+    } else {
+        if (this[hidden]) {
+            switchedTab = true;
+            refreshCards();
+        } else {
+            switchedTab = false;
+        }
+    }
+  }
+
+  // set the initial state (but only if browser supports the Page Visibility API)
+  if( document[hidden] !== undefined )
+    onchange({type: document[hidden] ? "blur" : "focus"});
+})();
