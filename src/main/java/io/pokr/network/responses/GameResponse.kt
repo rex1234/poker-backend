@@ -8,6 +8,7 @@ class GameResponse(
 ) {
 
     class GameState(
+        val time: Long,
         val uuid: String,
         val config: GameConfig,
         val state: String,
@@ -56,6 +57,7 @@ class GameResponse(
 
             fun from(game: Game, player: Player) =
                 GameState(
+                    time = System.currentTimeMillis(),
                     uuid = game.uuid,
                     config = game.config,
                     state = game.gameState.toString().toLowerCase(),

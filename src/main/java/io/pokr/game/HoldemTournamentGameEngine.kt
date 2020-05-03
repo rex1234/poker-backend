@@ -415,7 +415,7 @@ class HoldemTournamentGameEngine(
     }
 
     fun finishGame() {
-        logger.info("Game ${game.uuid} finished. {}", game.allPlayers.joinToString(" ") {
+        logger.info("Game ${game.uuid} finished. {}", game.allPlayers.sortedBy { it.finalRank }.joinToString(" ") {
             "[${it.finalRank} - ${it.name} (${it.rebuyCount})]"
         })
 
