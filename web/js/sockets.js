@@ -141,15 +141,18 @@ socket.on('error', function (data) {
     if(data.code == 20) { // invalid game UUID
         Cookies.remove('player_uuid');
         Cookies.remove('game_uuid');
-        $(".errmsg").html("Invalid game ID.");
+        $(".mainerr").show();
+        $(".mainerr").html("Invalid game ID.");
     }
 
     if(data.code == 10) {
-        $(".errmsg").html("Game is already full.");
+        $(".mainerr").show();
+        $(".mainerr").html("Game is already full.");
     }
 
     if(data.code == 11) {
-        $(".errmsg").html("Late registration is not possible.");
+        $(".mainerr").show();
+        $(".mainerr").html("Late registration is not possible.");
     }
 
 });
@@ -176,7 +179,7 @@ socket.on('chat', function (data) {
 
     if(flash) {
         var playerIndex = data.index;
-        alert("[" + data.time + "]" + data.name + ": " + message);
+        console.log("[" + data.time + "]" + data.name + ": " + message);
     } else {
         // TODO: add message to the chat window
     }
@@ -215,10 +218,6 @@ function sendAction(action, numericValue = null, textValue = null) {
     });
 }
 
-function changeName(name) {
-    sendAction("changeName", null, name);
-}
-
 function leave() {
     sendAction("leave");
 
@@ -226,11 +225,12 @@ function leave() {
     Cookies.remove('player_uuid');
     Cookies.remove('io');
 
-    $("#settings").show();
-    $(".left-container").show();
-    $("#main-screen").show();
-    $(".game-container").hide();
-    $(".pregame").hide();
+    //$("#settings").show();
+    //$(".left-container").show();
+    //$("#main-screen").show();
+    //$(".game-container").hide();
+    //$(".pregame").hide();
+    window.location.reload();
 }
 
 function gameCall() {
@@ -655,7 +655,7 @@ function autoControls(data) {
     if($("#autocheck").prop("checked") && data.user.currentBet === checkHighestBet(data)) {
         autoaction = true;
         if(data.user.onMove === true) {
-            wait(500);
+            wait(800);
             gameCheck();
         }
     }
@@ -663,7 +663,7 @@ function autoControls(data) {
     if($("#autofold").prop("checked")) {
          autoaction = true;
         if(data.user.onMove === true) {
-            wait(500);
+            wait(800);
             gameFold();
         }
      }
@@ -1123,6 +1123,7 @@ function updateLastPlayedHand(data) {
         } else if(finishedData.user.action === "fold" && showedCards === data.round - 1) {
             foldedPls.push([finishedData.user.lastWin, finishedData.user.cards, finishedData.user.hand, finishedData.user.name]);
         }
+        //TODO last hand fix – when someone busts, it does not show him in the last played hand
         for(i = 0; i < finishedData.players.length; i++) {
             if(finishedData.players[i].action !== "fold" && finishedData.players[i].finalRank === 0) {
                 pls.push([finishedData.players[i].lastWin, finishedData.players[i].cards, finishedData.players[i].hand, finishedData.players[i].name]);
@@ -1426,6 +1427,9 @@ function initializeVars(data) {
     prevStreet = street;
     if(roundTurn === 1) {
         refreshCards();
+        //uncheck autoactions if stayed from the last game
+        $("#autocheck").prop("checked", false);
+        $("#autofold").prop("checked", false);
     }
 
     $("#game-id").html("<b>Game ID: </b>" + data.uuid);

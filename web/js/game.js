@@ -1,25 +1,41 @@
 var timerOn = -1;
 var beepCounter = 0;
 
+var joinInputValidated = false;
+var createInputValidated = [false, true, true, true, true, true, true];
+
+
 $( "#joinGame button").click(function() {
-    $("#loader .wrapper .text").html("Feeding you to the sharks…");
-    $("#loader").show();
-    loader.play();
-    connectToGame($('#userid-join').val(), $('#gameid').val());
+    if(joinInputValidated) {
+        $("#loader .wrapper .text").html("Feeding you to the sharks…");
+        $("#loader").show();
+        loader.play();
+        connectToGame($('#userid-join').val(), $('#gameid').val());
+    } else {
+        $("#joinGame .toggler > .errmsg").show();
+        $("#userid-join").addClass("invalid");
+        $("#joinGame .toggler > .errmsg").html("The name is not in correct format.");
+    }
 });
 
 $( "#createGame button" ).click(function() {
-    $("#loader .wrapper .text").html("Cleaning shark tank…");
-    $("#loader").show();
-    loader.play();
-    var gameConfig = {
-        startingChips: Math.max(1, $("#startingChips").val()),
-        startingBlinds: Math.max(1, $("#startingBlinds").val()),
-        blindIncreaseTime: Math.max(1, $("#blindIncreaseTime").val() * 60),
-        playerMoveTime: Math.max(10, $("#playerMoveTime").val()),
-        rebuyTime: Math.max(0, $("#lateReg").val() * 60)
-    };
-    createGame($('#userid-create').val(), gameConfig);
+    if(createInputValidated.every(v => v === true)) {
+        $("#loader .wrapper .text").html("Cleaning shark tank…");
+        $("#loader").show();
+        loader.play();
+        var gameConfig = {
+            startingChips: Math.max(1, $("#startingChips").val()),
+            startingBlinds: Math.max(1, $("#startingBlinds").val()),
+            blindIncreaseTime: Math.max(1, $("#blindIncreaseTime").val() * 60),
+            playerMoveTime: Math.max(10, $("#playerMoveTime").val()),
+            rebuyTime: Math.max(0, $("#lateReg").val() * 60)
+        };
+        createGame($('#userid-create').val(), gameConfig);
+     } else {
+        $("#createGame .toggler > .errmsg").show();
+        $("#userid-create").addClass("invalid");
+        $("#createGame .toggler > .errmsg").html("Some of the fields do not have correct value.");
+     }
 });
 
 $( ".allow-audio").click(function() {
@@ -337,4 +353,90 @@ function play(src) {
       }
   }
 
-//TODO add input validation
+//realtime input validation
+
+$(document).ready(function(){
+    $('#userid-join').on('input',function(){
+        joinInputValidated = nameValidation('#userid-join', 1);
+        createInputValidated[0] = nameValidation('#userid-create', 1);
+    });
+    $('#userid-create').on('input',function(){
+        joinInputValidated = nameValidation('#userid-join', 2);
+        createInputValidated[0] = nameValidation('#userid-create', 2);
+    });
+
+    $('#startingChips').on('input',function(){
+        createInputValidated[1] = numberValidation('#startingChips', 100);
+    });
+    $('#rebuy').on('input',function(){
+        createInputValidated[2] = numberValidation('#rebuy', 0);
+    });
+    $('#lateReg').on('input',function(){
+        createInputValidated[3] = numberValidation('#lateReg', 0);
+    });
+    $('#blindIncreaseTime').on('input',function(){
+        createInputValidated[4] = numberValidation('#blindIncreaseTime', 1);
+    });
+    $('#playerMoveTime').on('input',function(){
+        createInputValidated[5] = numberValidation('#playerMoveTime', 5);
+    });
+    $('#startingBlinds').on('input',function(){
+        createInputValidated[6] = numberValidation('#startingBlinds', 1);
+    });
+});
+
+function nameValidation(obj, elem) {
+    var regexname= /[^a-zA-ZÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËèéêëÇçÌÍÎÏìíîïÙÚÛÜŮùúûüůÿÑñčČřŘšŠěĚďĎľĽňŇťŤžŽ0-9.:%!?@#^$&*(),+|\\\/_=\- ]/;
+    if(elem === 1) {
+        $("#userid-create").val($(obj).val());
+    } else {
+        $("#userid-join").val($(obj).val());
+    }
+    console.log($(obj).val().length);
+    if($(obj).val().length < 1) {
+         $(obj + ' ~ .errmsginput').show();
+         $(obj + ' ~ .errmsginput').html("The name has to be at least one character long.");
+         $(obj).addClass("invalid");
+         return false;
+    } else if ($(obj).val().match(regexname)) {
+          // there is a mismatch, hence show the error message
+          $(obj + ' ~ .errmsginput').show();
+          $(obj).addClass("invalid");
+          if(obj.val().length > 9) {
+             $(obj + ' ~ .errmsginput').html("The name is too long (10 chars max).");
+             return false;
+          } else {
+             $(obj + ' ~ .errmsginput').html("The name contains illegal characters.");
+             return false;
+          }
+    } else {
+         // else, do not display message
+         $('#join-id-err').hide();
+         $('#join-id-err').html("");
+         $('#create-id-err').hide();
+         $('#create-id-err').html("");
+         $("#userid-join").removeClass("invalid");
+         $("#userid-create").removeClass("invalid");
+         $("#createGame .toggler > .errmsg").hide();
+         $("#joinGame .toggler > .errmsg").hide();
+         return true;
+    }
+}
+
+function numberValidation(obj, min) {
+
+    if($(obj).val() < min) {
+         $(obj + ' ~ .errmsginput').show();
+         $(obj + ' ~ .errmsginput').html("Minimum value is " + min + ".");
+         $(obj).addClass("invalid");
+         return false;
+    } else {
+         // else, do not display message
+         $(obj + ' ~ .errmsginput').hide();
+         $(obj + ' ~ .errmsginput').html("");
+         $(obj).removeClass("invalid");
+         $("#createGame .toggler > .errmsg").hide();
+         return true;
+    }
+
+}

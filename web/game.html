@@ -44,13 +44,14 @@
                 <div class="input-main">
                     <div class="label"><label for="userid-join">Name</label></div>
                     <input id="userid-join" name="nick" maxlength="10">
+                    <div id="join-id-err" class="errmsg errmsginput"></div>
                 </div>
                 <div class="input-main">
                     <div class="label"><label for="userid-join" >Game ID</label></div>
                     <input id="gameid" name="guid">
                 </div>
                 <button>Join Game</button>
-                    <div class="errmsg"></div>
+                    <div class="mainerr errmsg"></div>
                 </div>
 
             </div>
@@ -61,14 +62,17 @@
                     <div class="input-main">
                         <div class="label"><label for="userid-create">Name</label></div>
                         <input id="userid-create" name="userid-create">
+                        <div id="create-id-err" class="errmsg errmsginput"></div>
                     </div>
                     <div class="input-main">
                         <div class="label"><label for="startingChips">Chipstack</label></div>
                         <input id="startingChips" type="number" name="startingChips" value="2500">
+                        <div class="errmsg errmsginput"></div>
                     </div>
                     <div class="input-main">
                         <div class="label"><label for="userid-join">Rebuys</label></div>
                         <input id="rebuy" name=" " type="number" value="2">
+                        <div class="errmsg errmsginput"></div>
                     </div>
 
 
@@ -78,18 +82,22 @@
                     <div class="input-main">
                         <div class="label"><label for="lateReg">Rebuys/reg. until (min)</label></div>
                         <input id="lateReg" type="number" name="lateReg" value="60">
+                        <div class="errmsg errmsginput"></div>
                     </div>
                     <div class="input-main">
                         <div class="label"><label for="blindIncreaseTime">Blinds level duration (min)</label></div>
                         <input id="blindIncreaseTime" type="number" name="blindIncreaseTime" value="10">
+                        <div class="errmsg errmsginput"></div>
                     </div>
                     <div class="input-main">
                         <div class="label"><label for="playerMoveTime">Time to action (s)</label></div>
                         <input id="playerMoveTime" type="number" name="playerMoveTime" value="30">
+                        <div class="errmsg errmsginput"></div>
                     </div>
                     <div class="input-main">
                         <div class="label"><label for="startingBlinds">Starting small blind</label></div>
                         <input id="startingBlinds" type="number" name="startingBlinds" value="20">
+                        <div class="errmsg errmsginput"></div>
                     </div>
                 </div>
 
@@ -98,6 +106,7 @@
                 <p></p>
 
                 <button>Create Game</button>
+                    <div class="mainerr errmsg"></div>
                 </div>
             </div>
         </div>

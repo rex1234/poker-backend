@@ -1658,7 +1658,7 @@ margin-left: 18px;
 .errmsg {
     color: #FF5500;
     margin-top: -20px;
-    padding: 0 0 20px 0;
+    padding: 0 10px 20px 10px;
 }
 
 .winning .info-box {
@@ -1716,4 +1716,8 @@ margin-left: 18px;
     left: 4px;
     margin: 0 auto;
     top: -20px;
+}
+
+#settings .invalid {
+    border-color: #FF5500 !important;
 }
