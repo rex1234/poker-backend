@@ -127,6 +127,11 @@ class HoldemTournamentGameEngine(
             it.isRebuyNextRound = false
             it.finalRank = 0
             it.chips = game.config.startingChips
+
+            // we have to increase ranks of players that are not playing anymore
+            (game.allPlayers - game.activePlayers).forEach {
+                it.finalRank++
+            }
         }
 
         // reset players' states
@@ -342,7 +347,7 @@ class HoldemTournamentGameEngine(
 
         // we will discard players that have left / have been kicked
         game.allPlayers.filter { it.isLeaveNextRound }.forEach {
-            it.finalRank = game.players.size
+            it.finalRank = game.players.size + 1
 
             it.isFinished = true
             it.isLeaveNextRound = false
