@@ -286,7 +286,7 @@ function startGame() {
         hitType: 'event',
         eventCategory: 'Action',
         eventAction: 'Game started',
-        eventLabel: prevData.players.size + 1
+        eventLabel: prevData.players.length + 1
     });}
 
 function kick(playerIndex) {
