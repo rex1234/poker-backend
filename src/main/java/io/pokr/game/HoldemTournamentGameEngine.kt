@@ -17,8 +17,6 @@ class HoldemTournamentGameEngine(
 
     val game = Game(gameUuid)
 
-    var mockCardStack: CardStack? = null
-
     private val gameTimer = GameTimer {
         gameTick()
     }
@@ -45,11 +43,7 @@ class HoldemTournamentGameEngine(
 
         game.allPlayers.add(Player(playerUUID).apply {
             // assign random table index for a player
-            if(mockCardStack == null) {
-                index = ((1..9).toList() - game.allPlayers.map { it.index }).shuffled().first()
-            } else {
-                index = game.allPlayers.size
-            }
+            index = ((1..9).toList() - game.allPlayers.map { it.index }).shuffled().first()
 
             // first connected player is an admin
             if(game.allPlayers.isEmpty()) {
@@ -88,11 +82,7 @@ class HoldemTournamentGameEngine(
 
         game.allPlayers.sortBy { it.index }
 
-        if(mockCardStack == null) {
-            game.allPlayers.shuffled().first().isDealer = true // chose random dealer
-        } else {
-            game.allPlayers.first().isDealer = true
-        }
+        game.allPlayers.shuffled().first().isDealer = true // chose random dealer
 
         // add chips to the players
         game.allPlayers.forEach {
@@ -113,7 +103,7 @@ class HoldemTournamentGameEngine(
         increaseBlinds()
         game.apply {
             round++
-            cardStack = if(mockCardStack != null) mockCardStack!! else CardStack.create()
+            cardStack = CardStack.create()
             targetBet = game.bigBlind
             previousTargetBet = 0
             roundState = Game.RoundState.ACTIVE
@@ -175,7 +165,7 @@ class HoldemTournamentGameEngine(
                     currentBet = min(chips, game.smallBlind)
                 }
 
-                // the next one BB
+                // the next one is BB
                 get(indexOf(game.currentDealer) + 2).apply {
                     currentBet = min(chips, game.bigBlind)
                 }

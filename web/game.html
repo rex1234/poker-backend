@@ -12,15 +12,15 @@
     <script src="js/socket.io.js"></script>
     <script src="js/sockets.js"></script>
     <script>
-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-ga('create', 'G-Q7G2X2HPB45', 'auto');
-ga('send', 'pageview');
+        ga('create', 'UA-168945535-1\n', 'auto');
+        ga('send', 'pageview');
     </script>
-    
+
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="styles/game.css">
     <link rel="stylesheet" type="text/css" href="styles/game-mobile.css">
@@ -51,16 +51,16 @@ ga('send', 'pageview');
             <div id="joinGame">
                 <h2>Join game</h2>
                 <div class="toggler">
-                <div class="input-main">
-                    <div class="label"><label for="userid-join">Name</label></div>
-                    <input id="userid-join" name="nick" maxlength="10">
-                    <div id="join-id-err" class="errmsg errmsginput"></div>
-                </div>
-                <div class="input-main">
-                    <div class="label"><label for="userid-join" >Game ID</label></div>
-                    <input id="gameid" name="guid">
-                </div>
-                <button>Join Game</button>
+                    <div class="input-main">
+                        <div class="label"><label for="userid-join">Name</label></div>
+                        <input id="userid-join" name="nick" maxlength="10">
+                        <div id="join-id-err" class="errmsg errmsginput"></div>
+                    </div>
+                    <div class="input-main">
+                        <div class="label"><label for="userid-join" >Game ID</label></div>
+                        <input id="gameid" name="guid">
+                    </div>
+                    <button>Join Game</button>
                     <div class="mainerr errmsg"></div>
                 </div>
 
@@ -87,40 +87,40 @@ ga('send', 'pageview');
 
 
 
-                <div class="advanced-settings"><span class="plus-icon">+</span>Advanced settings</div>
-                <div class="advanced-inputs" style="display:none;">
-                    <div class="input-main">
-                        <div class="label"><label for="lateReg">Rebuys/reg. until (min)</label></div>
-                        <input id="lateReg" type="number" name="lateReg" value="60">
-                        <div class="errmsg errmsginput"></div>
+                    <div class="advanced-settings"><span class="plus-icon">+</span>Advanced settings</div>
+                    <div class="advanced-inputs" style="display:none;">
+                        <div class="input-main">
+                            <div class="label"><label for="lateReg">Rebuys/reg. until (min)</label></div>
+                            <input id="lateReg" type="number" name="lateReg" value="60">
+                            <div class="errmsg errmsginput"></div>
+                        </div>
+                        <div class="input-main">
+                            <div class="label"><label for="blindIncreaseTime">Blinds level duration (min)</label></div>
+                            <input id="blindIncreaseTime" type="number" name="blindIncreaseTime" value="10">
+                            <div class="errmsg errmsginput"></div>
+                        </div>
+                        <div class="input-main">
+                            <div class="label"><label for="playerMoveTime">Time to action (s)</label></div>
+                            <input id="playerMoveTime" type="number" name="playerMoveTime" value="30">
+                            <div class="errmsg errmsginput"></div>
+                        </div>
+                        <div class="input-main">
+                            <div class="label"><label for="startingBlinds">Starting small blind</label></div>
+                            <input id="startingBlinds" type="number" name="startingBlinds" value="20">
+                            <div class="errmsg errmsginput"></div>
+                        </div>
                     </div>
-                    <div class="input-main">
-                        <div class="label"><label for="blindIncreaseTime">Blinds level duration (min)</label></div>
-                        <input id="blindIncreaseTime" type="number" name="blindIncreaseTime" value="10">
-                        <div class="errmsg errmsginput"></div>
-                    </div>
-                    <div class="input-main">
-                        <div class="label"><label for="playerMoveTime">Time to action (s)</label></div>
-                        <input id="playerMoveTime" type="number" name="playerMoveTime" value="30">
-                        <div class="errmsg errmsginput"></div>
-                    </div>
-                    <div class="input-main">
-                        <div class="label"><label for="startingBlinds">Starting small blind</label></div>
-                        <input id="startingBlinds" type="number" name="startingBlinds" value="20">
-                        <div class="errmsg errmsginput"></div>
-                    </div>
-                </div>
 
 
-            
-                <p></p>
 
-                <button>Create Game</button>
+                    <p></p>
+
+                    <button>Create Game</button>
                     <div class="mainerr errmsg"></div>
                 </div>
             </div>
         </div>
-</div>   
+    </div>
 
 
 
@@ -498,26 +498,26 @@ ga('send', 'pageview');
                             <svg enable-background="new 0 0 24 24" version="1.1" viewBox="0 0 24 24" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><style type="text/css">	.st0{fill:none;}</style><path d="M4,4v7h7L7.8,7.8C8.9,6.7,10.3,6,12,6c3.3,0,6,2.7,6,6s-2.7,6-6,6c-2.6,0-4.8-1.7-5.6-4H4.3c0.9,3.4,4,6,7.7,6  c4.4,0,8-3.6,8-8s-3.6-8-8-8C9.8,4,7.8,4.9,6.4,6.3L4,4z"/><path class="st0" d="m24 24h-24v-24h24v24z"/></svg><h3 id="last-hand-h">LAST HAND</h3>
                         </div>
 
-                             <div class="inside">
-                                 <div class="lh-message"></div>
-                                 <div class="lh-dealt"></div>
-                             </div>
+                        <div class="inside">
+                            <div class="lh-message"></div>
+                            <div class="lh-dealt"></div>
+                        </div>
                         <div class="last-hand-report">
 
                         </div>
                     </div>
-                    
+
                 </div>
                 <div class="leave"><button id="leave" onclick="leave()"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg><div>Leave game</div></button>
-            </div>
+                </div>
             </div>
             <button onclick="openNav()" class="openbtn"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg><div>Menu</div></button>
         </div>
     </div>
-    </div>
-    <script src="js/anime.min.js"></script>
-    <script src="js/animations.js"></script>
-    <script src="js/game.js"></script>
+</div>
+<script src="js/anime.min.js"></script>
+<script src="js/animations.js"></script>
+<script src="js/game.js"></script>
 
 </body>
 </html>

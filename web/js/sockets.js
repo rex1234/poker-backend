@@ -101,6 +101,16 @@ socket.on('gameState', function (data) {
         $(".admin-text").hide();
         $("#start").hide();
         $("#rebuys").hide();
+
+        if(data.user.admin) {
+            ga('send', 'event', 'Action', 'Game finished');
+            ga('send', {
+                hitType: 'timing',
+                timingCategory: 'Game',
+                timingVar: 'Total duration',
+                timingValue: data.time - data.gameStart
+            });
+        }
     }
 
     if(data.roundState === "finished") {
@@ -194,6 +204,7 @@ function createGame(nickname, gameConfig) {
         playerUUID: Cookies.get('player_uuid'),
         gameConfig: gameConfig
     });
+    ga('send', 'event', 'Action', 'Game created');
 }
 
 function connectToGame(nickname, gameUuid) {
@@ -202,6 +213,7 @@ function connectToGame(nickname, gameUuid) {
         gameUUID: gameUuid,
         playerUUID: Cookies.get('player_uuid')
     });
+    ga('send', 'event', 'Action', 'Connected to game');
 }
 
 function requestGameState() {
@@ -224,6 +236,8 @@ function leave() {
     Cookies.remove('game_uuid');
     Cookies.remove('player_uuid');
     Cookies.remove('io');
+
+    ga('send', 'event', 'Action', 'Leave');
 
     //$("#settings").show();
     //$(".left-container").show();
@@ -259,13 +273,21 @@ function rebuy() {
 function showCards() {
     showedCards = finishedData.round;
     sendAction("showCards");
+
+    ga('send', 'event', 'Game', 'Showed cards');
 }
 
 // Admin actions
 
 function startGame() {
     sendAction("startGame");
-}
+
+    ga('send', {
+        hitType: 'event',
+        eventCategory: 'Action',
+        eventAction: 'Game started',
+        eventLabel: prevData.players.size + 1
+    });}
 
 function kick(playerIndex) {
     sendAction("kick", playerIndex, null);
