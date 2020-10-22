@@ -9,10 +9,9 @@ class CardStack (
 
     companion object {
         fun create(): CardStack = CardStack(
-            Card.Color.values().map { color ->
-                Card.Value.values()
-                    .map { value -> Card(color, value) }
-            }.flatten().shuffled().toMutableList()
+            Card.Color.values().flatMap { color ->
+                Card.Value.values().map { value -> Card(color, value) }
+            }.shuffled().toMutableList()
         )
     }
 

@@ -29,7 +29,13 @@ class HandComparator {
             get() = cards.groupBy { it.color }.count() == 1
 
         val CardList.hasStraight
-            get() = cards.sortedBy { it.value }.zipWithNext { a, b -> b.value.ordinal - a.value.ordinal }.all { it == 1 }
+            get() = cards.sortedBy { it.value }.zipWithNext { a, b -> b.value.ordinal - a.value.ordinal }.all { it == 1 } ||
+                    hasStraighWithA
+
+        val CardList.hasStraighWithA
+            get() = cards.map { it.value }.containsAll(
+                listOf(Card.Value.ACE, Card.Value.N_2, Card.Value.N_3, Card.Value.N_4, Card.Value.N_5)
+            )
 
         val CardList.hasStraightFlush
             get() = hasStraight && hasFlush
@@ -76,16 +82,16 @@ class HandComparator {
     private fun getAllCardCombinations(playerCards: CardList, tableCards: CardList): List<Pair<CardList, CardList>> {
         val allCards = playerCards.with(tableCards).cards
 
-        if(allCards.size == 5) {
+        if (allCards.size == 5) {
             return listOf(Pair(playerCards, tableCards))
         } else {
             val discardCards = allCards.size - 5
 
             val result =
-                if(discardCards == 1) {
+                if (discardCards == 1) {
                     (0..5).map { allCards - allCards[it] }
                 } else {
-                    (0..6).map { i -> (0..6).map { j -> Pair(i, j) }}.flatten().filter { it.first != it.second }.map {
+                    (0..6).map { i -> (0..6).map { j -> Pair(i, j) } }.flatten().filter { it.first != it.second }.map {
                         allCards - allCards[it.first] - allCards[it.second]
                     }
                 }

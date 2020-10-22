@@ -14,6 +14,7 @@ class HandComparatorTest {
     val cardListFourKind =  CardList.parse("QC QH QD QS AH")
     val cardListFullHouse = CardList.parse("QC QS QD AD AH")
     val cardListStraight = CardList.parse("0D 8C 9D JH 7C")
+    val cardListStraightWithA = CardList.parse("AD 2C 3H 4D 5S")
     val cardListFlush = CardList.parse("0C QC JC 9C 5C")
     val cardListRoyalFlush = CardList.parse("0C QC JC KC 9C")
 
@@ -56,6 +57,12 @@ class HandComparatorTest {
         Assert.assertTrue(HandComparator.Hand.STRAIGHT.evalFunction(cardListStraight))
         Assert.assertFalse(HandComparator.Hand.STRAIGHT.evalFunction(cardListPair))
         Assert.assertTrue(handComparator.findHighestHand(cardListStraight) == HandComparator.Hand.STRAIGHT)
+    }
+
+    @Test
+    fun testStraightWithA() {
+        Assert.assertTrue(HandComparator.Hand.STRAIGHT.evalFunction(cardListStraightWithA))
+        Assert.assertTrue(handComparator.findHighestHand(cardListStraightWithA) == HandComparator.Hand.STRAIGHT)
     }
 
     @Test
