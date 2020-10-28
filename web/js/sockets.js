@@ -1295,7 +1295,7 @@ function assignTags(data) {
                if(players[i].chips === players[i].currentBet && players[i].finalRank === 0) {
                      $("#player" + position + " .player-tag").addClass("allin");
                      $("#player" + position + " .player-tag").show();
-                     $("#player" + position + " .player-tag").html("allin");
+                     $("#player" + position + " .player-tag").html("All in");
                } else {
                     $("#player" + position + " .player-tag").addClass("raise");
                     $("#player" + position + " .player-tag").show();
