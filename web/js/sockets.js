@@ -330,6 +330,7 @@ function printPlayers(data) {
     giveCSSClasses(data, 1, -1);
     playSound(data);
 
+    var playerBets = 0;
     var pot = data.user.currentBet;
     var players = [[1, data.user.dealer]];
 
@@ -350,6 +351,7 @@ function printPlayers(data) {
     updateLastPlayedHand(data);
 
     betDesc = data.user.currentBet - data.previousTargetBet;
+    playerBets += betDesc;
 
     assignChipsImg(betDesc, "player1", data);
 
@@ -437,6 +439,7 @@ function printPlayers(data) {
         }
         var betDesc = data.players[i].currentBet - data.previousTargetBet;
         assignChipsImg(betDesc, "player" + position, data);
+        playerBets += betDesc;
 
         //showdown
         if(typeof data.players[i].cards !== "undefined" && data.roundState === "finished" && data.state != "finished") {
@@ -518,8 +521,11 @@ function printPlayers(data) {
         pot = lastWinSum(data);
     }
 
-    if(pot > 0) {
-        assignChipsImg(pot, "pot", data);
+    $("#total-pot").html("Pot: " + pot);
+
+    var centerPot = pot - playerBets;
+    if(centerPot > 0) {
+        assignChipsImg(centerPot, "pot", data);
     }
 
 }
@@ -1326,10 +1332,10 @@ function assignTags(data) {
 function assignChipsImg(chipcount, player, data) {
     //clear chips from before
     if(player === "pot") {
-          $("#" + player + " .amount").html("Pot: "+ chipcount);
           if(player === "pot" && prevData.round !== data.round) {
                 $("#" + player + " .stack-1").html(""); $("#" + player + " .stack-2").html(""); $("#" + player + " .stack-3").html(""); $("#" + player + " .stack-4").html(""); $("#" + player + " .stack-5").html("");
           }
+          $("#pot .amount").html(chipcount);
     } else {
         if(chipcount <= 0) {
             $("#" + player + " .bet .amount").html("");
