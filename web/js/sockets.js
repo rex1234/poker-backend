@@ -556,6 +556,7 @@ function showControls(data) {
             var maxRaiseFromCurr = chipsBehind;
             var raiseBy = Math.min(minRaiseFromCurr, maxRaiseFromCurr);
             var raiseTo = chipsInPot + raiseBy;
+            const maxRaise = maxRaiseFromCurr + chipsInPot;
 
             var buttonDesc;
 
@@ -582,7 +583,7 @@ function showControls(data) {
 
              //affect slider and input accordingly
              $(".raise-input").attr({
-                "min": 1,
+                "min": raiseTo,
                 "max": maxRaiseFromCurr,
                 "value": raiseTo
              });
@@ -591,7 +592,7 @@ function showControls(data) {
              $(".raise-input").val(raiseTo);
              $(".raise-input").on('keyup', function(e) {
                    //min value is min raise, max is max raise
-                   var value = Math.min(maxRaiseFromCurr + chipsInPot, Math.max(minRaiseFromCurr, $(".raise-input").val()));
+                   var value = Math.min(maxRaise, Math.max(raiseTo, e.target.value));
                    $("#raise").attr("onclick", "gameRaise("+ (value - chipsInPot) +")");
 
                    //treat empty input as 0
@@ -607,18 +608,21 @@ function showControls(data) {
 
              $("#range-slider").attr({
                 "min": raiseTo,
-                "max": maxRaiseFromCurr + chipsInPot,
+                "max": maxRaise,
                 "value": raiseTo
              });
 
              $("#range-slider")[0].value = raiseTo;
 
              $("#range-slider")[0].oninput = function() {
-                var value = Math.min(maxRaiseFromCurr + chipsInPot, Math.max(minRaiseFromCurr, this.value));
+                var value = Math.min(maxRaise, Math.max(minRaiseFromCurr, this.value));
                 //Round to 10s, but exclude max value
                 var roundedVal = parseInt(value/10)*10;
-                if(roundedVal + 9 >= maxRaiseFromCurr + chipsInPot) {
-                    roundedVal = maxRaiseFromCurr + chipsInPot;
+                if (roundedVal + 9 >= maxRaise) {
+                    roundedVal = maxRaise;
+                }
+                if (roundedVal < raiseTo) {
+                    roundedVal = raiseTo;
                 }
                 $("#raise").attr("onclick", "gameRaise("+ (roundedVal - chipsInPot) +")");
                 $("#raise").html(buttonDesc + roundedVal);
@@ -633,12 +637,12 @@ function showControls(data) {
 
              if(street === "preflop") {
                 $(".betsizes.first").html("2.5BB");
-                $(".betsizes.first").attr("onclick", "raiseChange(" + Math.min(5*data.smallBlind, maxRaiseFromCurr + chipsInPot) + ")");
+                $(".betsizes.first").attr("onclick", "raiseChange(" + Math.min(5*data.smallBlind, maxRaise) + ")");
                 $(".betsizes.second").html("3BB");
-                $(".betsizes.second").attr("onclick", "raiseChange(" + Math.min(6*data.smallBlind, maxRaiseFromCurr + chipsInPot) + ")");
+                $(".betsizes.second").attr("onclick", "raiseChange(" + Math.min(6*data.smallBlind, maxRaise) + ")");
                 $(".betsizes.third").html("3.5BB");
-                $(".betsizes.third").attr("onclick", "raiseChange(" + Math.min(7*data.smallBlind, maxRaiseFromCurr + chipsInPot) + ")");
-                $(".betsizes.last").attr("onclick", "raiseChange(" + (maxRaiseFromCurr + chipsInPot) + ")");
+                $(".betsizes.third").attr("onclick", "raiseChange(" + Math.min(7*data.smallBlind, maxRaise) + ")");
+                $(".betsizes.last").attr("onclick", "raiseChange(" + maxRaise + ")");
                 //hide the buttons if preflop action
 
                 if(data.pot > 3*data.smallBlind) {
@@ -648,17 +652,33 @@ function showControls(data) {
                 }
 
              } else {
-                 if((parseInt(data.pot/3)) > 2*data.smallBlind) {
+                 const bigBlind = 2 * data.smallBlind;
+                 const potThird = parseInt(data.pot / 3);
+                 const potHalf = parseInt(data.pot / 2);
+                 const potTwoThirds = parseInt(2 * data.pot / 3);
+
+                 if (potThird > bigBlind && potThird > raiseTo) {
                      $(".betsizes.first").html("33%");
-                     $(".betsizes.first").attr("onclick", "raiseChange(" + Math.min(parseInt(data.pot/3), maxRaiseFromCurr + chipsInPot) + ")");
+                     $(".betsizes.first").attr("onclick", "raiseChange(" + Math.min(potThird, maxRaise) + ")");
                  } else {
                      $(".betsizes.first").addClass("disabled");
                  }
-                 $(".betsizes.second").html("50%");
-                 $(".betsizes.second").attr("onclick", "raiseChange(" + Math.min(parseInt(data.pot/2), maxRaiseFromCurr + chipsInPot) + ")");
-                 $(".betsizes.third").html("66%");
-                 $(".betsizes.third").attr("onclick", "raiseChange(" + Math.min(parseInt(2*data.pot/3), maxRaiseFromCurr + chipsInPot) + ")");
-                 $(".betsizes.last").attr("onclick", "raiseChange(" + (maxRaiseFromCurr + chipsInPot) + ")");
+
+                 if (potHalf > bigBlind && potHalf > raiseTo) {
+                     $(".betsizes.second").html("50%");
+                     $(".betsizes.second").attr("onclick", "raiseChange(" + Math.min(potHalf, maxRaise) + ")");
+                 } else {
+                     $(".betsizes.second").addClass("disabled");
+                 }
+
+                 if (potTwoThirds > bigBlind && potTwoThirds > raiseTo) {
+                     $(".betsizes.third").html("66%");
+                     $(".betsizes.third").attr("onclick", "raiseChange(" + Math.min(potTwoThirds, maxRaise) + ")");
+                 } else {
+                     $(".betsizes.third").addClass("disabled");
+                 }
+
+                 $(".betsizes.last").attr("onclick", "raiseChange(" + maxRaise + ")");
              }
 
         }
