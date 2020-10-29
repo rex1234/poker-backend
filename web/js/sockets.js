@@ -148,21 +148,23 @@ socket.on('error', function (data) {
     //hide loader if err
     $("#loader").hide();
 
-    if(data.code == 20 && $("#gameid").val().length > 0) { // invalid game UUID
+    if(data.code == 20 && $('#gameid').val().length > 0) { // invalid game UUID
         Cookies.remove('player_uuid');
         Cookies.remove('game_uuid');
-        $(".mainerr").show();
-        $(".mainerr").html("Invalid game ID.");
+        $('#gameid ~ .errmsginput').show();
+        $('#gameid ~ .errmsginput').text('Invalid game ID.');
+        $('#gameid').addClass('invalid');
+        $('#join-err').html('Some of the fields do not have correct value.').show();
     }
 
     if(data.code == 10) {
-        $(".mainerr").show();
-        $(".mainerr").html("Game is already full.");
+        $('#join-err').show();
+        $('#join-err').html('Game is already full.');
     }
 
     if(data.code == 11) {
-        $(".mainerr").show();
-        $(".mainerr").html("Late registration is not possible.");
+        $('#join-err').show();
+        $('#join-err').html('Late registration is not possible.');
     }
 
 });

@@ -1,25 +1,26 @@
 var timerOn = -1;
 var beepCounter = 0;
 
-var joinInputValidated = false;
+var joinInputValidated = [false, false];
 var createInputValidated = [false, true, true, true, true, true, true];
 
 
 $( "#joinGame button").click(function() {
-    if(joinInputValidated) {
+    // Game ID validation happens only on input, so we have to validate here in case there has been no input so far
+    joinInputValidated[1] = gameIdValidation('#gameid');
+
+    if(joinInputValidated.every(v => v)) {
         $("#loader .wrapper .text").html("Feeding you to the sharks…");
         $("#loader").show();
         loader.play();
         connectToGame($('#userid-join').val(), $('#gameid').val());
     } else {
-        $("#joinGame .toggler > .errmsg").show();
-        $("#userid-join").addClass("invalid");
-        $("#joinGame .toggler > .errmsg").html("The name is not in correct format.");
+        $("#join-err").html("Some of the fields do not have correct value.").show();
     }
 });
 
 $( "#createGame button" ).click(function() {
-    if(createInputValidated.every(v => v === true)) {
+    if(createInputValidated.every(v => v)) {
         $("#loader .wrapper .text").html("Cleaning shark tank…");
         $("#loader").show();
         loader.play();
@@ -32,10 +33,8 @@ $( "#createGame button" ).click(function() {
             maxRebuys: Math.max(0, $("#rebuy").val())
         };
         createGame($('#userid-create').val(), gameConfig);
-     } else {
-        $("#createGame .toggler > .errmsg").show();
-        $("#userid-create").addClass("invalid");
-        $("#createGame .toggler > .errmsg").html("Some of the fields do not have correct value.");
+    } else {
+        $("#create-err").html("Some of the fields do not have correct value.").show();
      }
 });
 
@@ -191,7 +190,7 @@ $(document).ready(function () {
         if(Cookies.get('nick')) {
             $('#userid-create').val(Cookies.get("nick"));
             $('#userid-join').val(Cookies.get("nick"));
-            joinInputValidated = nameValidation('#userid-join', 1);
+            joinInputValidated[0] = nameValidation('#userid-join', 1);
             createInputValidated[0] = nameValidation('#userid-create', 1);
         }
     }
@@ -360,12 +359,16 @@ function play(src) {
 
 $(document).ready(function(){
     $('#userid-join').on('input',function(){
-        joinInputValidated = nameValidation('#userid-join', 1);
+        joinInputValidated[0] = nameValidation('#userid-join', 1);
         createInputValidated[0] = nameValidation('#userid-create', 1);
     });
     $('#userid-create').on('input',function(){
-        joinInputValidated = nameValidation('#userid-join', 2);
+        joinInputValidated[0] = nameValidation('#userid-join', 2);
         createInputValidated[0] = nameValidation('#userid-create', 2);
+    });
+
+    $('#gameid').on('input', () => {
+        joinInputValidated[1] = gameIdValidation('#gameid');
     });
 
     $('#startingChips').on('input',function(){
@@ -419,14 +422,13 @@ function nameValidation(obj, elem) {
          $('#create-id-err').html("");
          $("#userid-join").removeClass("invalid");
          $("#userid-create").removeClass("invalid");
-         $("#createGame .toggler > .errmsg").hide();
-         $("#joinGame .toggler > .errmsg").hide();
+         $("#create-err").hide();
+         $("#join-err").hide();
          return true;
     }
 }
 
 function numberValidation(obj, min) {
-
     if($(obj).val() < min) {
          $(obj + ' ~ .errmsginput').show();
          $(obj + ' ~ .errmsginput').html("Minimum value is " + min + ".");
@@ -437,8 +439,21 @@ function numberValidation(obj, min) {
          $(obj + ' ~ .errmsginput').hide();
          $(obj + ' ~ .errmsginput').html("");
          $(obj).removeClass("invalid");
-         $("#createGame .toggler > .errmsg").hide();
+         $("#create-err").hide();
          return true;
     }
+}
 
+function gameIdValidation(selector) {
+    const $obj = $(selector);
+    if ($obj.val().length === 0) {
+        $(selector + ' ~ .errmsginput').text('The game ID cannot be empty.').show();
+        $obj.addClass('invalid');
+        return false;
+    } else {
+        $(selector + ' ~ .errmsginput').text('').hide();
+        $obj.removeClass('invalid');
+        $('#join-err').hide();
+        return true;
+    }
 }
