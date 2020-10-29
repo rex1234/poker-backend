@@ -68,6 +68,15 @@ $("#settings h2").hover (
         }
 );
 
+$('.raise-slider').on('wheel', (event) => {
+    const $rangeSlider = $('#range-slider');
+    const roundedVal = Math.round(parseInt($rangeSlider.val()) / currentSmallBlind) * currentSmallBlind;
+    const nextVal = event.originalEvent.wheelDelta > 0
+        ? roundedVal + currentSmallBlind
+        : roundedVal - currentSmallBlind;
+    $rangeSlider.val(nextVal).trigger('input');
+});
+
 $("#joinGame h2").click (function () {
     if($(window).width() <= 812) {
         $("#joinGame .toggler").slideToggle();
