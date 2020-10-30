@@ -51,14 +51,26 @@ socket.on('gameState', function (data) {
         $(".all-text").html("Invite other players by sending them this code:<div id='code'>" + data.uuid + "</div><button id='copyButton' onclick='copyToClipboard(document.getElementById(\"code\"))'>Copy code</button>");
         //user is admin
         if(data.user.admin) {
-            $(".admin-text").html("You will be able to start the game when there are 2 or more players.");
-
-            if(data.players.length > 0) {
+            if (data.players.length > 0) {
                 $(".admin-text").html("");
                 $("#start").show();
+            } else {
+                $(".admin-text").html("You will be able to start the game when there are 2 or more players.");
+                $("#start").hide();
             }
         } else {
             $(".admin-text").html("Waiting for admin to start the game.");
+        }
+
+        if (data.players.length < prevData.players.length) {
+            const playersToRemove = prevData.players.filter(prevPlayer =>
+                !data.players.some(({ index }) => index === prevPlayer.index));
+            const positionsToClear = playersToRemove.map(({ index }) => getPlayerPosition(data, index));
+            positionsToClear.forEach(pos => {
+                $(`#player${pos}`).removeClass('created none').addClass('seatopen');
+                $(`#player${pos} .info-box .player-name`).text('');
+                $(`#player${pos} .info-box .player-chips`).text('');
+            });
         }
     }
 
@@ -392,12 +404,7 @@ function printPlayers(data) {
     }
 
     for(i = 0; i < data.players.length; i++) {
-        var position;
-        if(data.user.index < data.players[i].index) {
-            position = data.players[i].index - data.user.index + 1;
-         } else {
-            position = data.players[i].index - data.user.index + 10;
-         }
+        const position = getPlayerPosition(data, data.players[i].index);
 
          $("#player"+ position).removeClass("seatopen");
 
@@ -523,7 +530,6 @@ function printPlayers(data) {
     }
 
 }
-
 
 function showControls(data) {
     if(data.user.currentBet === data.user.chips) {
