@@ -528,6 +528,8 @@ class HoldemTournamentGameEngine(
             kickedPlayer.isLeaveNextRound = true
             kickedPlayer.isKicked = true
 
+            playerKickedListener(this, kickedPlayer)
+
             if(game.gameState == Game.State.CREATED) {
                 if(game.allPlayers.size == 1) {
                     gameFinishedListener(this)
@@ -545,8 +547,6 @@ class HoldemTournamentGameEngine(
             }
 
             logger.info("Player ${kickedPlayer.name} has been kicked or has left")
-
-            playerKickedListener(this, kickedPlayer)
         }
 
     fun pause(playerUuid: String, pause: Boolean) =
