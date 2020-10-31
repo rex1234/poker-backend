@@ -121,9 +121,9 @@ class SocketEngine(
 
                     if(action == PlayerAction.Action.LEAVE) {
                         client.disconnect()
+                    } else {
+                        sendGameState(client)
                     }
-
-                    sendGameState(client)
                 }
             }
 
