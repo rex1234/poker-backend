@@ -109,7 +109,7 @@ class HoldemTournamentGameEngine(
             round++
             cardStack = CardStack.create()
             targetBet = gameData.bigBlind
-            previousTargetBet = 0
+            previousStreetTargetBet = 0
             roundState = GameData.RoundState.ACTIVE
             bestCards = null
             tableCards = CardList()
@@ -216,7 +216,7 @@ class HoldemTournamentGameEngine(
             PlayerAction.Action.RAISE -> {
                 val raiseAmount = playerAction.numericValue!!
                 // if we can raise or if we raise to an all in
-                if (raiseAmount >= gameData.smallBlind * 2 || raiseAmount + player.currentBet == player.chips) {// TODO: implement raise rules
+                if (raiseAmount >= gameData.smallBlind * 2 || raiseAmount + player.currentBet == player.chips) {
                     if (player.chips - player.currentBet >= raiseAmount) {
                         gameData.targetBet = player.currentBet + raiseAmount
                         player.currentBet = gameData.targetBet
@@ -268,8 +268,7 @@ class HoldemTournamentGameEngine(
                     // or we will draw a card and reset actions
                     drawCards()
 
-                    // this is for implementing raise rules
-                    gameData.previousTargetBet = gameData.targetBet
+                    gameData.previousStreetTargetBet = gameData.targetBet
 
                     // non folded players will start with a NONE action next street
                     gameData.activePlayers.forEach {

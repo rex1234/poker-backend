@@ -368,8 +368,8 @@ function printPlayers(data) {
     showRebuyAndAddonsStats(data);
     updateLastPlayedHand(data);
 
-    const userCurrentStreetBet = data.user.currentBet > data.previousTargetBet
-        ? data.user.currentBet - data.previousTargetBet
+    const userCurrentStreetBet = data.user.currentBet > data.previousStreetTargetBet
+        ? data.user.currentBet - data.previousStreetTargetBet
         : 0;
     playerBets += userCurrentStreetBet;
 
@@ -455,8 +455,8 @@ function printPlayers(data) {
         } else {
             $('#player' + position + ' .player-chips').html(data.players[i].chips - data.players[i].currentBet);
         }
-        const playerCurrentStreetBet = data.players[i].currentBet > data.previousTargetBet
-            ? data.players[i].currentBet - data.previousTargetBet
+        const playerCurrentStreetBet = data.players[i].currentBet > data.previousStreetTargetBet
+            ? data.players[i].currentBet - data.previousStreetTargetBet
             : 0;
         assignChipsImg(playerCurrentStreetBet, 'player' + position, data);
         playerBets += playerCurrentStreetBet;
@@ -566,7 +566,7 @@ function showControls(data) {
         if (data.targetBet > data.user.currentBet) {
             $('#call')
                 .removeClass('disabled')
-                .html('Call<br>' + Math.max(Math.min(data.user.chips - (data.user.currentBet - data.previousTargetBet), data.targetBet - data.user.currentBet)));
+                .html('Call<br>' + Math.max(Math.min(data.user.chips - (data.user.currentBet - data.previousStreetTargetBet), data.targetBet - data.user.currentBet)));
         }
 
         //show raise if can
@@ -575,7 +575,7 @@ function showControls(data) {
             $raise.removeClass('disabled');
 
             const chipsBehind = data.user.chips - data.user.currentBet;
-            const chipsInPot = data.user.currentBet - data.previousTargetBet;
+            const chipsInPot = data.user.currentBet - data.previousStreetTargetBet;
             const minRaiseFromCurr = getMinRaiseValue(data) - chipsInPot;
             const maxRaiseFromCurr = chipsBehind;
             const raiseBy = Math.min(minRaiseFromCurr, maxRaiseFromCurr);
@@ -584,7 +584,7 @@ function showControls(data) {
 
             let buttonDesc;
 
-            if (data.targetBet === data.previousTargetBet) {
+            if (data.targetBet === data.previousStreetTargetBet) {
                 buttonDesc = 'Bet<br>';
             } else {
                 buttonDesc = 'Raise to<br>';
@@ -798,10 +798,10 @@ function checkHighestBet(data) {
 
 //calculates min-raise
 function getMinRaiseValue(data) {
-    let arr = [data.user.currentBet - data.previousTargetBet];
+    let arr = [data.user.currentBet - data.previousStreetTargetBet];
     for (let i = 0; i < data.players.length; i++) {
-        if (data.players[i].currentBet >= data.previousTargetBet) {
-            arr.push(data.players[i].currentBet - data.previousTargetBet);
+        if (data.players[i].currentBet >= data.previousStreetTargetBet) {
+            arr.push(data.players[i].currentBet - data.previousStreetTargetBet);
         }
     }
     arr = sortUnique(arr);
@@ -1394,7 +1394,7 @@ function assignTags(data) {
                 } else {
                     $playerTag
                         .addClass('raise')
-                        .html(prevData.previousTargetBet === prevData.targetBet ? 'Bet' : 'Raise')
+                        .html(prevData.previousStreetTargetBet === prevData.targetBet ? 'Bet' : 'Raise')
                         .show()
                         .delay(600)
                         .queue(function (n) {
@@ -1775,7 +1775,7 @@ function getLastAction(data) {
             }
         }
         if (cardChanged) {
-            if ((prevData.targetBet === prevData.previousTargetBet || data.targetBet === 2 * data.smallBlind)) {
+            if ((prevData.targetBet === prevData.previousStreetTargetBet || data.targetBet === 2 * data.smallBlind)) {
                 return 'check';
             } else {
                 return 'call';

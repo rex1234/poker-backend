@@ -24,7 +24,7 @@ class GameResponse(
         val smallBlind: Int,
         val bigBlind: Int,
         val targetBet: Int,
-        var previousTargetBet: Int,
+        var previousStreetTargetBet: Int,
         val isLateRegistrationEnabled: Boolean,
     )
 
@@ -79,7 +79,7 @@ class GameResponse(
                     it.uuid != currentPlayerUuid
                 }.map { it.playerState(false, game) },
                 targetBet = game.targetBet,
-                previousTargetBet = game.previousTargetBet,
+                previousStreetTargetBet = game.previousStreetTargetBet,
                 isLateRegistrationEnabled = game.isLateRegistrationEnabled
             )
 

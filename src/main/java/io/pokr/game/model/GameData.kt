@@ -19,7 +19,7 @@ class GameData constructor(
     var gameState: State = State.CREATED
     var allPlayers = mutableListOf<Player>()
     var targetBet = 0
-    var previousTargetBet = 0 // FOR FE purposes
+    var previousStreetTargetBet = 0
     var smallBlind = 0
     var bigBlind = 0
     var nextBlinds = 0L
