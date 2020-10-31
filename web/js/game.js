@@ -6,7 +6,8 @@ var createInputValidated = [false, true, true, true, true, true, true];
 
 
 $( "#joinGame button").click(function() {
-    // Game ID validation happens only on input, so we have to validate here in case there has been no input so far
+    // Validation happens only on input, so we have to validate here in case there has been no input so far
+    joinInputValidated[0] = nameValidation('#userid-join');
     joinInputValidated[1] = gameIdValidation('#gameid');
 
     if(joinInputValidated.every(v => v)) {
@@ -20,6 +21,9 @@ $( "#joinGame button").click(function() {
 });
 
 $( "#createGame button" ).click(function() {
+    // Validation happens only on input, so we have to validate here in case there has been no input so far
+    createInputValidated[0] = nameValidation('#userid-create');
+
     if(createInputValidated.every(v => v)) {
         $("#loader .wrapper .text").html("Cleaning shark tank…");
         $("#loader").show();
