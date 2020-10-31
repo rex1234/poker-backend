@@ -158,6 +158,10 @@ class SocketEngine(
         }
     }
 
+    fun stop() {
+        server.stop();
+    }
+
     /**
      * Sends respective game states to all players in a game session
      */
