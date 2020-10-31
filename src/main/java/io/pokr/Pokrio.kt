@@ -3,7 +3,18 @@ package io.pokr
 import io.pokr.jobs.*
 import io.pokr.network.*
 import org.slf4j.*
+import sun.misc.*
 import java.io.*
+import kotlin.system.*
+
+lateinit var socketEngine: SocketEngine
+lateinit var webEngine: WebEngine
+
+fun handleExit() {
+    socketEngine.stop()
+    webEngine.stop()
+    exitProcess(0)
+}
 
 fun main() {
     val logger = LoggerFactory.getLogger("Pokrio")
@@ -17,11 +28,20 @@ fun main() {
 
     val gamePool = GamePool()
 
-    SocketEngine(gamePool).start()
+    socketEngine = SocketEngine(gamePool)
+    socketEngine.start()
 
-    WebEngine(gamePool).start()
+    webEngine = WebEngine(gamePool)
+    webEngine.start()
 
     CronJobManager(
         ClearGamesJob(gamePool)
     ).run()
+
+    Signal.handle(Signal("INT")) {
+        handleExit()
+    }
+    Signal.handle(Signal("TERM")) {
+        handleExit()
+    }
 }

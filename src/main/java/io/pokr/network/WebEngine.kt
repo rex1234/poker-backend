@@ -19,47 +19,55 @@ import kotlin.concurrent.*
 class WebEngine(
     val gamePool: GamePool
 ) {
+    lateinit var engine: NettyApplicationEngine
+
     val logger = LoggerFactory.getLogger(WebEngine::class.java)
 
     fun start() {
+        engine = embeddedServer(Netty, applicationEngineEnvironment {
+            module {
+                main()
+            }
+
+            connector {
+                port = dotenv()["WEB_PORT"]!!.toInt()
+            }
+
+            val keyStoreFile = File(dotenv()["KEYSTORE_PATH"] ?: "")
+
+            if(keyStoreFile.exists()) {
+                val keystorePw = dotenv()["KEYSTORE_PASSWORD"]!!.toCharArray()
+                val keyStoreAlias = dotenv()["KEYSTORE_ALIAS"]!!
+
+                val keyStore = getInstance("JKS").apply {
+                    FileInputStream(keyStoreFile).use {
+                        load(it, keystorePw)
+                    }
+                }
+
+                sslConnector(
+                    keyStore = keyStore,
+                    keyAlias = keyStoreAlias,
+                    keyStorePassword = { keystorePw },
+                    privateKeyPassword = { keystorePw }) {
+                    port = 443
+                    keyStorePath = keyStoreFile
+                }
+
+                logger.info("WebEngine initialized with SSL")
+            } else {
+                logger.info("WebEngine initialized without SSL")
+            }
+            logger.info("Server deployed at " + dotenv()["WEB_URL"])
+        })
+
         thread {
-            embeddedServer(Netty, applicationEngineEnvironment {
-                module {
-                    main()
-                }
-
-                connector {
-                    port = dotenv()["WEB_PORT"]!!.toInt()
-                }
-
-                val keyStoreFile = File(dotenv()["KEYSTORE_PATH"] ?: "")
-
-                if(keyStoreFile.exists()) {
-                    val keystorePw = dotenv()["KEYSTORE_PASSWORD"]!!.toCharArray()
-                    val keyStoreAlias = dotenv()["KEYSTORE_ALIAS"]!!
-
-                    val keyStore = getInstance("JKS").apply {
-                        FileInputStream(keyStoreFile).use {
-                            load(it, keystorePw)
-                        }
-                    }
-
-                    sslConnector(
-                        keyStore = keyStore,
-                        keyAlias = keyStoreAlias,
-                        keyStorePassword = { keystorePw },
-                        privateKeyPassword = { keystorePw }) {
-                        port = 443
-                        keyStorePath = keyStoreFile
-                    }
-
-                    logger.info("WebEngine initialized with SSL")
-                } else {
-                    logger.info("WebEngine initialized without SSL")
-                }
-                logger.info("Server deployed at " + dotenv()["WEB_URL"])
-            }).start(wait = true)
+            engine.start(wait = true)
         }
+    }
+
+    fun stop() {
+        engine.stop(1000, 1000)
     }
 
     fun Application.main() {
