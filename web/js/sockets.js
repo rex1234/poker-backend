@@ -19,6 +19,7 @@ var messageShown = false;
 var switchedTab = false;
 var winningAnimationInProgress = false;
 var showedCards = 0;
+var currentSmallBlind;
 
 var timerBlinds = -1;
 var timerRebuys = -1;
@@ -67,6 +68,7 @@ socket.on('gameState', function (data) {
         $(".game-info").show();
 
         //show blinds and othe info
+        currentSmallBlind = data.smallBlind;
         $(".blinds-state .current").html(data.smallBlind + " / " + data.smallBlind*2);
         if($(window).width() > 1023) {
             $(".blinds-state .next").html(getNextSmallBlind(data.smallBlind) + " / " + getNextSmallBlind(data.smallBlind)*2);
