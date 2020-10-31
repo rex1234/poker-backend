@@ -185,9 +185,16 @@
         z-index: 2;
     }
 
-    #pot {
+    #total-pot {
         position: relative;
         top: 110px;
+        left: -54%;
+        font-size: 11px;
+    }
+
+    #pot {
+        position: relative;
+        top: 90px;
         left: -54%;
         font-size: 11px;
     }
@@ -200,7 +207,7 @@
         
     }
     #pot .stacks {
-        top: 0px;
+        top: -20px;
         left: 83px;
     }
 
