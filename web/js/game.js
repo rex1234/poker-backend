@@ -36,6 +36,7 @@ $( "#createGame button" ).click(function() {
             rebuyTime: Math.max(0, $("#lateReg").val() * 60),
             maxRebuys: Math.max(0, $("#rebuy").val())
         };
+        localStorage.setItem('gameConfig', JSON.stringify(gameConfig));
         createGame($('#userid-create').val(), gameConfig);
     } else {
         $("#create-err").html("Some of the fields do not have correct value.").show();
@@ -193,6 +194,7 @@ $(document).ready(function () {
     const gameUuid = localStorage.getItem('game_uuid');
     const playerUuid = localStorage.getItem('player_uuid');
     const playerNick = localStorage.getItem('nick');
+    const gameConfig = localStorage.getItem('gameConfig');
 
     // restore game
     if (gameUuid && playerUuid && playerNick) {
@@ -208,6 +210,21 @@ $(document).ready(function () {
         $('#userid-join').val(playerNick);
         joinInputValidated[0] = nameValidation('#userid-join', 1);
         createInputValidated[0] = nameValidation('#userid-create', 1);
+    }
+
+    if (gameConfig) {
+        try {
+            const parsedConfig = JSON.parse(gameConfig);
+            $('#startingChips').val(parsedConfig.startingChips);
+            $('#startingBlinds').val(parsedConfig.startingBlinds);
+            $('#blindIncreaseTime').val(parsedConfig.blindIncreaseTime / 60);
+            $('#playerMoveTime').val(parsedConfig.playerMoveTime);
+            $('#lateReg').val(parsedConfig.rebuyTime / 60);
+            $('#rebuy').val(parsedConfig.maxRebuys);
+        } catch (e) {
+            console.error(e);
+            console.error('Could not parse stored game config, default values will be used');
+        }
     }
 });
 
