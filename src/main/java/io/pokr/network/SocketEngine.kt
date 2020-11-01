@@ -48,6 +48,8 @@ class SocketEngine(
             port = dotenv()["SOCKETS_PORT"]!!.toInt()
             origin = dotenv()["WEB_URL"]!!
 
+            socketConfig.setReuseAddress(true)
+
             val keyStoreFile = File(dotenv()["KEYSTORE_PATH"] ?: "")
             if(keyStoreFile.exists()) {
                 keyStore = FileInputStream(keyStoreFile)
