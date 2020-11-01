@@ -190,24 +190,26 @@ function playerCountdown(start, playerPosition, limit) {
 }
 
 $(document).ready(function () {
+    const gameUuid = localStorage.getItem('game_uuid');
+    const playerUuid = localStorage.getItem('player_uuid');
+    const playerNick = localStorage.getItem('nick');
 
-        // restore game
-        if (Cookies.get('game_uuid') && Cookies.get('player_uuid')) {
-            $("#loader .wrapper .text").html("Reconnecting…");
-            $("#loader").show();
-            reconnected = true;
-            console.log("reconnecting to an existing game");
-            connectToGame(Cookies.get("nick"), Cookies.get("game_uuid"));
-        }
-
-        if(Cookies.get('nick')) {
-            $('#userid-create').val(Cookies.get("nick"));
-            $('#userid-join').val(Cookies.get("nick"));
-            joinInputValidated[0] = nameValidation('#userid-join', 1);
-            createInputValidated[0] = nameValidation('#userid-create', 1);
-        }
+    // restore game
+    if (gameUuid && playerUuid && playerNick) {
+        $("#loader .wrapper .text").html("Reconnecting…");
+        $("#loader").show();
+        reconnected = true;
+        console.log("reconnecting to an existing game");
+        connectToGame(playerNick, gameUuid);
     }
-);
+
+    if (playerNick) {
+        $('#userid-create').val(playerNick);
+        $('#userid-join').val(playerNick);
+        joinInputValidated[0] = nameValidation('#userid-join', 1);
+        createInputValidated[0] = nameValidation('#userid-create', 1);
+    }
+});
 
 
 //Copy code to clipboard
@@ -293,21 +295,21 @@ $('#foursuits:checkbox').change(function() {
    if ($(this).is(':checked')) {
        cardsSettings = "4c/";
        changeSuits(cardsSettings);
-       Cookies.set('suits', '4c/', { expires: 1000 });
+       localStorage.setItem('suits', '4c/');
    } else {
        cardsSettings = "";
        changeSuits(cardsSettings);
-       Cookies.set('suits', '', { expires: 1000 });
+       localStorage.removeItem('suits');
    }
 });
 
 $('#sound:checkbox').change(function() {
    if ($(this).is(':checked')) {
        soundOn = true;
-       Cookies.set('sound', 'on', { expires: 1000 });
+       localStorage.setItem('sound', true);
    } else {
        soundOn = false;
-       Cookies.set('sound', 'off', { expires: 1000 });
+       localStorage.removeItem('sound');
    }
 });
 

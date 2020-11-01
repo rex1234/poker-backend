@@ -33,9 +33,9 @@ var showCardsInProgress = false;
 // inbound events
 socket.on('gameState', function (data) {
     if(data.state !== "finished") {
-        Cookies.set('player_uuid', data.user.uuid, { expires: 1 });
-        Cookies.set('game_uuid', data.uuid, { expires: 1 });
-        Cookies.set('nick', data.user.name, { expires: 100 });
+        localStorage.setItem('player_uuid', data.user.uuid);
+        localStorage.setItem('game_uuid', data.uuid);
+        localStorage.setItem('nick', data.user.name);
     }
     initializeVars(data);
     //user is in game
@@ -155,8 +155,8 @@ socket.on('gameState', function (data) {
     if(data.state === "finished") {
         updateLeaderboard(data);
         showResults(data);
-        Cookies.remove('player_uuid');
-        Cookies.remove('game_uuid');
+        localStorage.removeItem('player_uuid');
+        localStorage.removeItem('game_uuid');
     }
 });
 
@@ -168,8 +168,8 @@ socket.on('error', function (data) {
     $("#loader").hide();
 
     if(data.code == 20 && $('#gameid').val().length > 0) { // invalid game UUID
-        Cookies.remove('player_uuid');
-        Cookies.remove('game_uuid');
+        localStorage.removeItem('player_uuid');
+        localStorage.removeItem('game_uuid');
         $('#gameid ~ .errmsginput').show();
         $('#gameid ~ .errmsginput').text('Invalid game ID.');
         $('#gameid').addClass('invalid');
@@ -189,14 +189,14 @@ socket.on('error', function (data) {
 });
 
 socket.on('gameDisbanded', function () {
-    Cookies.set('player_uuid', null);
+    localStorage.removeItem('player_uuid');
     print({msg: "game ended"});
 
     // TODO: show some end message, redirect back to the connection screen
 });
 
 socket.on('gameDisbanded', function () {
-    Cookies.set('player_uuid', null);
+    localStorage.removeItem('player_uuid');
     print({msg: "game ended"});
 
     // TODO: show some end message, redirect back to the connection screen
@@ -222,7 +222,7 @@ socket.on('chat', function (data) {
 function createGame(nickname, gameConfig) {
     socket.emit("connectGame", {
         name: nickname,
-        playerUUID: Cookies.get('player_uuid'),
+        playerUUID: localStorage.getItem('player_uuid'),
         gameConfig: gameConfig
     });
     ga('send', 'event', 'Action', 'Game created');
@@ -232,7 +232,7 @@ function connectToGame(nickname, gameUuid) {
     socket.emit("connectGame", {
         name: nickname,
         gameUUID: gameUuid,
-        playerUUID: Cookies.get('player_uuid')
+        playerUUID: localStorage.getItem('player_uuid')
     });
     ga('send', 'event', 'Action', 'Connected to game');
 }
@@ -254,17 +254,11 @@ function sendAction(action, numericValue = null, textValue = null) {
 function leave() {
     sendAction("leave");
 
-    Cookies.remove('game_uuid');
-    Cookies.remove('player_uuid');
-    Cookies.remove('io');
+    localStorage.removeItem('game_uuid');
+    localStorage.removeItem('player_uuid');
 
     ga('send', 'event', 'Action', 'Leave');
 
-    //$("#settings").show();
-    //$(".left-container").show();
-    //$("#main-screen").show();
-    //$(".game-container").hide();
-    //$(".pregame").hide();
     window.location.reload();
 }
 
@@ -1504,19 +1498,18 @@ function initializeVars(data) {
         showCardsInProgress = true;
     }
 
-    if(reconnected === true) {
-        cardsSettings = Cookies.get("suits");
-        if(typeof cardsSettings === "undefined") {
+    if (reconnected === true) {
+        cardsSettings = localStorage.getItem("suits");
+        if (!cardsSettings) {
             cardsSettings = "";
         }
-        if(cardsSettings === "4c/") {
+        if (cardsSettings === "4c/") {
             $("#foursuits:checkbox").prop("checked", true);
         } else {
             $("#foursuits:checkbox").prop("checked", false);
         }
 
-        var snd = Cookies.get("sound");
-        if(snd === "on") {
+        if (localStorage.getItem('sound')) {
             soundOn = true;
             $("#sound:checkbox").prop("checked", true);
         }
