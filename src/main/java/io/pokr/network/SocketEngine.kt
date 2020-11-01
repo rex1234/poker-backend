@@ -47,8 +47,7 @@ class SocketEngine(
             hostname = "0.0.0.0"
             port = dotenv()["SOCKETS_PORT"]!!.toInt()
             origin = dotenv()["WEB_URL"]!!
-
-            socketConfig.setReuseAddress(true)
+            socketConfig.isReuseAddress = true
 
             val keyStoreFile = File(dotenv()["KEYSTORE_PATH"] ?: "")
             if(keyStoreFile.exists()) {
