@@ -20,6 +20,7 @@ class GameData constructor(
     var allPlayers = mutableListOf<Player>()
     var targetBet = 0
     var previousStreetTargetBet = 0
+    var minRaiseTo = 0
     var smallBlind = 0
     var bigBlind = 0
     var nextBlinds = 0L
