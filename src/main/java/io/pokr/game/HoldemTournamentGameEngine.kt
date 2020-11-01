@@ -280,7 +280,10 @@ class HoldemTournamentGameEngine(
                     // or we will draw a card and reset actions
                     drawCards()
 
-                    gameData.previousStreetTargetBet = gameData.targetBet
+                    gameData.apply {
+                        previousStreetTargetBet = targetBet
+                        minRaiseTo = targetBet + bigBlind
+                    }
 
                     // non folded players will start with a NONE action next street
                     gameData.activePlayers.forEach {
