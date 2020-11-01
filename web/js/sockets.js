@@ -111,6 +111,7 @@ socket.on('gameState', function (data) {
     if(data.state === "finished") {
         $(".game-info").hide();
         $("#pot").hide();
+        $("#total-pot").hide();
         $(".all-text").html("What a beautiful game that was, too bad it's over.");
         $(".admin-text").hide();
         $("#start").hide();
@@ -139,6 +140,10 @@ socket.on('gameState', function (data) {
 
     printPlayers(data);
     print(data);
+
+    if (prevRoundState === 'finished') {
+        $('#pot').hide();
+    }
 
     showCardsInProgress = false;
     prevRoundState = data.roundState;
@@ -528,15 +533,15 @@ function printPlayers(data) {
     //display pot
     if(data.roundState === "finished") {
         pot = lastWinSum(data);
+        assignChipsImg(pot, "pot", data);
+    } else if (data.roundState === "active") {
+        var centerPot = pot - playerBets;
+        if (centerPot > 0) {
+            assignChipsImg(centerPot, "pot", data);
+        }
     }
 
     $("#total-pot").html("Pot: " + pot);
-
-    var centerPot = pot - playerBets;
-    if(centerPot > 0) {
-        assignChipsImg(centerPot, "pot", data);
-    }
-
 }
 
 function showControls(data) {
@@ -1363,6 +1368,7 @@ function assignChipsImg(chipcount, player, data) {
           if(player === "pot" && prevData.round !== data.round) {
                 $("#" + player + " .stack-1").html(""); $("#" + player + " .stack-2").html(""); $("#" + player + " .stack-3").html(""); $("#" + player + " .stack-4").html(""); $("#" + player + " .stack-5").html("");
           }
+          $("#pot").show();
           $("#pot .amount").html(chipcount);
     } else {
         if(chipcount <= 0) {
