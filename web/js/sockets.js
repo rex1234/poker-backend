@@ -195,13 +195,6 @@ socket.on('gameDisbanded', function () {
     // TODO: show some end message, redirect back to the connection screen
 });
 
-socket.on('gameDisbanded', function () {
-    localStorage.removeItem('player_uuid');
-    print({msg: "game ended"});
-
-    // TODO: show some end message, redirect back to the connection screen
-});
-
 socket.on('chat', function (data) {
     console.log(data);
 
