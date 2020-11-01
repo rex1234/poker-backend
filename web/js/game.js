@@ -29,10 +29,10 @@ $( "#createGame button" ).click(function() {
         $("#loader").show();
         loader.play();
         var gameConfig = {
-            startingChips: Math.max(1, $("#startingChips").val()),
+            startingChips: Math.max(100, $("#startingChips").val()),
             startingBlinds: Math.max(1, $("#startingBlinds").val()),
-            blindIncreaseTime: Math.max(1, $("#blindIncreaseTime").val() * 60),
-            playerMoveTime: Math.max(10, $("#playerMoveTime").val()),
+            blindIncreaseTime: Math.max(60, $("#blindIncreaseTime").val() * 60),
+            playerMoveTime: Math.max(5, $("#playerMoveTime").val()),
             rebuyTime: Math.max(0, $("#lateReg").val() * 60),
             maxRebuys: Math.max(0, $("#rebuy").val())
         };
