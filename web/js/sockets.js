@@ -541,7 +541,9 @@ function printPlayers(data) {
         }
     }
 
-    $("#total-pot").html("Pot: " + pot);
+    if (data.state === "active") {
+        $("#total-pot").html("Pot: " + pot);
+    }
 }
 
 function showControls(data) {
