@@ -29,13 +29,14 @@ $( "#createGame button" ).click(function() {
         $("#loader").show();
         loader.play();
         var gameConfig = {
-            startingChips: Math.max(1, $("#startingChips").val()),
+            startingChips: Math.max(100, $("#startingChips").val()),
             startingBlinds: Math.max(1, $("#startingBlinds").val()),
-            blindIncreaseTime: Math.max(1, $("#blindIncreaseTime").val() * 60),
-            playerMoveTime: Math.max(10, $("#playerMoveTime").val()),
+            blindIncreaseTime: Math.max(60, $("#blindIncreaseTime").val() * 60),
+            playerMoveTime: Math.max(5, $("#playerMoveTime").val()),
             rebuyTime: Math.max(0, $("#lateReg").val() * 60),
             maxRebuys: Math.max(0, $("#rebuy").val())
         };
+        localStorage.setItem('gameConfig', JSON.stringify(gameConfig));
         createGame($('#userid-create').val(), gameConfig);
     } else {
         $("#create-err").html("Some of the fields do not have correct value.").show();
@@ -190,24 +191,42 @@ function playerCountdown(start, playerPosition, limit) {
 }
 
 $(document).ready(function () {
+    const gameUuid = localStorage.getItem('game_uuid');
+    const playerUuid = localStorage.getItem('player_uuid');
+    const playerNick = localStorage.getItem('nick');
+    const gameConfig = localStorage.getItem('gameConfig');
 
-        // restore game
-        if (Cookies.get('game_uuid') && Cookies.get('player_uuid')) {
-            $("#loader .wrapper .text").html("Reconnecting…");
-            $("#loader").show();
-            reconnected = true;
-            console.log("reconnecting to an existing game");
-            connectToGame(Cookies.get("nick"), Cookies.get("game_uuid"));
-        }
+    // restore game
+    if (gameUuid && playerUuid && playerNick) {
+        $("#loader .wrapper .text").html("Reconnecting…");
+        $("#loader").show();
+        reconnected = true;
+        console.log("reconnecting to an existing game");
+        connectToGame(playerNick, gameUuid);
+    }
 
-        if(Cookies.get('nick')) {
-            $('#userid-create').val(Cookies.get("nick"));
-            $('#userid-join').val(Cookies.get("nick"));
-            joinInputValidated[0] = nameValidation('#userid-join', 1);
-            createInputValidated[0] = nameValidation('#userid-create', 1);
+    if (playerNick) {
+        $('#userid-create').val(playerNick);
+        $('#userid-join').val(playerNick);
+        joinInputValidated[0] = nameValidation('#userid-join', 1);
+        createInputValidated[0] = nameValidation('#userid-create', 1);
+    }
+
+    if (gameConfig) {
+        try {
+            const parsedConfig = JSON.parse(gameConfig);
+            $('#startingChips').val(parsedConfig.startingChips);
+            $('#startingBlinds').val(parsedConfig.startingBlinds);
+            $('#blindIncreaseTime').val(parsedConfig.blindIncreaseTime / 60);
+            $('#playerMoveTime').val(parsedConfig.playerMoveTime);
+            $('#lateReg').val(parsedConfig.rebuyTime / 60);
+            $('#rebuy').val(parsedConfig.maxRebuys);
+        } catch (e) {
+            console.error(e);
+            console.error('Could not parse stored game config, default values will be used');
         }
     }
-);
+});
 
 
 //Copy code to clipboard
@@ -293,21 +312,21 @@ $('#foursuits:checkbox').change(function() {
    if ($(this).is(':checked')) {
        cardsSettings = "4c/";
        changeSuits(cardsSettings);
-       Cookies.set('suits', '4c/', { expires: 1000 });
+       localStorage.setItem('suits', '4c/');
    } else {
        cardsSettings = "";
        changeSuits(cardsSettings);
-       Cookies.set('suits', '', { expires: 1000 });
+       localStorage.removeItem('suits');
    }
 });
 
 $('#sound:checkbox').change(function() {
    if ($(this).is(':checked')) {
        soundOn = true;
-       Cookies.set('sound', 'on', { expires: 1000 });
+       localStorage.setItem('sound', true);
    } else {
        soundOn = false;
-       Cookies.set('sound', 'off', { expires: 1000 });
+       localStorage.removeItem('sound');
    }
 });
 
