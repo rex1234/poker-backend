@@ -66,6 +66,8 @@ class GamePool {
             playerSessions.add(playerSession)
         }
 
+        gameSessions[gameUuid] = gameSession
+
         gameEngine.addPlayer(playerSession.uuid)
 
         logger.info("Added player ${playerSession.uuid} to ${gameSession.uuid}")
