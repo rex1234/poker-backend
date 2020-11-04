@@ -10,7 +10,6 @@ import io.pokr.network.requests.*
 import io.pokr.network.responses.*
 import org.slf4j.*
 import java.io.*
-import java.util.*
 
 /**
  * Class handling socket.io communication
@@ -95,6 +94,7 @@ class SocketEngine(
             // called when players connects to the server (after sending CONNECT event)
             addEventListener(Events.CONNECT.key, ConnectionRequest::class.java) { client, data, ackRequest ->
                 logger.info("{}", data)
+
                 if (data.gameUUID == null) {
                     if (data.gameConfig == null) {
                         throw GameException(30, "Missing game config param")
@@ -113,6 +113,7 @@ class SocketEngine(
 
             addEventListener(Events.ACTION.key, PlayerActionRequest::class.java) { client, data, ackRequest ->
                 logger.debug("{}", data)
+
                 PlayerAction.Action.values().firstOrNull { it.key == data.action }?.let { action ->
                     gamePool.executePlayerActionOnSession(
                         client.sessionId.toString(),
@@ -145,24 +146,26 @@ class SocketEngine(
             logger.info("socket.io server is running")
         }
 
-        gamePool.gameDisbandedListener = { sessions ->
-            server.allClients.filter {
-                it.sessionId.toString() in sessions.map { it.sessionId }
-            }.forEach {
-                it.sendEvent(Events.GAME_DISBANDED.key)
-            }
-        }
-
+        gamePool.gameDisbandedListener = this::sendGameDisbandedToPlayers
         gamePool.gameStateUpdatedListener = this::sendGameStateToPlayer
     }
 
     fun stop() {
-        server.stop();
+        server.stop()
+    }
+
+    private fun sendGameDisbandedToPlayers(playerSessionIds: List<String>) {
+        server.allClients.filter {
+            it.sessionId.toString() in playerSessionIds
+        }.forEach {
+            it.sendEvent(Events.GAME_DISBANDED.key)
+        }
+
     }
 
     private fun sendGameStateToPlayer(playerSessionId: String, gameState: GameResponse.GameState) {
         server.allClients.filter {
-            it.sessionId == UUID.fromString(playerSessionId)
+            it.sessionId.toString() == playerSessionId
         }.forEach {
             it.sendEvent(Events.GAME_STATE.key, gameState)
         }

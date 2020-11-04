@@ -103,17 +103,6 @@ class WebEngine(
                     get("log") {
                         call.respondFile(File("logs/pokrio.log"))
                     }
-
-                    get("games") {
-                        call.respondText(
-                            gamePool.gameSessions.map {
-                                "Game Session:" + it.uuid + "<br/> Players: <ul>" +
-                                        it.playerSessions.map {
-                                            "<li>" + gamePool.getGameDataForPlayerUuid(it.uuid).second.name + "</li>"
-                                        }.joinToString("") + "</ul>"
-                            }.joinToString("<hr>"), ContentType.parse("text/html")
-                        )
-                    }
                 }
             }
 
