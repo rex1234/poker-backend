@@ -1,5 +1,7 @@
 package io.pokr.network.model
 
+import io.pokr.game.*
+
 class GameSession(
     val uuid: String,
     val playerSessions: MutableList<PlayerSession> = mutableListOf(),

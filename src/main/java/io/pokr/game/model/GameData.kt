@@ -1,6 +1,6 @@
 package io.pokr.game.model
 
-class Game constructor(
+class GameData constructor(
     val uuid: String
 ) {
 

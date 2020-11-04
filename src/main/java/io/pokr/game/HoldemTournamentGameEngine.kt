@@ -9,13 +9,13 @@ import kotlin.math.*
 
 class HoldemTournamentGameEngine(
     gameUuid: String,
+    gameConfig: GameConfig,
     val updateStateListener: (HoldemTournamentGameEngine) -> Unit,
     val gameFinishedListener: (HoldemTournamentGameEngine) -> Unit,
     val playerKickedListener: (HoldemTournamentGameEngine, Player) -> Unit
 ) {
-    private val handComparator = HandComparator()
 
-    val game = Game(gameUuid)
+    private val handComparator = HandComparator()
 
     private val gameTimer = GameTimer {
         gameTick()
@@ -28,8 +28,11 @@ class HoldemTournamentGameEngine(
     // whether we the timer at the round's end is running
     private var isRoundEndThreadRunning = false
 
-    fun initGame(config: GameConfig) {
-        game.config = config
+    val game: GameData
+
+    init {
+        game = GameData(gameUuid)
+        game.config = gameConfig
     }
 
     fun addPlayer(playerUUID: String) {
@@ -37,7 +40,7 @@ class HoldemTournamentGameEngine(
             throw GameException(10, "Game is already full")
         }
 
-        if(game.gameState != Game.State.CREATED && !game.isLateRegistrationEnabled) {
+        if(game.gameState != GameData.State.CREATED && !game.isLateRegistrationEnabled) {
             throw GameException(11, "Late registration is not possible")
         }
 
@@ -51,7 +54,7 @@ class HoldemTournamentGameEngine(
             }
 
             // if we connect to an active game we set a player's rebuy flag to true and he will be added next round
-            if(game.gameState == Game.State.ACTIVE) {
+            if(game.gameState == GameData.State.ACTIVE) {
                 isFinished = true
                 isRebuyNextRound = true
             }
@@ -62,7 +65,7 @@ class HoldemTournamentGameEngine(
         // only admin can start a game
         applyOnAdminPlayer(playerUuid) {}
 
-        if(game.gameState != Game.State.CREATED) {
+        if(game.gameState != GameData.State.CREATED) {
             throw GameException(17, "Game already started")
         }
 
@@ -73,7 +76,7 @@ class HoldemTournamentGameEngine(
         logger.info("Game ${game.uuid} started")
 
         // set initial game state
-        game.gameState = Game.State.ACTIVE
+        game.gameState = GameData.State.ACTIVE
         game.gameStart = System.currentTimeMillis()
 
         game.smallBlind = game.config.startingBlinds
@@ -95,7 +98,7 @@ class HoldemTournamentGameEngine(
     }
 
     private fun startNewRound() {
-        if(game.gameState == Game.State.PAUSED) {
+        if(game.gameState == GameData.State.PAUSED) {
             return
         }
 
@@ -106,7 +109,7 @@ class HoldemTournamentGameEngine(
             cardStack = CardStack.create()
             targetBet = game.bigBlind
             previousTargetBet = 0
-            roundState = Game.RoundState.ACTIVE
+            roundState = GameData.RoundState.ACTIVE
             bestCards = null
             tableCards = CardList()
         }
@@ -186,7 +189,7 @@ class HoldemTournamentGameEngine(
     }
 
     fun nextPlayerMove(playerUuid: String, playerAction: PlayerAction) {
-        if(game.roundState != Game.RoundState.ACTIVE) {
+        if(game.roundState != GameData.RoundState.ACTIVE) {
             throw GameException(18, "Round is not in an active state")
         }
 
@@ -359,7 +362,7 @@ class HoldemTournamentGameEngine(
         }
 
         // switch to the FINISHED state, no actions and be performed anymore and the results of the round are shown
-        game.roundState = Game.RoundState.FINISHED
+        game.roundState = GameData.RoundState.FINISHED
 
         thread {
             // otherwise we will wait some time and start a new round
@@ -416,13 +419,13 @@ class HoldemTournamentGameEngine(
 
         gameTimer.stop()
 
-        game.gameState = Game.State.FINISHED
+        game.gameState = GameData.State.FINISHED
         updateStateListener(this)
         gameFinishedListener(this)
     }
 
     private fun gameTick() {
-        if(game.gameState == Game.State.PAUSED) {
+        if(game.gameState == GameData.State.PAUSED) {
             return
         }
 
@@ -470,7 +473,7 @@ class HoldemTournamentGameEngine(
     // automatically executes default action on player when he did not play in the time limit
     private fun checkCurrentPlayerMoveTimeLimit() {
         // we want to check player's time limits only when he is on move and the round is in active state
-        if(game.roundState != Game.RoundState.ACTIVE) {
+        if(game.roundState != GameData.RoundState.ACTIVE) {
             return
         }
 
@@ -523,6 +526,11 @@ class HoldemTournamentGameEngine(
             it.name = name
         }
 
+    fun playerConnected(playerUuid: String, isConnected: Boolean) =
+        applyOnPlayer(playerUuid) {
+            it.isConnected = isConnected
+        }
+
     fun leave(playerUuid: String) =
         applyOnPlayer(playerUuid) { kickedPlayer ->
             kickedPlayer.isLeaveNextRound = true
@@ -530,7 +538,7 @@ class HoldemTournamentGameEngine(
 
             playerKickedListener(this, kickedPlayer)
 
-            if(game.gameState == Game.State.CREATED) {
+            if(game.gameState == GameData.State.CREATED) {
                 if(game.allPlayers.size == 1) {
                     gameFinishedListener(this)
                 } else {
@@ -552,13 +560,13 @@ class HoldemTournamentGameEngine(
     fun pause(playerUuid: String, pause: Boolean) =
         applyOnAdminPlayer(playerUuid) {
             if (pause) {
-                if (game.gameState == Game.State.ACTIVE && game.roundState == Game.RoundState.FINISHED) {
+                if (game.gameState == GameData.State.ACTIVE && game.roundState == GameData.RoundState.FINISHED) {
                     game.pause(true)
                 } else {
                     throw GameException(15, "Game can be paused only when a round is finished")
                 }
             } else {
-                if (game.gameState == Game.State.PAUSED) {
+                if (game.gameState == GameData.State.PAUSED) {
                     if(!isRoundEndThreadRunning) {
                         game.pause(false)
                         startNewRound()
