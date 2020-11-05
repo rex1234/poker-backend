@@ -53,6 +53,11 @@ $('#start').on('click', function () {
     startGame();
 });
 
+$('.reactions img').click(function () {
+    console.log("Reacting with: " + $(this).data("react-id"));
+    sendReaction($(this).data("react-id"));
+});
+
 $('#fold').on('click', gameFold);
 $('#call').on('click', gameCall);
 $('#check').on('click', gameCheck);

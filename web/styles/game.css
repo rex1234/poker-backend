@@ -1801,3 +1801,18 @@ button.betsizes.last {
 .last-hand-icon {
     fill: none;
 }
+
+/* chat and reacts */
+
+.reactions img {
+    height: 45px;
+    width: 45px;
+}
+
+.react {
+    background-size: cover;
+    background-position: center;
+    height: 100%;
+    width: 100%;
+    opacity: 0;
+}

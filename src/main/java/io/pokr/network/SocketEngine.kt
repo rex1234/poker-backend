@@ -2,6 +2,7 @@ package io.pokr.network
 
 import com.corundumstudio.socketio.*
 import io.netty.channel.*
+import io.pokr.chat.model.*
 import io.pokr.config.*
 import io.pokr.game.exceptions.*
 import io.pokr.game.model.*
@@ -139,7 +140,7 @@ class SocketEngine(
             }
 
             addEventListener(Events.CHAT_MESSAGE.key, ChatRequest::class.java) { client, data, ackRequest ->
-                gamePool.sendChatMessage(client.sessionId.toString(), data.message, data.isFlash)
+                gamePool.createChatMessage(client.sessionId.toString(), data.message, data.isFlash)
             }
 
             addDisconnectListener { client ->
@@ -152,6 +153,7 @@ class SocketEngine(
 
         gamePool.gameDisbandedListener = this::sendGameDisbandedToPlayers
         gamePool.gameStateUpdatedListener = this::sendGameStateToPlayer
+        gamePool.sendChatMessageListener = this::sendChatMessageToPlayer
     }
 
     fun stop() {
@@ -175,21 +177,13 @@ class SocketEngine(
         }
     }
 
-    /**
-     * Sends message to all players in a game session
-     */
-//    private fun sendMessage(client: SocketIOClient, message: String, flash: Boolean) {
-//        gamePool.getGroupSessions(client.sessionId.toString()).forEach { playerSession ->
-//            server.allClients.filter { it.sessionId == UUID.fromString(playerSession.sessionId) }.forEach {
-//                val playerData = gamePool.getGameDataForPlayerUuid(playerSession.uuid).second
-//                it.sendEvent(Events.CHAT_MESSAGE.key, ChatResponse(
-//                    StringEscapeUtils.escapeHtml4(playerData.name),
-//                    playerData.index.toString(),
-//                    System.currentTimeMillis(),
-//                    StringEscapeUtils.escapeHtml4(message),
-//                    flash
-//                ))
-//            }
-//        }
-//    }
+    private fun sendChatMessageToPlayer(playerSessionId: String, chatMessage: ChatResponse) {
+        server.allClients.filter {
+            it.sessionId.toString() == playerSessionId
+        }.forEach {
+            it.sendEvent(
+                Events.CHAT_MESSAGE.key, chatMessage
+            )
+        }
+    }
 }

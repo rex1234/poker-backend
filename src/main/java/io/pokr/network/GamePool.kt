@@ -1,6 +1,8 @@
 package io.pokr.network
 
 import io.pokr.database.*
+import io.pokr.chat.*
+import io.pokr.chat.model.*
 import io.pokr.game.*
 import io.pokr.game.exceptions.*
 import io.pokr.game.model.*
@@ -28,9 +30,14 @@ class GamePool {
     var gameDisbandedListener: ((playerSessionIds: List<String>) -> Unit)? = null
 
     /**
-     * Called when game state should be sent to connected clients
+     * Called when game state should be sent to a connected client
      */
     var gameStateUpdatedListener: ((playerSession: String, gameState: GameResponse.GameState) -> Unit)? = null
+
+    /**
+     * Called when a chat message should be sent to a connected client
+     */
+    var sendChatMessageListener: ((playerSession: String, chatMessage: ChatResponse) -> Unit)? = null
 
     init {
         serializationManager.restoreState(this)
@@ -192,9 +199,23 @@ class GamePool {
     /**
      * Sends given message to all other players in the same GameSession
      */
-    fun sendChatMessage(playerSessionId: String, message: String, isFlash: Boolean) =
+    fun createChatMessage(playerSessionId: String, text: String, isFlash: Boolean) =
         getGameSessionByPlayerSession(playerSessionId)?.let {
-            notifyPlayers(it.uuid) // TODO: send chat message
+            if (isFlash && !ChatEngine.isValidReaction(text)) {
+                throw GameException(30, "Invalid react")
+            }
+
+            val playerSession = it.playerSessions.first { it.sessionId == playerSessionId }
+
+            val chatMessage = ChatMessage(
+                from = it.gameEngine.gameData.allPlayers.first {
+                    it.uuid == playerSession.uuid
+                }.uuid,
+                text = text,
+                isFlash = isFlash
+            )
+
+            sendChatMessage(it.uuid, chatMessage)
         }
 
     /**
@@ -261,6 +282,25 @@ class GamePool {
                 gameStateUpdatedListener?.invoke(
                     it.sessionId,
                     GameResponse.GameStateFactory.from(gameSession.gameEngine.gameData, it.uuid)
+                )
+            }
+        }
+    }
+
+    /**
+     * Sends chat message to all players in a GameSession with given gameUuid
+     */
+    fun sendChatMessage(gameUuid: String, chatMessage: ChatMessage) {
+        gameSessions[gameUuid]?.let { gameSession ->
+            gameSession.playerSessions.forEach {
+                sendChatMessageListener?.invoke(
+                    it.sessionId,
+                    ChatResponseFactory.fromChatMessage(
+                        gameSession.gameEngine.gameData.allPlayers.first {
+                            it.uuid == chatMessage.from
+                        },
+                        chatMessage
+                    )
                 )
             }
         }

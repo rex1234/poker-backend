@@ -10,6 +10,7 @@ import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.thymeleaf.*
+import io.pokr.chat.*
 import io.pokr.config.*
 import org.slf4j.*
 import org.thymeleaf.templateresolver.*
@@ -124,6 +125,7 @@ class WebEngine(
                 call.respond(ThymeleafContent("game.html", mapOf(
                     "socketsPort" to PokrioConfig.socketsPort,
                     "version" to PokrioConfig.version,
+                    "reactions" to ChatEngine.validReactions,
                 )))
             }
 

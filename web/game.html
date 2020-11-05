@@ -39,13 +39,13 @@
         (function (i, s, o, g, r, a, m) {
             i['GoogleAnalyticsObject'] = r;
             i[r] = i[r] || function () {
-                (i[r].q = i[r].q || []).push(arguments)
+                (i[r].q = i[r].q || []).push(arguments);
             }, i[r].l = 1 * new Date();
             a = s.createElement(o),
                 m = s.getElementsByTagName(o)[0];
             a.async = 1;
             a.src = g;
-            m.parentNode.insertBefore(a, m)
+            m.parentNode.insertBefore(a, m);
         })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
 
         ga('create', 'UA-168945535-1\n', 'auto');
@@ -175,6 +175,7 @@
         </div>
         <div class="players">
             <div id="player1">
+                <div class="react"></div>
                 <div class="dealer">D</div>
                 <div class="bet">
                     <div class="stacks">
@@ -206,6 +207,7 @@
                 <div class="glow-box"></div>
             </div>
             <div id="player2" class="seatopen">
+                <div class="react"></div>
                 <div class="dealer">D</div>
                 <div class="bet">
                     <div class="stacks">
@@ -236,6 +238,7 @@
                 </div>
             </div>
             <div id="player3" class="seatopen">
+                <div class="react"></div>
                 <div class="dealer">D</div>
                 <div class="bet">
                     <div class="stacks">
@@ -266,6 +269,7 @@
                 </div>
             </div>
             <div id="player4" class="seatopen">
+                <div class="react"></div>
                 <div class="dealer">D</div>
                 <div class="bet">
                     <div class="stacks">
@@ -296,6 +300,7 @@
                 </div>
             </div>
             <div id="player5" class="seatopen">
+                <div class="react"></div>
                 <div class="dealer">D</div>
                 <div class="bet">
                     <div class="stacks">
@@ -326,6 +331,7 @@
                 </div>
             </div>
             <div id="player6" class="seatopen">
+                <div class="react"></div>
                 <div class="dealer">D</div>
                 <div class="bet">
                     <div class="stacks">
@@ -356,6 +362,7 @@
                 </div>
             </div>
             <div id="player7" class="seatopen">
+                <div class="react"></div>
                 <div class="dealer">D</div>
                 <div class="bet">
                     <div class="stacks">
@@ -386,6 +393,7 @@
                 </div>
             </div>
             <div id="player8" class="seatopen">
+                <div class="react"></div>
                 <div class="dealer">D</div>
                 <div class="bet">
                     <div class="stacks">
@@ -416,6 +424,7 @@
                 </div>
             </div>
             <div id="player9" class="seatopen">
+                <div class="react"></div>
                 <div class="dealer">D</div>
                 <div class="bet">
                     <div class="stacks">
@@ -485,8 +494,7 @@
             <button id="additional" class="disabled"></button>
             <button id="rebuy-btn" class="disabled">Rebuy</button>
             <div id="rebuyMsg" style="display:none;"></div>
-            <button id="check" class="disabled">Check</button>
-            <!-- <button id="sad-react">Sad react</button> -->
+            <button id="check" onclick="gameCheck()" class="disabled">Check</button>
             <button id="raise" type="submit" class="disabled"></button>
 
             <div class="raise-slider disabled">
@@ -609,6 +617,14 @@
                 </svg>
                 <div>Menu</div>
             </button>
+        </div>
+
+        <div class="reactions">
+            <table>
+                <tr th:each="react: ${reactions}">
+                    <img th:src="'img/reacts/'+ ${react} + '.svg'" th:data-react-id="${react}"/>
+                </tr>
+            </table>
         </div>
     </div>
 </div>
