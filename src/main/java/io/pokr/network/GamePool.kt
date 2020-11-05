@@ -4,6 +4,7 @@ import io.pokr.game.*
 import io.pokr.game.exceptions.*
 import io.pokr.game.model.*
 import io.pokr.network.model.*
+import io.pokr.network.responses.*
 import io.pokr.network.util.*
 import org.slf4j.*
 
@@ -12,75 +13,73 @@ import org.slf4j.*
  */
 class GamePool {
 
-    val gameSessions: MutableList<GameSession> = mutableListOf()
-    val gameEngines = mutableMapOf<GameSession, HoldemTournamentGameEngine>()
+    val logger = LoggerFactory.getLogger(GamePool::class.java)
+    val gameSessions = mutableMapOf<String, GameSession>()
 
     /**
      * Called when a game should be discarded
      */
-    var gameDisbandedListener: ((List<PlayerSession>) -> Unit)? = null
+    var gameDisbandedListener: ((playerSessionIds: List<String>) -> Unit)? = null
 
     /**
-     * Called when game state should by synced
+     * Called when game state should be sent to connected clients
      */
-    var updateStateListener: ((List<PlayerSession>) -> Unit)? = null
-
-    val logger = LoggerFactory.getLogger(GamePool::class.java)
+    var gameStateUpdatedListener: ((playerSession: String, gameState: GameResponse.GameState) -> Unit)? = null
 
     /**
      * Created a new game game discarding any previous games with the same UUID (should not happen outside of debugging).
      * It contains the starting player as an admin.
      */
-    fun createGame(gameConfig: GameConfig, session: String, playerName: String) {
+    fun createGame(gameConfig: GameConfig, playerSessionId: String, playerName: String) {
 
-        if(!gameConfig.isValid) {
+        if (!gameConfig.isValid) {
             throw GameException(1, "Invalid gameConfig")
         }
 
-        val playerSession = PlayerSession(session, TokenGenerator.nextPlayerToken())
+        val playerSession = PlayerSession(playerSessionId, TokenGenerator.nextPlayerToken())
 
-        val gameSession = GameSession(TokenGenerator.nextGameToken()).apply {
+        val gameUuid = TokenGenerator.nextGameToken()
+
+        // clear previous session, if any
+        discardGame(gameUuid)
+
+        logger.info("Created game session: ${gameUuid}")
+
+        val gameEngine = HoldemTournamentGameEngine(
+            gameUuid = gameUuid,
+            gameConfig = gameConfig,
+
+            updateStateListener = {
+                notifyPlayers(it.gameData.uuid)
+            },
+
+            gameFinishedListener = {
+                discardGame(it.gameData.uuid)
+            },
+
+            playerKickedListener = { gameEngine, player ->
+                removePlayerSession(gameEngine.gameData.uuid, player.uuid)
+            }
+        )
+
+        val gameSession = GameSession(gameUuid, gameEngine).apply {
             playerSessions.add(playerSession)
         }
 
-        //clear previous session, if any
-        discardGame(gameSession.uuid)
+        gameSessions[gameUuid] = gameSession
 
-        gameSessions.add(gameSession)
-
-        logger.info("Created game session: ${gameSession.uuid}")
-
-        gameEngines[gameSession] =
-            HoldemTournamentGameEngine(
-                gameUuid = gameSession.uuid,
-                updateStateListener = { gameEngine ->
-                    updateStateListener?.invoke(gameSession.playerSessions)
-                },
-                gameFinishedListener = {
-                    discardGame(it.game.uuid)
-                },
-                playerKickedListener = { gameEngine, player ->
-                    gameSession.playerSessions.removeIf {
-                        if(it.uuid == player.uuid) {
-                            logger.debug("Player ${it.uuid} removed from game session ${gameSession.uuid}")
-                            true
-                        } else {
-                            false
-                        }
-                    }
-                }
-            ).apply {
-                initGame(gameConfig)
-            }
-
-        gameEngines[gameSession]!!.addPlayer(playerSession.uuid)
+        gameEngine.addPlayer(playerSession.uuid)
 
         logger.info("Added player ${playerSession.uuid} to ${gameSession.uuid}")
 
-        executePlayerAction(playerSession.uuid, PlayerAction(
-            action = PlayerAction.Action.CHANGE_NAME,
-            textValue = playerName
-        ))
+        executePlayerAction(
+            playerSession.uuid, PlayerAction(
+                action = PlayerAction.Action.CHANGE_NAME,
+                textValue = playerName
+            )
+        )
+
+        notifyPlayers(gameSession.uuid)
     }
 
     /**
@@ -88,125 +87,168 @@ class GamePool {
      * If playerUUID is given it will try to reconnect a player to a previous session
      */
     fun connectToGame(
-        session: String,
+        playerSessionId: String,
         gameUuid: String,
         playerUuid: String?,
         playerName: String
     ) {
-        gameSessions.firstOrNull { it.uuid == gameUuid }?.let { gameSession ->
-            if(playerName.length > 10 || playerName.length == 0) {
+        gameSessions[gameUuid]?.let { gameSession ->
+            if (playerName.length > 10 || playerName.length == 0) {
                 throw GameException(7, "Invalid name")
             }
 
-            val playerSession = gameSession.playerSessions.firstOrNull { it.uuid == playerUuid }?.also {
-                it.sessionId = session
-            } ?: PlayerSession(session, TokenGenerator.nextPlayerToken()).also {
+            val playerSession = gameSession.playerSessions.firstOrNull {
+                it.uuid == playerUuid
+            }?.also {
+                it.sessionId = playerSessionId
+            } ?: PlayerSession(playerSessionId, TokenGenerator.nextPlayerToken()).also {
                 gameSession.playerSessions.add(it)
-                gameEngines[gameSession]!!.addPlayer(it.uuid)
+                gameSession.gameEngine.addPlayer(it.uuid)
             }
 
             logger.info("Added player ${playerName} to ${gameSession.uuid}")
 
-            getGameDataForPlayerUuid(playerSession.uuid).second.isConnected = true
+            gameSession.gameEngine.playerConnected(playerSession.uuid, true)
 
-            executePlayerAction(playerSession.uuid,
+            executePlayerAction(
+                playerSession.uuid,
                 PlayerAction(
                     action = PlayerAction.Action.CHANGE_NAME,
                     textValue = playerName
                 )
             )
+
+            notifyPlayers(gameUuid)
         } ?: throw GameException(20, "Invalid game UUID")
+    }
+
+    /**
+     * Sets connected flag to false for a player with given session
+     */
+    fun playerDisconnected(playerSessionId: String) {
+        getGameSessionByPlayerSession(playerSessionId)?.let { gameSession ->
+            val playerUuid = gameSession.playerSessions.first {
+                it.sessionId == playerSessionId
+            }.uuid
+
+            gameSession.gameEngine.playerConnected(playerUuid, false)
+
+            notifyPlayers(gameSession.uuid)
+        }
     }
 
     /**
      * Discards all associated games and player sessions for a game with given gameUUID
      */
     fun discardGame(gameUuid: String) {
-        gameSessions.filter { it.uuid == gameUuid }.forEach {
-            gameDisbandedListener?.invoke(it.playerSessions)
-            it.playerSessions.clear()
-            gameEngines.remove(it)
-            gameSessions.remove(it)
+        gameSessions[gameUuid]?.let {
+            gameDisbandedListener?.invoke(it.playerSessions.map { it.sessionId })
+            gameSessions.remove(it.uuid)
 
             logger.info("Game session ${it.uuid} discarded")
         }
     }
 
     /**
-     * Sets connected flag to false for a player with given session
+     * Executes a command on a player with given session
      */
-    fun playerDisconnected(session: String) {
-        gameSessions.map { it.playerSessions }.flatten().firstOrNull { it.sessionId == session }?.uuid?.let {
-            getGameDataForPlayerUuid(it).second.isConnected = false
+    fun executePlayerActionOnSession(playerSessionId: String, action: PlayerAction) {
+        val gameSession = getGameSessionByPlayerSession(playerSessionId)
+            ?: throw GameException(21, "No such player in any game session")
+
+        val playerSession = gameSession.playerSessions.first {
+            it.sessionId == playerSessionId
         }
+
+        executePlayerAction(playerSession.uuid, action)
+        notifyPlayers(gameSession.uuid)
     }
 
     /**
-     * Executes a command on a player with given session
+     * Requests current game state for all connected players
      */
-    fun executePlayerActionOnSession(session: String, action: PlayerAction) {
-        val gameSession = gameSessions.firstOrNull { session in it.playerSessions.map { it.sessionId } }
-            ?: throw GameException(21, "No such player in any game session")
+    fun requestGameState(playerSessionId: String) =
+        getGameSessionByPlayerSession(playerSessionId)?.let {
+            notifyPlayers(it.uuid)
+        }
 
-        val playerSession = gameSession.playerSessions.first { it.sessionId == session }
-
-        executePlayerAction(playerSession.uuid, action)
-    }
+    /**
+     * Sends given message to all other players in the same GameSession
+     */
+    fun sendChatMessage(playerSessionId: String, message: String, isFlash: Boolean) =
+        getGameSessionByPlayerSession(playerSessionId)?.let {
+            notifyPlayers(it.uuid) // TODO: send chat message
+        }
 
     /**
      * Executes a command on a player with given playerUUID
      */
-    fun executePlayerAction(playerUuid: String, action: PlayerAction) {
-        val gameSession = gameSessions.firstOrNull { playerUuid in it.playerSessions.map { it.uuid } }
+    private fun executePlayerAction(playerUuid: String, action: PlayerAction) {
+        val gameSession = getGameSessionByPlayerUuid(playerUuid)
             ?: throw GameException(21, "No such player in any game session")
 
-        val playerSession = gameSession.playerSessions.first { it.uuid == playerUuid }
+        val gameEngine = gameSession.gameEngine
 
-        val gameEngine = gameEngines[gameSession]!!
-
-        val player = gameEngine.game.allPlayers.firstOrNull { it.uuid == playerSession.uuid }
+        val player = gameEngine.gameData.allPlayers.firstOrNull { it.uuid == playerUuid }
         logger.debug("Executing action {$action} on player ${player?.name} [${gameSession.uuid}]")
 
-        when(action.action) {
+        when (action.action) {
             PlayerAction.Action.CHANGE_NAME ->
-                gameEngine.changeName(playerSession.uuid, action.textValue!!)
+                gameEngine.changeName(playerUuid, action.textValue!!)
             PlayerAction.Action.START_GAME ->
-                gameEngine.startGame(playerSession.uuid)
+                gameEngine.startGame(playerUuid)
             PlayerAction.Action.SHOW_CARDS ->
-                gameEngine.showCards(playerSession.uuid)
+                gameEngine.showCards(playerUuid)
             PlayerAction.Action.KICK ->
-                gameEngine.kickPlayer(playerSession.uuid, action.numericValue!!)
+                gameEngine.kickPlayer(playerUuid, action.numericValue!!)
             PlayerAction.Action.LEAVE ->
-                gameEngine.leave(playerSession.uuid)
+                gameEngine.leave(playerUuid)
             PlayerAction.Action.DISCARD_GAME ->
                 null // TODO
             PlayerAction.Action.REBUY ->
                 gameEngine.rebuy(playerUuid)
             PlayerAction.Action.PAUSE ->
-                gameEngine.pause(playerSession.uuid, action.numericValue == 1)
+                gameEngine.pause(playerUuid, action.numericValue == 1)
             else ->
-                gameEngine.nextPlayerMove(playerSession.uuid, action)
+                gameEngine.nextPlayerMove(playerUuid, action)
         }
     }
 
-    // TODO refactor
     /**
-     * Returns sessions of all other players in the same game as the session player
+     * Sends current game state to all players in a GameSession with given gameUuid
      */
-    fun getGroupSessions(session: String) =
-        gameSessions.firstOrNull { session in it.playerSessions.map { it.sessionId } }?.playerSessions
-            ?: listOf<PlayerSession>()
-
-    /**
-     * Returns Player and Game instances for a player with given uuid
-     */
-    fun getGameDataForPlayerUuid(playerUuid: String): Pair<Game, Player> {
-        val gameSession = gameSessions.first { playerUuid in it.playerSessions.map { it.uuid } }
-        val playerSession = gameSession.playerSessions.first { it.uuid == playerUuid}
-
-        val game = gameEngines[gameSession]!!.game
-        val player = game.allPlayers.first { it.uuid == playerSession.uuid }
-
-        return Pair(game, player)
+    private fun notifyPlayers(gameUuid: String) {
+        gameSessions[gameUuid]?.let { gameSession ->
+            gameSession.playerSessions.forEach {
+                gameStateUpdatedListener?.invoke(
+                    it.sessionId,
+                    GameResponse.GameStateFactory.from(gameSession.gameEngine.gameData, it.uuid)
+                )
+            }
+        }
     }
+
+    /**
+     * Removes player from their player GameSession
+     */
+    private fun removePlayerSession(gameUuid: String, playerUuid: String) {
+        gameSessions[gameUuid]?.playerSessions?.removeIf {
+            if (it.uuid == playerUuid) {
+                logger.debug("Player $playerUuid removed from game session ${gameUuid}")
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+    private fun getGameSessionByPlayerSession(playerSessionId: String) =
+        gameSessions.values.firstOrNull {
+            playerSessionId in it.playerSessions.map { it.sessionId }
+        }
+
+    private fun getGameSessionByPlayerUuid(playerUuid: String) =
+        gameSessions.values.firstOrNull {
+            playerUuid in it.playerSessions.map { it.uuid }
+        }
 }
