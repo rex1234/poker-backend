@@ -50,7 +50,7 @@ body {
     position: absolute;
 }
 
-.players>div {
+.players > div {
     position: absolute;
     width: 159px;
     height: 105px;
@@ -68,7 +68,7 @@ body {
     border-radius: 6px;
     background-color: #0F2E4B;
     border: 2px solid #0F2E4B;
-    transition: box-shadow 1s ease, border 1s ease; 
+    transition: box-shadow 1s ease, border 1s ease;
 }
 
 .folded .info-box, .finished .info-box {
@@ -116,9 +116,9 @@ body {
 }
 
 .onMove.ractive .info-box {
-border: 2px solid #363CFF;
-box-shadow: 0px 0px 30px #2F06FC;
-transition: box-shadow 0.3s ease;
+    border: 2px solid #363CFF;
+    box-shadow: 0px 0px 30px #2F06FC;
+    transition: box-shadow 0.3s ease;
 }
 
 .rfinished.onMove .info-box, .fold .info-box, #player1.fold .glow-box, #player1 .info-box {
@@ -127,19 +127,19 @@ transition: box-shadow 0.3s ease;
 
 .glow-box {
     position: absolute;
-        z-index: -10;
-        top: 60px;
-        width: 100%;
-        height: 60px;
-        -webkit-border-radius: 6px;
-        -moz-border-radius: 6px;
-        border-radius: 6px;
-        background-color: #061727;
+    z-index: -10;
+    top: 60px;
+    width: 100%;
+    height: 60px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    background-color: #061727;
 }
 
 .onMove.ractive .glow-box {
-box-shadow: 0px 0px 30px #2F06FC;
-transition: box-shadow 0.3s ease;
+    box-shadow: 0px 0px 30px #2F06FC;
+    transition: box-shadow 0.3s ease;
 }
 
 .player-name {
@@ -180,7 +180,7 @@ transition: box-shadow 0.3s ease;
 
 .created .info-box {
     background-color: #0F2E4B;
-     border: none;
+    border: none;
 }
 
 .created .player-name {
@@ -256,11 +256,11 @@ transition: box-shadow 0.3s ease;
 }
 
 
-.onMove .card-1, .onMove .card-2  {
+.onMove .card-1, .onMove .card-2 {
     background-color: #ffffff;
 }
 
-#player1 .card-1, #player1 .card-2  {
+#player1 .card-1, #player1 .card-2 {
     top: -40px;
     background-color: #ffffff;
 }
@@ -282,8 +282,8 @@ transition: box-shadow 0.3s ease;
     border-color: #0F2E4B;
 }
 
-.fold .player-chips, .fold .player-name{
- color: #1D4871;
+.fold .player-chips, .fold .player-name {
+    color: #1D4871;
 }
 
 #player1.fold .card-1, #player1.fold .card-2 {
@@ -502,26 +502,61 @@ transition: box-shadow 0.3s ease;
     visibility: visible;
 }
 
-#player1 .dealer { left: -25px; top: 0px;}
-#player2 .dealer { left: 208px; top: 10px;}
-#player3 .dealer { left: 208px; top: 94px;}
-#player4 .dealer { left: 175px; top: 150px;}
-#player5 .dealer { left: 20px; top: 155px;}
-#player6 .dealer { left: 114px; top: 155px;}
-#player7 .dealer { left: -32px; top: 150px;}
-#player8 .dealer { left: -74px; top: 94px;}
-#player9 .dealer { left: -64px; top: 10px;}
+#player1 .dealer {
+    left: -25px;
+    top: 0px;
+}
+
+#player2 .dealer {
+    left: 208px;
+    top: 10px;
+}
+
+#player3 .dealer {
+    left: 208px;
+    top: 94px;
+}
+
+#player4 .dealer {
+    left: 175px;
+    top: 150px;
+}
+
+#player5 .dealer {
+    left: 20px;
+    top: 155px;
+}
+
+#player6 .dealer {
+    left: 114px;
+    top: 155px;
+}
+
+#player7 .dealer {
+    left: -32px;
+    top: 150px;
+}
+
+#player8 .dealer {
+    left: -74px;
+    top: 94px;
+}
+
+#player9 .dealer {
+    left: -64px;
+    top: 10px;
+}
 
 
 .active .card-1, .active .card-2 {
     background-image: url("../img/cards/not-active.svg");
 }
 
-.onMove .card-1, .onMove .card-2  {
+.onMove .card-1, .onMove .card-2 {
     background-image: url("../img/cards/active.svg");
 }
 
-.controls button, #start  {
+.controls button, #start {
     position: absolute;
     width: 92px;
     height: 49px;
@@ -544,27 +579,27 @@ transition: box-shadow 0.3s ease;
 }
 
 .controls button:active, #start:active {
-    background-color:#2500DC;
+    background-color: #2500DC;
     box-shadow: 0px 2px 15px #2F06FC;
 }
 
 #start {
-   width: 200px;
-   left: 194px;
-   top: 130px;
-     -webkit-transition: all 0.6s ease;
-     -moz-transition: all 0.6s ease;
-     -o-transition: all 0.6s ease;
-     transition: all 0.6s ease;
+    width: 200px;
+    left: 194px;
+    top: 130px;
+    -webkit-transition: all 0.6s ease;
+    -moz-transition: all 0.6s ease;
+    -o-transition: all 0.6s ease;
+    transition: all 0.6s ease;
 }
 
 .pregame {
-   position: relative;
-   z-index: 5;
-   width: 600px;
-   text-align: center;
-   top: 206px;
-   left: 220px;
+    position: relative;
+    z-index: 5;
+    width: 600px;
+    text-align: center;
+    top: 206px;
+    left: 220px;
 }
 
 .pregame .all-text {
@@ -633,37 +668,37 @@ transition: box-shadow 0.3s ease;
 
 
 input[type=range] {
-  -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
-  width: 100%; /* Specific width is required for Firefox. */
-  background: transparent; /* Otherwise white in Chrome */
-  display: block;
-  -moz-border-radius: 2px;
-  -webkit-border-radius: 2px;
-  border-radius: 2px;
+    -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+    width: 100%; /* Specific width is required for Firefox. */
+    background: transparent; /* Otherwise white in Chrome */
+    display: block;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
 }
 
 input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none;
+    -webkit-appearance: none;
 }
 
 input[type=range]:focus {
-  outline: none; /* Removes the blue border. You should probably do some kind of focus styling for accessibility reasons though. */
+    outline: none; /* Removes the blue border. You should probably do some kind of focus styling for accessibility reasons though. */
 }
 
 input[type=range]::-ms-track {
-  width: 100%;
-  cursor: pointer;
+    width: 100%;
+    cursor: pointer;
 
-  /* Hides the slider so custom styles can be added */
-  background: transparent;
-  border-color: transparent;
-  color: transparent;
+    /* Hides the slider so custom styles can be added */
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
 }
 
 
 #range-slider {
-  background: #ffffff;
-  position: relative;
+    background: #ffffff;
+    position: relative;
     height: 2px;
     width: 100%;
     -moz-border-radius: 2px;
@@ -673,45 +708,45 @@ input[type=range]::-ms-track {
 }
 
 input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  background: #2F06FC;
-  cursor: pointer;
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  -moz-border-radius: 50%;
-  -webkit-border-radius: 50%;
-  border-radius: 50%;
+    -webkit-appearance: none;
+    background: #2F06FC;
+    cursor: pointer;
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
 }
 
 input[type=range]::-moz-range-thumb {
-  -webkit-appearance: none;
-  background: #2F06FC;
-  cursor: pointer;
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  -moz-border-radius: 50%;
-  -webkit-border-radius: 50%;
-  border-radius: 50%;
+    -webkit-appearance: none;
+    background: #2F06FC;
+    cursor: pointer;
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
 }
 
 input[type=range]::-ms-thumb {
-  -webkit-appearance: none;
-  background: #2F06FC;
-  cursor: pointer;
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  -moz-border-radius: 50%;
-  -webkit-border-radius: 50%;
-  border-radius: 50%;
+    -webkit-appearance: none;
+    background: #2F06FC;
+    cursor: pointer;
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
 }
 
 #input[type=range]::-webkit-slider-thumb:hover {
-  background-color: #363CFF;
-  cursor: pointer;
-  box-shadow: 0px 4px 30px #2F06FC;
+    background-color: #363CFF;
+    cursor: pointer;
+    box-shadow: 0px 4px 30px #2F06FC;
 }
 
 .raise-input {
@@ -732,13 +767,13 @@ input[type=range]::-ms-thumb {
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 /* Firefox */
 input[type=number] {
-  -moz-appearance: textfield;
+    -moz-appearance: textfield;
 }
 
 
@@ -778,7 +813,7 @@ h1 {
     text-align: left;
     font-size: 20px;
     line-height: 28px;
-    font-weight: normal;    
+    font-weight: normal;
 }
 
 #settings {
@@ -791,7 +826,7 @@ h1 {
     padding-top: 120px;
 }
 
-#settings>div {
+#settings > div {
     text-align: center;
 }
 
@@ -855,12 +890,12 @@ h1 {
 }
 
 #settings label {
-    background-color:#0F2E4B;
+    background-color: #0F2E4B;
     padding: 0 6px;
 }
 
 #settings .input-main {
-    width: 200px;    
+    width: 200px;
     padding-right: 4px;
 }
 
@@ -894,15 +929,15 @@ h1 {
     transition: all 0.6s ease;
 }
 
-#settings .input-main.clicked input{
+#settings .input-main.clicked input {
     border-color: #ffffff;
 }
 
-#settings .input-main:hover input{
+#settings .input-main:hover input {
     border-color: #ffffff;
 }
 
-#settings .input-main.clicked .label{
+#settings .input-main.clicked .label {
     color: #ffffff;
 }
 
@@ -942,7 +977,7 @@ h1 {
 }
 
 #settings button:active {
-    background-color:#2500DC;
+    background-color: #2500DC;
     box-shadow: 0px 2px 15px #2F06FC;
 }
 
@@ -1000,30 +1035,30 @@ button.betsizes {
 }
 
 button.betsizes.first {
-  -moz-border-radius: 6px 0 0 0;
-  -webkit-border-radius: 6px 0 0 0;
-  border-radius: 6px 0 0 0;
+    -moz-border-radius: 6px 0 0 0;
+    -webkit-border-radius: 6px 0 0 0;
+    border-radius: 6px 0 0 0;
 }
 
 button.betsizes.second {
-  -moz-border-radius: 0;
-  -webkit-border-radius: 0;
-  border-radius: 0;
+    -moz-border-radius: 0;
+    -webkit-border-radius: 0;
+    border-radius: 0;
     left: 63px;
 }
 
 button.betsizes.third {
-  -moz-border-radius: 0;
-  -webkit-border-radius: 0;
-  border-radius: 0;
+    -moz-border-radius: 0;
+    -webkit-border-radius: 0;
+    border-radius: 0;
     left: 126px;
 }
 
 button.betsizes.last {
-  left: 189px;
-  -moz-border-radius: 0 6px 0 0;
-  -webkit-border-radius: 0 6px 0 0;
-  border-radius: 0 6px 0 0;
+    left: 189px;
+    -moz-border-radius: 0 6px 0 0;
+    -webkit-border-radius: 0 6px 0 0;
+    border-radius: 0 6px 0 0;
 }
 
 
@@ -1043,14 +1078,14 @@ button.betsizes.last {
 }
 
 .autoactions input {
-	-webkit-appearance: none;
-	background-color: #061727;
-	border: 2px solid #7D98B2;
-	padding: 9px;
+    -webkit-appearance: none;
+    background-color: #061727;
+    border: 2px solid #7D98B2;
+    padding: 9px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
     border-radius: 3px;
-	display: inline-block;
+    display: inline-block;
     position: relative;
     margin-bottom: -6px;
     outline: none;
@@ -1076,12 +1111,12 @@ button.betsizes.last {
 }
 
 .autoactions input:checked:after {
-	content: '\2714';
-	font-size: 16px;
-	position: absolute;
-	top: -2px;
-	left: 3px;
-	color: #ffffff;
+    content: '\2714';
+    font-size: 16px;
+    position: absolute;
+    top: -2px;
+    left: 3px;
+    color: #ffffff;
 }
 
 #loader {
@@ -1125,8 +1160,8 @@ button.betsizes.last {
 
 /*blind info */
 .game-info {
-margin-top: 174px;
-margin-left: 18px;
+    margin-top: 174px;
+    margin-left: 18px;
 }
 
 .level-time span {
@@ -1156,25 +1191,25 @@ margin-left: 18px;
 }
 
 #copyButton {
-  -moz-border-radius: 6px;
-  -webkit-border-radius: 6px;
-  border-radius: 6px;
-  height: 30px;
-  background-color: #1D4871;
-  font-family: 'Public Sans', sans-serif;
-  font-size: 16px;
-  color: #ffffff;
-  padding: 0;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  padding: 0 20px;
-  margin-top: 7px;
-  margin-bottom: 30px;
-  -webkit-transition: all 0.2s ease;
-  -moz-transition: all 0.2s ease;
-  -o-transition: all 0.2s ease;
-  transition: all 0.2s ease;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    height: 30px;
+    background-color: #1D4871;
+    font-family: 'Public Sans', sans-serif;
+    font-size: 16px;
+    color: #ffffff;
+    padding: 0;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 0 20px;
+    margin-top: 7px;
+    margin-bottom: 30px;
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    -o-transition: all 0.2s ease;
+    transition: all 0.2s ease;
 }
 
 #copyButton:hover {
@@ -1213,35 +1248,41 @@ margin-left: 18px;
 }
 
 .notransition {
-  -webkit-transition: none !important;
-  -moz-transition: none !important;
-  -o-transition: none !important;
-  transition: none !important;
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -o-transition: none !important;
+    transition: none !important;
 }
 
 /* chips and stacks */
 
 .stacks {
-  margin-top: 16px;
-  position: absolute;
+    margin-top: 16px;
+    position: absolute;
 }
+
 .stack-1, .stack-2, .stack-3, .stack-4, .stack-5 {
     position: absolute;
     height: 30px;
     top: 0px;
 }
+
 .stack-1 {
     left: 40px;
 }
+
 .stack-2 {
     left: 30px;
 }
+
 .stack-3 {
     left: 20px;
 }
+
 .stack-4 {
     left: 10px;
 }
+
 .chip {
     width: 8px;
     height: 8px;
@@ -1369,17 +1410,17 @@ margin-left: 18px;
     height: 100%;
     width: 300px;
     margin-right: -300px;
-    position: fixed; 
-    z-index: 1; 
-    top: 0; 
+    position: fixed;
+    z-index: 1;
+    top: 0;
     right: 0;
-    background-color: #FBF4EC; 
+    background-color: #FBF4EC;
     overflow-x: hidden; /* Disable horizontal scroll */
     transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
-  }
-    
-  /* Position and style the close button (top right corner) */
-  #sidenav .closebtn {
+}
+
+/* Position and style the close button (top right corner) */
+#sidenav .closebtn {
     position: absolute;
     top: 22px;
     right: 25px;
@@ -1393,17 +1434,17 @@ margin-left: 18px;
     -webkit-border-radius: 6px;
     -moz-border-radius: 6px;
     border-radius: 6px;
-  }
+}
 
-  #sidenav .closebtn:hover {
+#sidenav .closebtn:hover {
     background-color: #F4E3D0;
-  }
+}
 
-  #main {
+#main {
     transition: margin-right .5s;
-  }
+}
 
-  .openbtn {
+.openbtn {
     position: fixed;
     top: 20px;
     right: 20px;
@@ -1428,29 +1469,30 @@ margin-left: 18px;
     -o-transition: all 0.2s ease;
     transition: all 0.2s ease;
     display: flex;
-  }
+}
 
-  .game-menu button svg {
-      fill: #7D98B2;
-      -webkit-transition: all 0.2s ease;
-      -moz-transition: all 0.2s ease;
-      -o-transition: all 0.2s ease;
-      transition: all 0.2s ease;
-      margin: 0 6px 0 -3px;
-  }
+.game-menu button svg {
+    fill: #7D98B2;
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    -o-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    margin: 0 6px 0 -3px;
+}
 
-  .game-menu button div {
+.game-menu button div {
     margin-top: 3px;
-  }
-  
-  .game-menu button:hover {
-      background-color: #3E6488;
-      color: #ffffff;
-  }
+}
 
-  .game-menu button:hover svg {
+.game-menu button:hover {
+    background-color: #3E6488;
+    color: #ffffff;
+}
+
+.game-menu button:hover svg {
     fill: #ffffff;
 }
+
 #sidenav .content {
     padding: 20px;
 }
@@ -1583,14 +1625,14 @@ margin-left: 18px;
 }
 
 .game-controls input {
-	-webkit-appearance: none;
-	background-color: transparent;
-	border: 2px solid #EED3B5;
-	padding: 9px;
+    -webkit-appearance: none;
+    background-color: transparent;
+    border: 2px solid #EED3B5;
+    padding: 9px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
     border-radius: 3px;
-	display: inline-block;
+    display: inline-block;
     position: relative;
     margin-bottom: -6px;
     outline: none;
@@ -1616,12 +1658,12 @@ margin-left: 18px;
 }
 
 .game-controls input:checked:after {
-	content: '\2714';
-	font-size: 16px;
-	position: absolute;
-	top: -2px;
-	left: 3px;
-	color: #ffffff;
+    content: '\2714';
+    font-size: 16px;
+    position: absolute;
+    top: -2px;
+    left: 3px;
+    color: #ffffff;
 }
 
 .lh-dealt {
@@ -1662,7 +1704,7 @@ margin-left: 18px;
     -moz-border-radius: 50%;
     -webkit-border-radius: 50%;
     border-radius: 50%;
-    background-color: #00CF75;    
+    background-color: #00CF75;
 }
 
 .errmsg {
