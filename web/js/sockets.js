@@ -170,10 +170,22 @@ socket.on('error', function (data) {
     if(data.code == 20 && $('#gameid').val().length > 0) { // invalid game UUID
         localStorage.removeItem('player_uuid');
         localStorage.removeItem('game_uuid');
+        joinInputValidated[1] = false;
         $('#gameid ~ .errmsginput').show();
         $('#gameid ~ .errmsginput').text('Invalid game ID.');
         $('#gameid').addClass('invalid');
         $('#join-err').html('Some of the fields do not have correct value.').show();
+    }
+
+    if (data.code === 7) {
+        joinInputValidated[0] = false;
+        createInputValidated[0] = false;
+        $('#userid-create ~ .errmsginput').text('Invalid name.').show();
+        $('#userid-join ~ .errmsginput').text('Invalid name.').show();
+        $('#userid-create').addClass('invalid');
+        $('#userid-join').addClass('invalid');
+        $('#join-err').html('Some of the fields do not have correct value.').show();
+        $('#create-err').html('Some of the fields do not have correct value.').show();
     }
 
     if(data.code == 10) {

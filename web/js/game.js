@@ -113,11 +113,13 @@ $(document).ready(function(){
 });
 
 $('#userid-join').change(function() {
-      $('#userid-create').val($(this).val());
+    $('#userid-create').val($(this).val());
+    createInputValidated[0] = nameValidation('#userid-create', 1);
 });
 
 $('#userid-create').change(function() {
-      $('#userid-join').val($(this).val());
+    $('#userid-join').val($(this).val());
+    joinInputValidated[0] = nameValidation('#userid-join', 2);
 });
 
 
@@ -425,38 +427,39 @@ $(document).ready(function(){
 
 function nameValidation(obj, elem) {
     var regexname= /[^a-zA-ZÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËèéêëÇçÌÍÎÏìíîïÙÚÛÜŮùúûüůÿÑñčČřŘšŠěĚďĎľĽňŇťŤžŽ0-9.:%!?@#^$&*(),+|\\\/_=\- ]/;
-    if(elem === 1) {
+
+    if (elem === 1) {
         $("#userid-create").val($(obj).val());
     } else {
         $("#userid-join").val($(obj).val());
     }
-    if($(obj).val().length < 1) {
-         $(obj + ' ~ .errmsginput').show();
-         $(obj + ' ~ .errmsginput').html("The name has to be at least one character long.");
-         $(obj).addClass("invalid");
-         return false;
+
+    const markInvalid = (errMsg) => {
+        $(obj + ' ~ .errmsginput').show();
+        $(obj + ' ~ .errmsginput').html(errMsg);
+        $(obj).addClass("invalid");
+    }
+
+    if ($(obj).val().length < 1) {
+        markInvalid("The name has to be at least one character long.");
+        return false;
+    } else if ($(obj).val().length > 10) {
+        markInvalid("The name is too long (10 chars max).");
+        return false;
     } else if ($(obj).val().match(regexname)) {
-          // there is a mismatch, hence show the error message
-          $(obj + ' ~ .errmsginput').show();
-          $(obj).addClass("invalid");
-          if(obj.val().length > 9) {
-             $(obj + ' ~ .errmsginput').html("The name is too long (10 chars max).");
-             return false;
-          } else {
-             $(obj + ' ~ .errmsginput').html("The name contains illegal characters.");
-             return false;
-          }
+        markInvalid("The name contains illegal characters.");
+        return false;
     } else {
-         // else, do not display message
-         $('#join-id-err').hide();
-         $('#join-id-err').html("");
-         $('#create-id-err').hide();
-         $('#create-id-err').html("");
-         $("#userid-join").removeClass("invalid");
-         $("#userid-create").removeClass("invalid");
-         $("#create-err").hide();
-         $("#join-err").hide();
-         return true;
+        // else, do not display message
+        $('#join-id-err').hide();
+        $('#join-id-err').html("");
+        $('#create-id-err').hide();
+        $('#create-id-err').html("");
+        $("#userid-join").removeClass("invalid");
+        $("#userid-create").removeClass("invalid");
+        $("#create-err").hide();
+        $("#join-err").hide();
+        return true;
     }
 }
 
