@@ -1731,3 +1731,7 @@ margin-left: 18px;
 #settings .invalid {
     border-color: #FF5500 !important;
 }
+
+.last-hand-icon {
+    fill: none;
+}
