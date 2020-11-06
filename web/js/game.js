@@ -240,7 +240,7 @@ $('#copyButton').click(function () {
 
 function copyToClipboard(elem) {
     let target;
-// create hidden text element, if it doesn't already exist
+    // create hidden text element, if it doesn't already exist
     const targetId = '_hiddenCopyText_';
     const isInput = elem.tagName === 'INPUT' || elem.tagName === 'TEXTAREA';
     let origSelectionStart, origSelectionEnd;
@@ -300,7 +300,6 @@ function openNav() {
 }
 
 function closeNav() {
-
     document.getElementById('sidenav').style.marginRight = '-300px';
     if ($(window).width() >= 1024) {
         document.getElementById('main').style.marginRight = '0';
