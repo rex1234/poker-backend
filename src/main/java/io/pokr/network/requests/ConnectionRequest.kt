@@ -7,5 +7,5 @@ data class ConnectionRequest @ConstructorProperties("gameUUID", "playerUUID", "n
     val gameUUID: String?,
     val playerUUID: String?,
     val name: String,
-    val gameConfig: GameConfig?
+    val gameConfig: GameConfig?,
 )

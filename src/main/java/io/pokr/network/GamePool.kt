@@ -13,7 +13,8 @@ import org.slf4j.*
  */
 class GamePool {
 
-    val logger = LoggerFactory.getLogger(GamePool::class.java)
+    private val logger = LoggerFactory.getLogger(GamePool::class.java)
+
     val gameSessions = mutableMapOf<String, GameSession>()
 
     /**
@@ -90,7 +91,7 @@ class GamePool {
         playerSessionId: String,
         gameUuid: String,
         playerUuid: String?,
-        playerName: String
+        playerName: String,
     ) {
         gameSessions[gameUuid]?.let { gameSession ->
             if (playerName.length > 10 || playerName.length == 0) {

@@ -4,10 +4,10 @@ import io.pokr.network.*
 import org.slf4j.*
 
 class ClearGamesJob(
-    val gamePool: GamePool
-): CronJob(3600 * 1000) {
+    private val gamePool: GamePool,
+) : CronJob(3600 * 1000) {
 
-    val logger = LoggerFactory.getLogger(ClearGamesJob::class.java)
+    private val logger = LoggerFactory.getLogger(ClearGamesJob::class.java)
 
     override fun execute() {
         gamePool.gameSessions.values.filter {

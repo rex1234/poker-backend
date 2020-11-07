@@ -10,18 +10,12 @@ import kotlin.system.*
 lateinit var socketEngine: SocketEngine
 lateinit var webEngine: WebEngine
 
-fun handleExit() {
-    socketEngine.stop()
-    webEngine.stop()
-    exitProcess(0)
-}
-
 fun main() {
     val logger = LoggerFactory.getLogger("Pokrio")
 
     logger.info("Starting Pokrio server. Current commit: " + BuildConfig.LAST_COMMIT)
 
-    if(!File(".env").exists()) {
+    if (!File(".env").exists()) {
         logger.error(".env file not found")
         throw Exception(".env file not found")
     }
@@ -44,4 +38,10 @@ fun main() {
     Signal.handle(Signal("TERM")) {
         handleExit()
     }
+}
+
+fun handleExit() {
+    socketEngine.stop()
+    webEngine.stop()
+    exitProcess(0)
 }

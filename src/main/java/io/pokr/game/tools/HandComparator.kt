@@ -29,7 +29,8 @@ class HandComparator {
             get() = cards.groupBy { it.color }.count() == 1
 
         val CardList.hasStraight
-            get() = cards.sortedBy { it.value }.zipWithNext { a, b -> b.value.ordinal - a.value.ordinal }.all { it == 1 } ||
+            get() = cards.sortedBy { it.value }.zipWithNext { a, b -> b.value.ordinal - a.value.ordinal }
+                .all { it == 1 } ||
                     hasStraighWithA
 
         val CardList.hasStraighWithA
@@ -52,7 +53,7 @@ class HandComparator {
 
     enum class Hand(
         val handName: String,
-        val evalFunction: (CardList) -> Boolean
+        val evalFunction: (CardList) -> Boolean,
     ) {
         HIGH("High card", { true }),
         PAIR("Pair", { it.hasPair }),
@@ -62,14 +63,14 @@ class HandComparator {
         FLUSH("Flush", { it.hasFlush }),
         FULL_HOUSE("Full house", { it.hasFullHouse }),
         FOUR_KIND("Four of a kind", { it.hasFourKind }),
-        STRAIGHT_FLUSH("Straight flush", { it.hasStraightFlush })
+        STRAIGHT_FLUSH("Straight flush", { it.hasStraightFlush }),
     }
 
     class PlayerHandComparisonResult(
         var rank: Int,
         var player: Player,
         var hand: Hand? = null,
-        var bestCards: Pair<CardList, CardList>? = null
+        var bestCards: Pair<CardList, CardList>? = null,
     )
 
     fun findHighestHand(cardList: CardList) =

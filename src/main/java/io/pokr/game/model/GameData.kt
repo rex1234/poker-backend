@@ -1,19 +1,19 @@
 package io.pokr.game.model
 
 class GameData constructor(
-    val uuid: String
+    val uuid: String,
 ) {
 
     enum class RoundState {
         ACTIVE,
-        FINISHED
+        FINISHED,
     }
 
     enum class State {
         CREATED,
         ACTIVE,
         PAUSED,
-        FINISHED
+        FINISHED,
     }
 
     var gameState: State = State.CREATED
@@ -65,7 +65,7 @@ class GameData constructor(
 
     fun nextActivePlayerFrom(player: Player) =
         (players + players).run {
-            for(i in indexOf(player) + 1 until size) {
+            for (i in indexOf(player) + 1 until size) {
                 if (get(i) in activePlayers) {
                     return@run get(i)
                 }
@@ -74,7 +74,7 @@ class GameData constructor(
         }
 
     fun pause(pause: Boolean) {
-        if(pause) {
+        if (pause) {
             gameState = State.PAUSED
             pauseStart = System.currentTimeMillis()
         } else {

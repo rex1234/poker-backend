@@ -15,11 +15,11 @@ import java.io.*
  * Class handling socket.io communication
  */
 class SocketEngine(
-    val gamePool: GamePool
+    private val gamePool: GamePool,
 ) {
 
     enum class Events(
-        val key: String
+        val key: String,
     ) {
         // inbound
         ACTION("action"),

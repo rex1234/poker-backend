@@ -3,7 +3,7 @@ package io.pokr.game.tools
 import kotlin.concurrent.*
 
 class GameTimer(
-    val tickListener: () -> Unit
+    val tickListener: () -> Unit,
 ) {
 
     var running = false
@@ -12,7 +12,7 @@ class GameTimer(
         running = true
         thread {
             while (true) {
-                if(!running) {
+                if (!running) {
                     return@thread
                 }
 

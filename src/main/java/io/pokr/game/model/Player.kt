@@ -6,8 +6,9 @@ import io.pokr.game.tools.*
  * Class containing player data (uuid, name) and his state in the game (cards, chips, etc.)
  */
 class Player(
-    val uuid: String
+    val uuid: String,
 ) {
+
     var index: Int = 0 // player's position on the table
     var name: String = "Nameless"
     var isAdmin = false

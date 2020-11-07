@@ -3,10 +3,11 @@ package io.pokr.game.model
 data class PlayerAction(
     val action: Action,
     val numericValue: Int? = null,
-    val textValue: String? = null
+    val textValue: String? = null,
 ) {
+
     enum class Action(
-        val key: String
+        val key: String,
     ) {
 
         // game actions
@@ -26,6 +27,6 @@ data class PlayerAction(
         DISCARD_GAME("discardGame"),
         KICK("kickPlayer"),
         PAUSE("pause"),
-        START_GAME("startGame")
+        START_GAME("startGame"),
     }
 }

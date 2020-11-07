@@ -1,11 +1,9 @@
 package io.pokr.network
 
-
 import io.github.cdimascio.dotenv.*
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.features.*
-import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.response.*
 import io.ktor.routing.*
@@ -17,8 +15,9 @@ import java.security.KeyStore.*
 import kotlin.concurrent.*
 
 class WebEngine(
-    val gamePool: GamePool
+    private val gamePool: GamePool,
 ) {
+
     lateinit var engine: NettyApplicationEngine
 
     val logger = LoggerFactory.getLogger(WebEngine::class.java)
@@ -35,7 +34,7 @@ class WebEngine(
 
             val keyStoreFile = File(dotenv()["KEYSTORE_PATH"] ?: "")
 
-            if(keyStoreFile.exists()) {
+            if (keyStoreFile.exists()) {
                 val keystorePw = dotenv()["KEYSTORE_PASSWORD"]!!.toCharArray()
                 val keyStoreAlias = dotenv()["KEYSTORE_ALIAS"]!!
 
@@ -71,7 +70,7 @@ class WebEngine(
     }
 
     fun Application.main() {
-        if(File(dotenv()["KEYSTORE_PATH"] ?: "").exists()) {
+        if (File(dotenv()["KEYSTORE_PATH"] ?: "").exists()) {
             install(HttpsRedirect)
         }
 

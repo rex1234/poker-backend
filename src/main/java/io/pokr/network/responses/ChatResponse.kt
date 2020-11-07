@@ -5,5 +5,5 @@ class ChatResponse(
     val index: String,
     val time: Long,
     val message: String,
-    val flash: Boolean = false
+    val flash: Boolean = false,
 )

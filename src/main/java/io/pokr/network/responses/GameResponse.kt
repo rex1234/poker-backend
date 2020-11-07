@@ -4,7 +4,7 @@ import io.pokr.game.model.*
 import org.apache.commons.text.*
 
 class GameResponse(
-    val game: GameState
+    val game: GameState,
 ) {
 
     class GameState(
@@ -25,7 +25,7 @@ class GameResponse(
         val bigBlind: Int,
         val targetBet: Int,
         var previousTargetBet: Int,
-        val isLateRegistrationEnabled: Boolean
+        val isLateRegistrationEnabled: Boolean,
     )
 
     class PlayerState(
@@ -48,7 +48,7 @@ class GameResponse(
         val rebuyCount: Int,
         val lastWin: Int,
         val isWinner: Boolean,
-        val finalRank: Int
+        val finalRank: Int,
     )
 
     class GameStateFactory {
@@ -57,7 +57,7 @@ class GameResponse(
 
             fun from(
                 game: GameData,
-                currentPlayerUuid: String
+                currentPlayerUuid: String,
             ) = GameState(
                 time = System.currentTimeMillis(),
                 uuid = game.uuid,

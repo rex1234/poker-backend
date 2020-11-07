@@ -12,7 +12,7 @@ class HoldemTournamentGameEngine(
     gameConfig: GameConfig,
     val updateStateListener: (HoldemTournamentGameEngine) -> Unit,
     val gameFinishedListener: (HoldemTournamentGameEngine) -> Unit,
-    val playerKickedListener: (HoldemTournamentGameEngine, Player) -> Unit
+    val playerKickedListener: (HoldemTournamentGameEngine, Player) -> Unit,
 ) {
 
     private val handComparator = HandComparator()
@@ -25,6 +25,7 @@ class HoldemTournamentGameEngine(
 
     // extra time that is added after round finishes so that the animations can be performed
     private var extraRoundTime = 0L
+
     // whether we the timer at the round's end is running
     private var isRoundEndThreadRunning = false
 

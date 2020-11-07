@@ -5,7 +5,7 @@ package io.pokr.game.model
  * the string contains pairs of letters(card val, card color).
  */
 class CardList(
-    val cards: List<Card> = mutableListOf()
+    val cards: List<Card> = mutableListOf(),
 ) {
 
     companion object {
