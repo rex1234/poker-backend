@@ -1,5 +1,6 @@
 package io.pokr.config
 
+import io.pokr.*
 import io.github.cdimascio.dotenv.*
 import java.io.*
 
@@ -7,6 +8,9 @@ object PokrioConfig {
 
     fun exists() =
         File(".env").exists()
+
+    val version
+        get() = BuildConfig.LAST_COMMIT
 
     val webUrl
         get() = dotenv()["WEB_URL"]!!

@@ -5,7 +5,6 @@ import io.pokr.jobs.*
 import io.pokr.network.*
 import org.slf4j.*
 import sun.misc.*
-import java.io.*
 import kotlin.system.*
 
 lateinit var socketEngine: SocketEngine
@@ -14,7 +13,7 @@ lateinit var webEngine: WebEngine
 fun main() {
     val logger = LoggerFactory.getLogger("Pokrio")
 
-    logger.info("Starting Pokrio server. Current commit: " + BuildConfig.LAST_COMMIT)
+    logger.info("Starting Pokrio server. Current commit: " + PokrioConfig.version)
 
     if (!PokrioConfig.exists()) {
         logger.error(".env file not found")

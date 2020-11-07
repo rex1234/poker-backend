@@ -10,6 +10,10 @@
     <meta name="version" content="0.9.0">
     <link rel="icon" href="img/favicon.ico" type="image/x-icon"/>
     <title>Calling Station Poker Home Games</title>
+    <script th:inline="javascript">
+        var socketsPort = [[${socketsPort}]];
+        var gameVersion = [[${version}]];
+    </script>
     <script src="lib/jquery-3.4.1.min.js"></script>
     <script src="lib/socket.io.js"></script>
     <script src="js/sockets.js"></script>

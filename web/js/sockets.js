@@ -1,4 +1,4 @@
-const socket = io.connect(location.protocol + '//' + window.location.hostname + ':9092');
+const socket = io.connect(location.protocol + '//' + window.location.hostname + ':' + socketsPort);
 
 //reconnection variable
 let reconnected = false;

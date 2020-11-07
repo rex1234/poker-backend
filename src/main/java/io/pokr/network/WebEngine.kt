@@ -90,9 +90,9 @@ class WebEngine(
         }
 
         install(Thymeleaf) {
-            setTemplateResolver(ClassLoaderTemplateResolver().apply {
-                prefix = "web/js"
-                suffix = ".js"
+            setTemplateResolver(FileTemplateResolver().apply {
+                prefix = "web/"
+                suffix = ".html"
             })
         }
 
@@ -114,15 +114,15 @@ class WebEngine(
                 }
             }
 
-            static {
-                files("web")
-                file("/", "web/game.html")
+            get("/") {
+                call.respond(ThymeleafContent("game.html", mapOf(
+                    "socketsPort" to PokrioConfig.socketsPort,
+                    "version" to PokrioConfig.version,
+                )))
             }
 
-            get("web/js/sockets.js") {
-                call.respond(ThymeleafContent("web/js/sockets.js", mapOf(
-                    "socketsPort" to PokrioConfig.socketsPort))
-                )
+            static {
+                files("web")
             }
         }
 
