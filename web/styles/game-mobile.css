@@ -1,8 +1,8 @@
-@media only screen and (max-width: 1023px)  {
+@media only screen and (max-width: 1023px) {
 
     html, body {
         overflow-x: hidden;
-      }
+    }
 
     body {
         position: relative;
@@ -12,7 +12,6 @@
     }
 
     /* Landing page*/
-
     .left-container .content {
         margin: 40px 40px 0 40px;
         margin-top: 80px;
@@ -49,6 +48,7 @@
     .pregame {
         width: 100%;
     }
+
     .table {
         width: 94px;
         height: 237px;
@@ -83,10 +83,10 @@
     .glow-box {
         width: 104px;
         top: 38px;
-        height: 46px;  
+        height: 46px;
         -webkit-border-radius: 2px;
         -moz-border-radius: 2px;
-        border-radius: 2px;  
+        border-radius: 2px;
     }
 
     .card-crop {
@@ -101,7 +101,7 @@
         visibility: visible;
         height: 28px;
     }
-    
+
     .cards {
         position: absolute;
         width: 73px;
@@ -114,10 +114,11 @@
         padding-top: 0;
     }
 
-    .players>div {
+    .players > div {
         position: relative;
         width: 104px;
     }
+
     .players {
         left: 50%;
         height: 420px;
@@ -172,7 +173,7 @@
         left: 50%;
         z-index: -1;
     }
-    
+
     #player8 {
         top: -580px;
         left: 50%;
@@ -204,8 +205,9 @@
         height: 4px;
         border: none;
         margin-bottom: -6px;
-        
+
     }
+
     #pot .stacks {
         top: -20px;
         left: 83px;
@@ -231,19 +233,23 @@
     .dealt-cards-1 {
         left: 0;
     }
+
     .dealt-cards-2 {
         left: 31px;
     }
+
     .dealt-cards-3 {
         left: 62px;
     }
+
     .dealt-cards-4 {
         left: 93px;
-        
+
     }
+
     .dealt-cards-5 {
         left: 124px;
-        
+
     }
 
     .stack-1 {
@@ -253,12 +259,15 @@
     .stack-2 {
         left: 12px;
     }
+
     .stack-3 {
         left: 8px;
     }
+
     .stack-4 {
         left: 4px;
     }
+
     .stack-5 {
         left: 0px;
     }
@@ -270,7 +279,7 @@
         right: 5px;
     }
 
-    .openbtn>div {
+    .openbtn > div {
         display: none;
     }
 
@@ -283,41 +292,49 @@
         height: 11px;
         font-size: 10px;
         line-height: 11.5px;
-    
+
     }
 
     #player1 .dealer {
         left: 25px;
         top: -6px;
     }
+
     #player2 .dealer {
         left: 112px;
         top: 28px;
     }
+
     #player3 .dealer {
         left: 112px;
         top: 28px;
     }
+
     #player4 .dealer {
         left: 112px;
         top: 72px;
     }
+
     #player5 .dealer {
         left: 90px;
         top: 103px;
     }
+
     #player6 .dealer {
         left: 16px;
         top: 102px;
     }
+
     #player7 .dealer {
         left: -15px;
         top: 64px;
     }
+
     #player8 .dealer {
         left: -19px;
         top: 70px;
     }
+
     #player9 .dealer {
         left: -24px;
         top: 48px;
@@ -370,9 +387,9 @@
         text-align: left;
         top: 80px;
         left: 127px;
-    
+
     }
-    
+
     #player5 .amount {
         margin: -15px 0 0 24px;
     }
@@ -381,10 +398,10 @@
         text-align: left;
         top: 103px;
         left: 38px;
-    
+
     }
 
-    
+
     #player6 .amount {
         margin: -15px 0 0 0px;
     }
@@ -416,7 +433,7 @@
         left: -63px;
     }
 
-    
+
     #player9 .amount {
         margin-top: -4px;
         margin-right: -10px;
@@ -450,34 +467,34 @@
         transition: all 0.6s ease;
     }
 
-    #player1.fold:hover .card-1, #player1.fold:hover .card-2, #player1.showCards .card-1, #player1.showCards .card-2  {
+    #player1.fold:hover .card-1, #player1.fold:hover .card-2, #player1.showCards .card-1, #player1.showCards .card-2 {
         opacity: 1 !important;
         top: -36px;
     }
 
     .onMove.ractive .info-box {
         box-shadow: 0px 0px 15px #2F06FC;
-        }
-             
-        .onMove.ractive .glow-box {
+    }
+
+    .onMove.ractive .glow-box {
         box-shadow: 0px 0px 15px #2F06FC;
-        }
+    }
 
-        .game-info {
-            margin: 84px auto;
-            padding-left: 10px;
-            width: 320px;
-        }
+    .game-info {
+        margin: 84px auto;
+        padding-left: 10px;
+        width: 320px;
+    }
 
-        .blinds-state {
-            margin-top: 3px;
-        }
+    .blinds-state {
+        margin-top: 3px;
+    }
 
-        .rebuys-late-addon {
-            margin-top: -2px;
-        }
+    .rebuys-late-addon {
+        margin-top: -2px;
+    }
+
     /*CONTROLS*/
-
     .autocheck {
         margin-left: 54px;
     }
@@ -545,8 +562,8 @@
     #start {
         top: -235px;
         margin: 0 auto;
-    left: 0;
-    right: 0;
+        left: 0;
+        right: 0;
     }
 
     .raise-slider {
@@ -585,31 +602,31 @@
     input[type=range]::-webkit-slider-thumb {
         width: 20px;
         height: 20px;
-      }
-      
-      input[type=range]::-moz-range-thumb {
-        width: 20px;
-        height: 20px;
-      }
-      
-      input[type=range]::-ms-thumb {
-        width: 20px;
-        height: 20px;
-      }
+    }
 
-      .container-betsizes {
+    input[type=range]::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+    }
+
+    input[type=range]::-ms-thumb {
+        width: 20px;
+        height: 20px;
+    }
+
+    .container-betsizes {
         top: -23px;
         left: -2px;
-      }
+    }
 
-      .container-betsizes button {
-          width: 45px;
-          height: 29px;
-          font-size: 13px;
-      }
+    .container-betsizes button {
+        width: 45px;
+        height: 29px;
+        font-size: 13px;
+    }
 
-      
-      button.betsizes.first {
+
+    button.betsizes.first {
         left: 130px;
         top: -39px;
         -moz-border-radius: 2px 0 0 0;
@@ -617,7 +634,7 @@
         border-radius: 2px 0 0 0;
     }
 
-      button.betsizes.second {
+    button.betsizes.second {
         left: 177px;
         top: -39px;
         -moz-border-radius: 0 2px 0 0;
@@ -646,9 +663,8 @@
     }
 
     /* PREGAME */
-
     .pregame {
-       top: 382px;
+        top: 382px;
         left: 0;
         right: 0;
         margin: 0 auto;
@@ -688,7 +704,7 @@
     .pregame .admin-text {
         top: -228px;
         max-width: 90%;
-    padding-left: 5%;
+        padding-left: 5%;
     }
 
     .winner img, .runnerup img, .potato img {
@@ -698,12 +714,13 @@
 }
 
 /*landing screen fix small screens */
-@media only screen and (max-width: 719px)  {
+@media only screen and (max-width: 719px) {
     #settings {
         padding-top: 40px;
         width: 100%;
         position: static;
     }
+
     .left-container {
         width: 100%;
         height: auto;
@@ -733,10 +750,11 @@
 }
 
 /*landing screen fix big screens */
-@media only screen and (min-width: 1440px)  {
+@media only screen and (min-width: 1440px) {
     body, #main {
         height: 100%;
     }
+
     #main-screen {
         width: 1440px;
         margin: 0 auto;
@@ -744,12 +762,14 @@
         height: 100vh;
         align-items: stretch;
     }
+
     .left-container {
         position: static;
         height: auto;
         width: 40%;
         align-self: auto;
     }
+
     #settings {
         position: static;
         height: auto;
