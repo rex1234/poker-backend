@@ -367,10 +367,12 @@ function printPlayers(data) {
     showRebuyAndAddonsStats(data);
     updateLastPlayedHand(data);
 
-    betDesc = data.user.currentBet - data.previousTargetBet;
-    playerBets += betDesc;
+    const userCurrentStreetBet = data.user.currentBet > data.previousTargetBet
+        ? data.user.currentBet - data.previousTargetBet
+        : 0;
+    playerBets += userCurrentStreetBet;
 
-    assignChipsImg(betDesc, 'player1', data);
+    assignChipsImg(userCurrentStreetBet, 'player1', data);
 
     if (data.user.cards.length > 0 && (prevData.user.cards !== data.user.cards || reconnected)) {
         cards = data.user.cards.split(' ');
@@ -453,9 +455,11 @@ function printPlayers(data) {
         } else {
             $('#player' + position + ' .player-chips').html(data.players[i].chips - data.players[i].currentBet);
         }
-        let betDesc = data.players[i].currentBet - data.previousTargetBet;
-        assignChipsImg(betDesc, 'player' + position, data);
-        playerBets += betDesc;
+        const playerCurrentStreetBet = data.players[i].currentBet > data.previousTargetBet
+            ? data.players[i].currentBet - data.previousTargetBet
+            : 0;
+        assignChipsImg(playerCurrentStreetBet, 'player' + position, data);
+        playerBets += playerCurrentStreetBet;
 
         //showdown
         if (typeof data.players[i].cards !== 'undefined' && data.roundState === 'finished' && data.state !== 'finished') {
