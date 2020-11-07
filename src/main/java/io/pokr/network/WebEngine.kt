@@ -8,8 +8,10 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.thymeleaf.*
 import io.pokr.config.*
 import org.slf4j.*
+import org.thymeleaf.templateresolver.*
 import java.io.*
 import java.security.KeyStore.*
 import kotlin.concurrent.*
@@ -87,6 +89,13 @@ class WebEngine(
             }
         }
 
+        install(Thymeleaf) {
+            setTemplateResolver(ClassLoaderTemplateResolver().apply {
+                prefix = "web/js"
+                suffix = ".js"
+            })
+        }
+
         routing {
             route("api") {
                 get("/game_state") {
@@ -108,6 +117,12 @@ class WebEngine(
             static {
                 files("web")
                 file("/", "web/game.html")
+            }
+
+            get("web/js/sockets.js") {
+                call.respond(ThymeleafContent("web/js/sockets.js", mapOf(
+                    "socketsPort" to PokrioConfig.socketsPort))
+                )
             }
         }
 
