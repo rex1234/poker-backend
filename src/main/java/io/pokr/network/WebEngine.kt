@@ -1,6 +1,5 @@
 package io.pokr.network
 
-import io.github.cdimascio.dotenv.*
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.features.*
@@ -9,7 +8,10 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.thymeleaf.*
+import io.pokr.config.*
 import org.slf4j.*
+import org.thymeleaf.templateresolver.*
 import java.io.*
 import java.security.KeyStore.*
 import kotlin.concurrent.*
@@ -29,14 +31,14 @@ class WebEngine(
             }
 
             connector {
-                port = dotenv()["WEB_PORT"]!!.toInt()
+                port = PokrioConfig.webPort
             }
 
-            val keyStoreFile = File(dotenv()["KEYSTORE_PATH"] ?: "")
+            val keyStoreFile = File(PokrioConfig.keyStorePath ?: "")
 
             if (keyStoreFile.exists()) {
-                val keystorePw = dotenv()["KEYSTORE_PASSWORD"]!!.toCharArray()
-                val keyStoreAlias = dotenv()["KEYSTORE_ALIAS"]!!
+                val keystorePw = PokrioConfig.keyStorePassword.toCharArray()
+                val keyStoreAlias = PokrioConfig.keyStoreAlias
 
                 val keyStore = getInstance("JKS").apply {
                     FileInputStream(keyStoreFile).use {
@@ -57,7 +59,7 @@ class WebEngine(
             } else {
                 logger.info("WebEngine initialized without SSL")
             }
-            logger.info("Server deployed at " + dotenv()["WEB_URL"])
+            logger.info("Server deployed at " + PokrioConfig.webUrl)
         })
 
         thread {
@@ -70,7 +72,7 @@ class WebEngine(
     }
 
     fun Application.main() {
-        if (File(dotenv()["KEYSTORE_PATH"] ?: "").exists()) {
+        if (File(PokrioConfig.keyStorePath ?: "").exists()) {
             install(HttpsRedirect)
         }
 
@@ -78,13 +80,20 @@ class WebEngine(
             basic(name = "admin") {
                 realm = "Ktor Server"
                 validate { credentials ->
-                    if (credentials.name == "admin" && credentials.password == dotenv()["ADMIN_PW"]) {
+                    if (credentials.name == "admin" && credentials.password == PokrioConfig.adminPassword) {
                         UserIdPrincipal(credentials.name)
                     } else {
                         null
                     }
                 }
             }
+        }
+
+        install(Thymeleaf) {
+            setTemplateResolver(FileTemplateResolver().apply {
+                prefix = "web/"
+                suffix = ".html"
+            })
         }
 
         routing {
@@ -105,9 +114,15 @@ class WebEngine(
                 }
             }
 
+            get("/") {
+                call.respond(ThymeleafContent("game.html", mapOf(
+                    "socketsPort" to PokrioConfig.socketsPort,
+                    "version" to PokrioConfig.version,
+                )))
+            }
+
             static {
                 files("web")
-                file("/", "web/game.html")
             }
         }
 
