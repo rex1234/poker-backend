@@ -1,9 +1,8 @@
 package io.pokr.network
 
 import com.corundumstudio.socketio.*
-import com.corundumstudio.socketio.Configuration
-import io.github.cdimascio.dotenv.*
 import io.netty.channel.*
+import io.pokr.config.*
 import io.pokr.game.exceptions.*
 import io.pokr.game.model.*
 import io.pokr.network.requests.*
@@ -42,14 +41,14 @@ class SocketEngine(
     fun start() {
         val config = Configuration().apply {
             hostname = "0.0.0.0"
-            port = dotenv()["SOCKETS_PORT"]!!.toInt()
-            origin = dotenv()["WEB_URL"]!!
+            port = PokrioConfig.socketsPort
+            origin = PokrioConfig.webUrl
             socketConfig.isReuseAddress = true
 
-            val keyStoreFile = File(dotenv()["KEYSTORE_PATH"] ?: "")
+            val keyStoreFile = File(PokrioConfig.keyStorePath ?: "")
             if (keyStoreFile.exists()) {
                 keyStore = FileInputStream(keyStoreFile)
-                keyStorePassword = dotenv()["KEYSTORE_PASSWORD"]!!
+                keyStorePassword = PokrioConfig.keyStorePassword
 
                 logger.info("Socket.io server with SSL")
             } else {

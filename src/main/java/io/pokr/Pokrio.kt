@@ -1,5 +1,6 @@
 package io.pokr
 
+import io.pokr.config.*
 import io.pokr.jobs.*
 import io.pokr.network.*
 import org.slf4j.*
@@ -15,7 +16,7 @@ fun main() {
 
     logger.info("Starting Pokrio server. Current commit: " + BuildConfig.LAST_COMMIT)
 
-    if (!File(".env").exists()) {
+    if (!PokrioConfig.exists()) {
         logger.error(".env file not found")
         throw Exception(".env file not found")
     }
