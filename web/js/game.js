@@ -234,7 +234,7 @@ $(document).ready(function () {
 
 
 //Copy code to clipboard
-$('#copyButton').click(function () {
+$('#copyButton').off('click').on('click', () => {
     copyToClipboard(document.getElementById('code'));
 });
 

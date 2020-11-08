@@ -593,7 +593,7 @@ body {
     transition: all 0.6s ease;
 }
 
-.pregame {
+.pregame, .postgame {
     position: relative;
     z-index: 5;
     width: 600px;
@@ -602,7 +602,7 @@ body {
     left: 220px;
 }
 
-.pregame .all-text {
+.all-text {
     position: absolute;
     width: 100%;
     top: 0px;

@@ -44,22 +44,23 @@ socket.on('gameState', function (data) {
     $('.left-container').hide();
     $('#main-screen').hide();
     $('.game-container').show();
-    $('.pregame').show();
     $('.errmsg').html('');
 
     if (data.state === 'created') {
-        $('.all-text').html('Invite other players by sending them this code:<div id="code">' + data.uuid + '</div><button id="copyButton" onclick="copyToClipboard(document.getElementById(\'code\'))">Copy code</button>');
+        $('.pregame').show();
+        $('#code').text(data.uuid);
+        const $adminText = $('.admin-text');
         //user is admin
         if (data.user.admin) {
             if (data.players.length > 0) {
-                $('.admin-text').html('');
+                $adminText.html('');
                 $('#start').show();
             } else {
-                $('.admin-text').html('You will be able to start the game when there are 2 or more players.');
+                $adminText.html('You will be able to start the game when there are 2 or more players.');
                 $('#start').hide();
             }
         } else {
-            $('.admin-text').html('Waiting for admin to start the game.');
+            $adminText.html('Waiting for admin to start the game.');
         }
 
         if (data.players.length < prevData.players.length) {
@@ -111,10 +112,10 @@ socket.on('gameState', function (data) {
         $('.game-info').hide();
         $('#pot').hide();
         $('#total-pot').hide();
-        $('.all-text').html('What a beautiful game that was, too bad it\'s over.');
-        $('.admin-text').hide();
         $('#start').hide();
         $('#rebuys').hide();
+
+        $('.postgame').show();
 
         if (data.user.admin) {
             ga('send', 'event', 'Action', 'Game finished');
