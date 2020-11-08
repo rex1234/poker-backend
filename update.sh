@@ -24,7 +24,7 @@ case $DIRECTORY in
     ;;
 esac
 
-echo "Updating ${SERVICE} in ${DIRECTORY}..."
+echo "Updating ${SERVICE} in ${DIRECTORY}"
 
 log_progress "Fetching new sources"
 git fetch --all
@@ -42,4 +42,5 @@ echo `uglifyjs web/js/sockets.js` > web/js/sockets.js
 log_progress "Restarting ${SERVICE} service"
 systemctl restart ${SERVICE}.service
 
+echo
 echo "All done!"
