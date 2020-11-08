@@ -45,7 +45,7 @@ cp web/game.html dist
 
 log_progress "Minifying JavaScript"
 uglifyjs dist/js/game.js dist/js/animations.js dist/js/sockets.js -o dist/js/pokrio.js --mangle toplevel
-perl -i -p0e 's/<!-- BUNDLE START -->.*?<!-- BUNDLE END -->/<script src="js/pokrio.js"></script>/s'
+perl -i -p0e 's/<!-- BUNDLE START -->.*?<!-- BUNDLE END -->/<script src="js\/pokrio.js"><\/script>/s' dist/game.html
 
 log_progress "Restarting ${SERVICE} service"
 systemctl restart ${SERVICE}.service
