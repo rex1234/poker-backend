@@ -41,7 +41,7 @@ cp -r web/js dist
 cp -r web/lib dist
 cp -r web/sounds dist
 cp -r web/styles dist
-cp game.html dist
+cp web/game.html dist
 
 log_progress "Minifying JavaScript"
 echo `uglifyjs dist/js/game.js` > dist/js/game.js
