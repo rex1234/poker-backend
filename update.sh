@@ -51,7 +51,7 @@ uglifyjs dist/js/game.js dist/js/animations.js dist/js/sockets.js -o dist/js/pok
 perl -i -p0e 's/<!-- BUNDLE START -->.*?<!-- BUNDLE END -->/<script src="js\/pokrio.js"><\/script>/s' dist/game.html
 
 log_progress "Updating run script"
-rm ${RUN_SCRIPT_NAME}
+rm -f ${RUN_SCRIPT_NAME}
 
 cat > ${RUN_SCRIPT_NAME} << EOF
 java -jar ${JAR_NAME}
