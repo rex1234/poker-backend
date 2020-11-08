@@ -139,5 +139,6 @@ gradle-app.setting
 # End of https://www.gitignore.io/api/java,gradle,intellij
 
 .env
+run.sh
 dist/*
 logs/*
