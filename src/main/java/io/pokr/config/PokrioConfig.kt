@@ -12,6 +12,9 @@ object PokrioConfig {
     val version
         get() = BuildConfig.LAST_COMMIT
 
+    val webDir
+        get() = dotenv()["WEB_DIR"]!!
+
     val webUrl
         get() = dotenv()["WEB_URL"]!!
 

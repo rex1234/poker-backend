@@ -139,6 +139,5 @@ gradle-app.setting
 # End of https://www.gitignore.io/api/java,gradle,intellij
 
 .env
-/web/chips-stacking.html
-
+dist/*
 logs/*

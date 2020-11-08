@@ -34,10 +34,19 @@ log_progress "Building the backend"
 ./gradlew fatJar
 cp ./build/libs/pokrio-1.0.jar pokrio.jar
 
+log_progress "Copying the frontend code"
+mkdir -p dist
+cp web/img dist
+cp web/js dist
+cp web/lib dist
+cp web/sounds dist
+cp web/styles dist
+cp game.html dist
+
 log_progress "Minifying JavaScript"
-echo `uglifyjs web/js/game.js` > web/js/game.js
-echo `uglifyjs web/js/animations.js` > web/js/animations.js
-echo `uglifyjs web/js/sockets.js` > web/js/sockets.js
+echo `uglifyjs dist/js/game.js` > dist/js/game.js
+echo `uglifyjs dist/js/animations.js` > dist/js/animations.js
+echo `uglifyjs dist/js/sockets.js` > dist/js/sockets.js
 
 log_progress "Restarting ${SERVICE} service"
 systemctl restart ${SERVICE}.service

@@ -91,7 +91,7 @@ class WebEngine(
 
         install(Thymeleaf) {
             setTemplateResolver(FileTemplateResolver().apply {
-                prefix = "web/"
+                prefix = "${PokrioConfig.webDir}/"
                 suffix = ".html"
             })
         }
@@ -122,7 +122,7 @@ class WebEngine(
             }
 
             static {
-                files("web")
+                files(PokrioConfig.webDir)
             }
         }
 
