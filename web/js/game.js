@@ -52,6 +52,21 @@ $('#start').on('click', function () {
     startGame();
 });
 
+$('#fold').on('click', gameFold);
+$('#call').on('click', gameCall);
+$('#check').on('click', gameCheck);
+$('#additional').on('click', () => {
+    showCards();
+    $('#player1').addClass('showCards');
+});
+$('#rebuys').on('click', rebuy);
+$('#sad-react').on('click', () => sendReaction('sad'));
+
+$('.openbtn').on('click', openNav);
+$('.closebtn').on('click', closeNav);
+$('#pause').on('click', pause);
+$('#unpause').on('click', unpause);
+$('#leave').on('click', leave);
 
 //raise on enter
 $(document).bind('keypress', function (e) {

@@ -403,11 +403,6 @@ function printPlayers(data) {
         }, showCardsDelay);
         $('#additional')
             .html('Show cards')
-            .off('click')
-            .on('click', () => {
-                showCards();
-                $('#player1').addClass('showCards');
-            })
             .delay(showCardsDelay + 3000).hide(0)
             .show();
     } else {
