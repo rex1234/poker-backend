@@ -403,7 +403,11 @@ function printPlayers(data) {
         }, showCardsDelay);
         $('#additional')
             .html('Show cards')
-            .attr('onclick', 'showCards(); $("#player1").addClass("showCards");')
+            .off('click')
+            .on('click', () => {
+                showCards();
+                $('#player1').addClass('showCards');
+            })
             .delay(showCardsDelay + 3000).hide(0)
             .show();
     } else {
@@ -595,8 +599,10 @@ function showControls(data) {
             }
 
             //adjust the raise in the button
-            $raise.attr('onclick', 'gameRaise(' + raiseBy + ')');
-            $raise.html(buttonDesc + raiseTo);
+            $raise
+                .off('click')
+                .on('click', () => gameRaise(raiseBy))
+                .html(buttonDesc + raiseTo);
 
             //if there are not enough chips to raise more, don't show the slider and input
             if (chipsBehind > minRaiseFromCurr) {
@@ -623,7 +629,7 @@ function showControls(data) {
                 //min value is min raise, max is max raise
                 let value = Math.min(maxRaise, Math.max(raiseTo, e.target.value));
                 const $raise = $('#raise');
-                $raise.attr('onclick', 'gameRaise(' + (value - chipsInPot) + ')');
+                $raise.off('click').on('click', () => gameRaise(value - chipsInPot));
 
                 //treat empty input as 0
                 $raise.html(buttonDesc + value);
@@ -656,7 +662,8 @@ function showControls(data) {
                     roundedVal = raiseTo;
                 }
                 $('#raise')
-                    .attr('onclick', 'gameRaise(' + (roundedVal - chipsInPot) + ')')
+                    .off('click')
+                    .on('click', () => gameRaise(roundedVal - chipsInPot))
                     .html(buttonDesc + roundedVal);
                 $('.raise-input').val(roundedVal);
             };
@@ -675,14 +682,17 @@ function showControls(data) {
             if (street === 'preflop') {
                 $betsizeFirst
                     .html('2.5BB')
-                    .attr('onclick', 'raiseChange(' + Math.min(5 * data.smallBlind, maxRaise) + ')');
+                    .off('click')
+                    .on('click', () => raiseChange(Math.min(5 * data.smallBlind, maxRaise)));
                 $betsizeSecond
-                    .html('3BB')
-                    .attr('onclick', 'raiseChange(' + Math.min(6 * data.smallBlind, maxRaise) + ')');
+                    .html('2.5BB')
+                    .off('click')
+                    .on('click', () => raiseChange(Math.min(6 * data.smallBlind, maxRaise)));
                 $betsizeThird
-                    .html('3.5BB')
-                    .attr('onclick', 'raiseChange(' + Math.min(7 * data.smallBlind, maxRaise) + ')');
-                $betsizeLast.attr('onclick', 'raiseChange(' + maxRaise + ')');
+                    .html('2.5BB')
+                    .off('click')
+                    .on('click', () => raiseChange(Math.min(7 * data.smallBlind, maxRaise)));
+                $betsizeLast.off('click').on('click', () => raiseChange(maxRaise));
                 //hide the buttons if preflop action
 
                 if (data.pot > 3 * data.smallBlind) {
@@ -700,7 +710,8 @@ function showControls(data) {
                 if (potThird > bigBlind && potThird > raiseTo) {
                     $betsizeFirst
                         .html('33%')
-                        .attr('onclick', 'raiseChange(' + Math.min(potThird, maxRaise) + ')');
+                        .off('click')
+                        .on('click', () => raiseChange(Math.min(potThird, maxRaise)));
                 } else {
                     $betsizeFirst.addClass('disabled');
                 }
@@ -708,7 +719,8 @@ function showControls(data) {
                 if (potHalf > bigBlind && potHalf > raiseTo) {
                     $betsizeSecond
                         .html('50%')
-                        .attr('onclick', 'raiseChange(' + Math.min(potHalf, maxRaise) + ')');
+                        .off('click')
+                        .on('click', () => raiseChange(Math.min(potHalf, maxRaise)));
                 } else {
                     $betsizeSecond.addClass('disabled');
                 }
@@ -716,12 +728,13 @@ function showControls(data) {
                 if (potTwoThirds > bigBlind && potTwoThirds > raiseTo) {
                     $betsizeThird
                         .html('66%')
-                        .attr('onclick', 'raiseChange(' + Math.min(potTwoThirds, maxRaise) + ')');
+                        .off('click')
+                        .on('click', () => raiseChange(Math.min(potTwoThirds, maxRaise)));
                 } else {
                     $betsizeThird.addClass('disabled');
                 }
 
-                $betsizeLast.attr('onclick', 'raiseChange(' + maxRaise + ')');
+                $betsizeLast.off('click').on('click', () => raiseChange(maxRaise));
             }
 
         }
@@ -1634,7 +1647,8 @@ function showRebuyControls(data) {
                 .addClass('rebuyed')
                 .show()
                 .html('Rebuy')
-                .attr('onclick', 'addRebuy();');
+                .off('click')
+                .on('click', addRebuy);
         }
 
         //the round that he had rebuy
