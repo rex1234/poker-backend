@@ -28,7 +28,7 @@ echo "Updating ${SERVICE} in ${DIRECTORY}..."
 
 log_progress "Fetching new sources"
 git fetch --all
-git reset --hard origin/master
+git checkout master
 
 log_progress "Building the backend"
 ./gradlew fatJar
