@@ -109,7 +109,7 @@ class HoldemTournamentGameEngine(
             round++
             cardStack = CardStack.create()
             targetBet = gameData.bigBlind
-            minRaiseTo = 2 * game.bigBlind
+            minRaiseTo = 2 * gameData.bigBlind
             previousStreetTargetBet = 0
             roundState = GameData.RoundState.ACTIVE
             bestCards = null
