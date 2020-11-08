@@ -36,11 +36,11 @@ cp ./build/libs/pokrio-1.0.jar pokrio.jar
 
 log_progress "Copying the frontend code"
 mkdir -p dist
-cp web/img dist
-cp web/js dist
-cp web/lib dist
-cp web/sounds dist
-cp web/styles dist
+cp -r web/img dist
+cp -r web/js dist
+cp -r web/lib dist
+cp -r web/sounds dist
+cp -r web/styles dist
 cp game.html dist
 
 log_progress "Minifying JavaScript"
