@@ -680,11 +680,11 @@ function showControls(data) {
                     .off('click')
                     .on('click', () => raiseChange(Math.min(5 * data.smallBlind, maxRaise)));
                 $betsizeSecond
-                    .html('2.5BB')
+                    .html('3BB')
                     .off('click')
                     .on('click', () => raiseChange(Math.min(6 * data.smallBlind, maxRaise)));
                 $betsizeThird
-                    .html('2.5BB')
+                    .html('3.5BB')
                     .off('click')
                     .on('click', () => raiseChange(Math.min(7 * data.smallBlind, maxRaise)));
                 $betsizeLast.off('click').on('click', () => raiseChange(maxRaise));
