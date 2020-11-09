@@ -199,7 +199,7 @@ class GamePool {
     /**
      * Sends given message to all other players in the same GameSession
      */
-    fun createChatMessage(playerSessionId: String, text: String, isFlash: Boolean) =
+    fun sendChatMessage(playerSessionId: String, text: String, isFlash: Boolean) =
         getGameSessionByPlayerSession(playerSessionId)?.let {
             if (isFlash && !ChatEngine.isValidReaction(text)) {
                 throw GameException(30, "Invalid react")
@@ -215,7 +215,7 @@ class GamePool {
                 isFlash = isFlash
             )
 
-            sendChatMessage(it.uuid, chatMessage)
+            sendChatMessageToPlayers(it.uuid, chatMessage)
         }
 
     /**
@@ -290,7 +290,7 @@ class GamePool {
     /**
      * Sends chat message to all players in a GameSession with given gameUuid
      */
-    fun sendChatMessage(gameUuid: String, chatMessage: ChatMessage) {
+    fun sendChatMessageToPlayers(gameUuid: String, chatMessage: ChatMessage) {
         gameSessions[gameUuid]?.let { gameSession ->
             gameSession.playerSessions.forEach {
                 sendChatMessageListener?.invoke(

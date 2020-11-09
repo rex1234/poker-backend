@@ -1,12 +1,12 @@
 package io.pokr.chat
 
-import io.pokr.chat.model.*
+import io.pokr.config.*
 import java.io.*
 
 object ChatEngine {
 
     val validReactions by lazy {
-        File("web/img/reacts/").list().map {
+        File(PokrioConfig.webDir + "/img/reacts/").list().map {
             it.replace(".svg", "")
         }
     }

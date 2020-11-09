@@ -2,7 +2,6 @@ package io.pokr.network
 
 import com.corundumstudio.socketio.*
 import io.netty.channel.*
-import io.pokr.chat.model.*
 import io.pokr.config.*
 import io.pokr.game.exceptions.*
 import io.pokr.game.model.*
@@ -140,7 +139,7 @@ class SocketEngine(
             }
 
             addEventListener(Events.CHAT_MESSAGE.key, ChatRequest::class.java) { client, data, ackRequest ->
-                gamePool.createChatMessage(client.sessionId.toString(), data.message, data.isFlash)
+                gamePool.sendChatMessage(client.sessionId.toString(), data.message, data.isFlash)
             }
 
             addDisconnectListener { client ->
@@ -166,24 +165,17 @@ class SocketEngine(
         }.forEach {
             it.sendEvent(Events.GAME_DISBANDED.key)
         }
-
     }
 
     private fun sendGameStateToPlayer(playerSessionId: String, gameState: GameResponse.GameState) {
-        server.allClients.filter {
+        server.allClients.firstOrNull {
             it.sessionId.toString() == playerSessionId
-        }.forEach {
-            it.sendEvent(Events.GAME_STATE.key, gameState)
-        }
+        }?.sendEvent(Events.GAME_STATE.key, gameState)
     }
 
     private fun sendChatMessageToPlayer(playerSessionId: String, chatMessage: ChatResponse) {
-        server.allClients.filter {
+        server.allClients.firstOrNull {
             it.sessionId.toString() == playerSessionId
-        }.forEach {
-            it.sendEvent(
-                Events.CHAT_MESSAGE.key, chatMessage
-            )
-        }
+        }?.sendEvent(Events.CHAT_MESSAGE.key, chatMessage)
     }
 }

@@ -237,8 +237,8 @@ socket.on('chat', function (message) {
 // chat / reacts
 
 function react(playerIndex, reaction) {
-    let reactDiv = $('#player' + playerIndex + ' .react');
-    reactDiv.css('background-image', 'url(\'../img/reacts/' + reaction + '.svg\')');
+    const reactDiv = $(`#player${playerIndex}.react`);
+    reactDiv.css('background-image', `url('../img/reacts/${reaction}.svg')`);
     reactDiv.css('opacity', 1);
     reactDiv.fadeTo(1500, 0, 'swing');
 }

@@ -622,7 +622,7 @@
         <div class="reactions">
             <table>
                 <tr th:each="react: ${reactions}">
-                    <img th:src="'img/reacts/'+ ${react} + '.svg'" th:data-react-id="${react}"/>
+                    <td><img th:src="'img/reacts/'+ ${react} + '.svg'" th:data-react-id="${react}"/></td>
                 </tr>
             </table>
         </div>
