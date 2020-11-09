@@ -173,6 +173,13 @@ socket.on('gameState', function (data) {
 
     prevData = data;
     prevRoundState = data.roundState;
+
+    //reactions
+    if(data.roundState == 'finished') {
+        $(".reactions table").show();
+    } else {
+        // $(".reactions table").hide();
+    }
 });
 
 socket.on('error', function (data) {
@@ -237,14 +244,16 @@ socket.on('chat', function (message) {
 // chat / reacts
 
 function react(playerIndex, reaction) {
-    const reactDiv = $(`#player${playerIndex}.react`);
+    const reactDiv = $(`#player${playerIndex} .react`);
     reactDiv.css('background-image', `url('../img/reacts/${reaction}.svg')`);
     reactDiv.css('opacity', 1);
     reactDiv.fadeTo(1500, 0, 'swing');
 }
 
 function addChatMessage(message) {
-    // TODO
+    $('.chat-window').append(
+        `<p><b>${message.name}:</b> ${message.message}</p>`
+    );
 }
 
 

@@ -202,10 +202,16 @@ class GamePool {
     fun sendChatMessage(playerSessionId: String, text: String, isFlash: Boolean) =
         getGameSessionByPlayerSession(playerSessionId)?.let {
             if (isFlash && !ChatEngine.isValidReaction(text)) {
-                throw GameException(30, "Invalid react")
+                throw GameException(30, "Invalid reaction")
             }
 
-            val playerSession = it.playerSessions.first { it.sessionId == playerSessionId }
+            if(text.length > 256) {
+                throw GameException(31, "Message text is too long")
+            }
+
+            val playerSession = it.playerSessions.first {
+                it.sessionId == playerSessionId
+            }
 
             val chatMessage = ChatMessage(
                 from = it.gameEngine.gameData.allPlayers.first {

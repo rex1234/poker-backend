@@ -621,11 +621,17 @@
 
         <div class="reactions">
             <table>
-                <tr th:each="react: ${reactions}">
-                    <td><img th:src="'img/reacts/'+ ${react} + '.svg'" th:data-react-id="${react}"/></td>
+                <tr>
+                    <td th:each="react: ${reactions}"><img th:src="'img/reacts/'+ ${react} + '.svg'" th:data-react-id="${react}"/></td>
                 </tr>
             </table>
         </div>
+    </div>
+
+    <div class="chat-window"></div>
+    <div class="chat-response">
+        <input id="chat-message">
+        <button id="send-msg" type="button" onclick="">&gt;</button>
     </div>
 </div>
 

@@ -54,8 +54,29 @@ $('#start').on('click', function () {
 });
 
 $('.reactions img').click(function () {
-    console.log("Reacting with: " + $(this).data("react-id"));
-    sendReaction($(this).data("react-id"));
+    console.log('Reacting with: ' + $(this).data('react-id'));
+    // TODO: show after round ends / once per round / when player finshes ?
+    // $(".reactions").hide();
+    sendReaction($(this).data('react-id'));
+});
+
+$('#chat-message').keyup(function (e) {
+    if (e.keyCode == 13) {
+        sendChatMessage($(this).val());
+        $(this).val('');
+    }
+});
+
+$('#chat-message').keyup(function (e) {
+    if (e.keyCode == 13) {
+        sendChatMessage($(this).val());
+        $(this).val('');
+    }
+});
+
+$('#send-msg').on('click', function () {
+    sendChatMessage($('#chat-message').val());
+    $('#chat-message').val('');
 });
 
 $('#fold').on('click', gameFold);
