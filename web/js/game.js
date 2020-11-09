@@ -5,7 +5,7 @@ const joinInputValidated = [false, false];
 const createInputValidated = [false, true, true, true, true, true, true];
 
 
-$('#joinGame button').click(function () {
+$('#joinGame button').on('click', function () {
     // Validation happens only on input, so we have to validate here in case there has been no input so far
     joinInputValidated[0] = nameValidation('#userid-join');
     joinInputValidated[1] = gameIdValidation('#gameid');
@@ -20,7 +20,7 @@ $('#joinGame button').click(function () {
     }
 });
 
-$('#createGame button').click(function () {
+$('#createGame button').on('click', function () {
     // Validation happens only on input, so we have to validate here in case there has been no input so far
     createInputValidated[0] = nameValidation('#userid-create');
 
@@ -43,15 +43,30 @@ $('#createGame button').click(function () {
     }
 });
 
-$('.allow-audio').click(function () {
+$('.allow-audio').on('click', function () {
     snd.play();
     $('.allow-audio').hide();
 });
 
-$('#start').click(function () {
+$('#start').on('click', function () {
     startGame();
 });
 
+$('#fold').on('click', gameFold);
+$('#call').on('click', gameCall);
+$('#check').on('click', gameCheck);
+$('#additional').on('click', () => {
+    showCards();
+    $('#player1').addClass('showCards');
+});
+$('#rebuys').on('click', rebuy);
+$('#sad-react').on('click', () => sendReaction('sad'));
+
+$('.openbtn').on('click', openNav);
+$('.closebtn').on('click', closeNav);
+$('#pause').on('click', pause);
+$('#unpause').on('click', unpause);
+$('#leave').on('click', leave);
 
 //raise on enter
 $(document).bind('keypress', function (e) {
@@ -82,7 +97,7 @@ $('.raise-slider').on('wheel', (event) => {
     $rangeSlider.val(nextVal).trigger('input');
 });
 
-$('#joinGame h2').click(function () {
+$('#joinGame h2').on('click', function () {
     if ($(window).width() <= 812) {
         $('#joinGame .toggler').slideToggle();
     } else {
@@ -93,7 +108,7 @@ $('#joinGame h2').click(function () {
     $(this).parent().css('background-color', '#0F2E4B');
 });
 
-$('#createGame h2').click(function () {
+$('#createGame h2').on('click', function () {
     if ($(window).width() <= 812) {
         $('#createGame .toggler').slideToggle();
     } else {
@@ -143,7 +158,7 @@ $('.input-main').hover(
 );
 
 //advanced settings
-$('.advanced-settings').click(function () {
+$('.advanced-settings').on('click', function () {
     $('.advanced-settings').hide();
     $('.advanced-inputs').slideToggle();
 });
@@ -234,7 +249,7 @@ $(document).ready(function () {
 
 
 //Copy code to clipboard
-$('#copyButton').click(function () {
+$('#copyButton').off('click').on('click', () => {
     copyToClipboard(document.getElementById('code'));
 });
 

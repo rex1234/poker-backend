@@ -45,7 +45,7 @@
         height: 100%;
     }
 
-    .pregame {
+    .pregame, .postgame {
         width: 100%;
     }
 
@@ -663,7 +663,7 @@
     }
 
     /* PREGAME */
-    .pregame {
+    .pregame, .postgame {
         top: 382px;
         left: 0;
         right: 0;
@@ -681,7 +681,7 @@
         margin-right: 90px;
     }
 
-    .pregame .all-text {
+    .all-text {
         top: 10px;
     }
 
