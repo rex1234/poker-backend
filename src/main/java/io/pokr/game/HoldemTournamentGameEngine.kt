@@ -110,6 +110,7 @@ class HoldemTournamentGameEngine(
             cardStack = CardStack.create()
             targetBet = gameData.bigBlind
             minRaiseTo = 2 * gameData.bigBlind
+            lastFullRaiseDiff = 0
             previousStreetTargetBet = 0
             roundState = GameData.RoundState.ACTIVE
             bestCards = null
@@ -137,8 +138,11 @@ class HoldemTournamentGameEngine(
             it.isOnMove = false
             it.hand = null
             it.action = PlayerAction.Action.NONE
+            // TODO: use new props on FE and test it all
+            it.pendingAction = true
             it.lastWin = 0
             it.currentBet = 0
+            it.canRaise = true
             it.isWinner = false
         }
 
@@ -218,30 +222,51 @@ class HoldemTournamentGameEngine(
                 val raiseAmount = playerAction.numericValue!!
                 val totalPlayerBet = player.currentBet + raiseAmount
 
-                // if we can raise or if we raise to an all in
-                if (totalPlayerBet >= gameData.minRaiseTo || totalPlayerBet == player.chips) {
-                    if (player.chips - player.currentBet >= raiseAmount) {
-                        if (totalPlayerBet >= gameData.minRaiseTo) {
-                            // e.g. a player raised from 370 to 625, the next min. raise is to 880 (2 * 625 - 370)
-                            gameData.minRaiseTo = 2 * totalPlayerBet - gameData.targetBet
-                        } else {
-                            // e.g. with a min. raise to 570, a player went all in from 370 to 490 (not a full raise),
-                            // the next min. raise is to 690 (570 + 490 - 370)
-                            gameData.minRaiseTo = gameData.minRaiseTo + totalPlayerBet - gameData.targetBet
+                val isFullRaise = totalPlayerBet >= gameData.minRaiseTo
+                val isAllIn = totalPlayerBet == player.chips
+
+                if ((isFullRaise || isAllIn) && player.chips >= totalPlayerBet) {
+                    if (isFullRaise) {
+                        // e.g. a player raised from 370 to 625, the next min. raise is to 880 (2 * 625 - 370)
+                        gameData.apply {
+                            minRaiseTo = 2 * totalPlayerBet - gameData.targetBet
+                            lastFullRaiseDiff = totalPlayerBet - gameData.targetBet
                         }
 
-                        gameData.targetBet = player.currentBet + raiseAmount
-                        player.currentBet = gameData.targetBet
-
-                        // we reset other player's action so they have to go again on this street
-                        (gameData.activePlayers - player).forEach {
-                            it.action = PlayerAction.Action.NONE
+                        // a full raise has been made, all players can raise again
+                        gameData.activePlayers.forEach {
+                            it.canRaise = true
                         }
-
-                        true
                     } else {
-                        false
+                        // e.g. with a min. raise to 570, a player went all in from 370 to 490 (not a full raise),
+                        // the next min. raise is to 690 (570 + 490 - 370)
+                        gameData.minRaiseTo = gameData.minRaiseTo + totalPlayerBet - gameData.targetBet
+
+                        (gameData.activePlayers - player).forEach {
+                            /*
+                            current player went all in but it was not a full raise - the other active players
+                            will not be allowed to raise unless:
+                                a) they were already allowed to raise, or
+                                b) their raise was followed by at least one player's all in together with current
+                                player's all in and the all in's together added up to a full raise, e.g.
+                                BB is 100, UTG raises to 300, UTG+1 goes all in for 400 (not a full raise - UTG
+                                can't raise again), current player goes all in for 550 (not a full raise either
+                                but together with UTG+1's, they make up for a full raise and UTG can raise again)
+                                (550 - 300 > 300 - 100)
+                            */
+                            it.canRaise = it.canRaise || totalPlayerBet - it.currentBet >= gameData.lastFullRaiseDiff
+                        }
                     }
+
+                    player.currentBet = totalPlayerBet
+                    gameData.targetBet = totalPlayerBet
+
+                    // we make the other active players go again on this street
+                    (gameData.activePlayers - player).forEach {
+                        it.pendingAction = true
+                    }
+
+                    true
                 } else {
                     false
                 }
@@ -256,6 +281,8 @@ class HoldemTournamentGameEngine(
         // if the action was a success we finish this player's action
         if (passedMove) {
             player.action = playerAction.action
+            player.pendingAction = false
+            player.canRaise = false
 
             // all but one folded
             if (gameData.players.count { it.action != PlayerAction.Action.FOLD } == 1) {
@@ -271,7 +298,7 @@ class HoldemTournamentGameEngine(
             }
 
             // everyone passed an action we will go to the next street
-            if (gameData.players.none { it.action == PlayerAction.Action.NONE }) {
+            if (gameData.players.none { it.pendingAction == true }) {
 
                 // 5 cards already, we will finish the round
                 if (gameData.tableCards.cards.size == 5) {
@@ -287,7 +314,11 @@ class HoldemTournamentGameEngine(
 
                     // non folded players will start with a NONE action next street
                     gameData.activePlayers.forEach {
-                        it.action = PlayerAction.Action.NONE
+                        it.apply {
+                            action = PlayerAction.Action.NONE
+                            canRaise = true
+                            pendingAction = true
+                        }
                     }
 
                     //calculate hands
