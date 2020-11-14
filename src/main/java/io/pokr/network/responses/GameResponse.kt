@@ -44,6 +44,7 @@ class GameResponse(
         val bestCards: String?,
         val chips: Int,
         val currentBet: Int,
+        val canRaise: Boolean,
         val hasLeft: Boolean,
         val isRebuyNextRound: Boolean,
         val rebuyCount: Int,
@@ -103,6 +104,7 @@ class GameResponse(
                 bestCards = if (forSelf || (game.roundState == GameData.RoundState.FINISHED && showCards)) bestCards?.toString() else null,
                 chips = chips,
                 currentBet = currentBet,
+                canRaise = canRaise,
                 lastWin = lastWin,
                 isWinner = isWinner,
                 finalRank = finalRank

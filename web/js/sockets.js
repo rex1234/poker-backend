@@ -570,7 +570,7 @@ function showControls(data) {
         }
 
         //show raise if can
-        if (data.targetBet < data.user.chips) {
+        if (data.user.canRaise && data.targetBet < data.user.chips) {
             const $raise = $('#raise');
             $raise.removeClass('disabled');
 

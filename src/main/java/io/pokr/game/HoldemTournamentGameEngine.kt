@@ -138,7 +138,6 @@ class HoldemTournamentGameEngine(
             it.isOnMove = false
             it.hand = null
             it.action = PlayerAction.Action.NONE
-            // TODO: use new props on FE and test it all
             it.pendingAction = true
             it.lastWin = 0
             it.currentBet = 0
