@@ -1,6 +1,5 @@
-package io.pokr.game
+package io.pokr.game.model
 
-import io.pokr.game.model.*
 import org.junit.*
 
 class CardStackTest {

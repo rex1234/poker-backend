@@ -1,7 +1,6 @@
-package io.pokr.game
+package io.pokr.game.tools
 
 import io.pokr.game.model.*
-import io.pokr.game.tools.*
 import org.junit.*
 
 class HandComparatorTest {
