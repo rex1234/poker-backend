@@ -287,4 +287,34 @@ class HoldemTournamentGameEngineTest {
         Assert.assertEquals(4, engine.gameData.activePlayers.filter { it.pendingAction }.size)
     }
 
+    @Test
+    fun lastPlayerHasDecisionWhenEveryoneElseIsAllInTest() {
+        val engine = initEngineAndStart(nrOfPlayers = 3)
+
+        val button = engine.gameData.currentPlayerOnMove
+        Assert.assertEquals(true, button.isDealer)
+        Assert.assertEquals(true, button.isOnMove)
+
+        var action = PlayerAction(action = PlayerAction.Action.RAISE, numericValue = 2400)
+        engine.nextPlayerMove(button.uuid, action)
+
+        Assert.assertEquals(false, button.isOnMove)
+
+        val smallBlind = engine.gameData.currentPlayerOnMove
+        Assert.assertEquals(true, smallBlind.isOnMove)
+
+        action = PlayerAction(action = PlayerAction.Action.RAISE, numericValue = 2490)
+        engine.nextPlayerMove(smallBlind.uuid, action)
+
+        Assert.assertEquals(false, button.isOnMove)
+
+        val bigBlind = engine.gameData.currentPlayerOnMove
+        Assert.assertEquals(true, bigBlind.isOnMove)
+
+        engine.nextPlayerMove(bigBlind.uuid, PlayerAction(PlayerAction.Action.CALL))
+
+        Assert.assertEquals(true, button.isDealer)
+        Assert.assertEquals(true, button.isOnMove)
+    }
+
 }

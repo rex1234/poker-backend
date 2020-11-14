@@ -346,7 +346,7 @@ class HoldemTournamentGameEngine(
         if (gameData.players.size
             - gameData.players.count { it.isAllIn }
             - gameData.players.count { it.action == PlayerAction.Action.FOLD } <= 1 &&
-            (gameData.players.none { it.action == PlayerAction.Action.NONE } || gameData.players.all { it.isAllIn })
+            (gameData.players.none { it.pendingAction } || gameData.players.all { it.isAllIn })
         ) {
 
             logger.debug("Showdown")
