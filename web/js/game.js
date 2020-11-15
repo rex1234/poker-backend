@@ -425,22 +425,22 @@ $(document).ready(function () {
     });
 
     $('#startingChips').on('input', function () {
-        createInputValidated[1] = numberValidation('#startingChips', 100);
+        createInputValidated[1] = numberValidation('#startingChips', 100, 1000000);
     });
     $('#rebuy').on('input', function () {
-        createInputValidated[2] = numberValidation('#rebuy', 0);
+        createInputValidated[2] = numberValidation('#rebuy', 0, 100);
     });
     $('#lateReg').on('input', function () {
-        createInputValidated[3] = numberValidation('#lateReg', 0);
+        createInputValidated[3] = numberValidation('#lateReg', 0, 24 * 60);
     });
     $('#blindIncreaseTime').on('input', function () {
-        createInputValidated[4] = numberValidation('#blindIncreaseTime', 1);
+        createInputValidated[4] = numberValidation('#blindIncreaseTime', 1, 24 * 60);
     });
     $('#playerMoveTime').on('input', function () {
-        createInputValidated[5] = numberValidation('#playerMoveTime', 5);
+        createInputValidated[5] = numberValidation('#playerMoveTime', 5, 60 * 60);
     });
     $('#startingBlinds').on('input', function () {
-        createInputValidated[6] = numberValidation('#startingBlinds', 1);
+        createInputValidated[6] = numberValidation('#startingBlinds', 1, 1000000);
     });
 });
 
@@ -480,12 +480,17 @@ function nameValidation(obj, elem) {
     }
 }
 
-function numberValidation(obj, min) {
-    if ($(obj).val() < min) {
+function numberValidation(obj, min, max) {
+    const val = $(obj).val();
+    if (min && val < min) {
         $(obj + ' ~ .errmsginput').show();
         $(obj + ' ~ .errmsginput').html('Minimum value is ' + min + '.');
         $(obj).addClass('invalid');
         return false;
+    } else if (max && val > max) {
+        $(obj + ' ~ .errmsginput').show();
+        $(obj + ' ~ .errmsginput').html('Maximum value is ' + max + '.');
+        $(obj).addClass('invalid');
     } else {
         // else, do not display message
         $(obj + ' ~ .errmsginput').hide();
