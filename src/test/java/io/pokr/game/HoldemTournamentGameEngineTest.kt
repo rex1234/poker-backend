@@ -314,7 +314,7 @@ class HoldemTournamentGameEngineTest {
         engine.nextPlayerMove(bigBlind.uuid, PlayerAction(PlayerAction.Action.CALL))
 
         Assert.assertEquals(true, button.isDealer)
-        Assert.assertEquals(true, button.isOnMove)
+        Assert.assertEquals(false, button.isOnMove)
     }
 
 }
