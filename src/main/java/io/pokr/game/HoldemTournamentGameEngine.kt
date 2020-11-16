@@ -38,11 +38,11 @@ class HoldemTournamentGameEngine(
 
     fun addPlayer(playerUUID: String) {
         if (gameData.allPlayers.size == 9) {
-            throw GameException(10, "Game is already full")
+            throw GameException(10, "The game is already full")
         }
 
         if (gameData.gameState != GameData.State.CREATED && !gameData.isLateRegistrationEnabled) {
-            throw GameException(11, "Late registration is not possible")
+            throw GameException(11, "Late registration is not available")
         }
 
         gameData.allPlayers.add(Player(playerUUID).apply {
@@ -67,7 +67,7 @@ class HoldemTournamentGameEngine(
         applyOnAdminPlayer(playerUuid) {}
 
         if (gameData.gameState != GameData.State.CREATED) {
-            throw GameException(17, "Game already started")
+            throw GameException(17, "The game has already started")
         }
 
         if (gameData.allPlayers.size == 1) {
@@ -192,13 +192,13 @@ class HoldemTournamentGameEngine(
 
     fun nextPlayerMove(playerUuid: String, playerAction: PlayerAction) {
         if (gameData.roundState != GameData.RoundState.ACTIVE) {
-            throw GameException(18, "Round is not in an active state")
+            throw GameException(18, "The round is not in an active state", "State: ${gameData.roundState}")
         }
 
         val player = gameData.currentPlayerOnMove
 
         if (player.uuid != playerUuid) {
-            throw GameException(16, "Player is not on move")
+            throw GameException(16, "It is not your turn", "It is the turn of ${player.name}")
         }
 
         val passedMove = when (playerAction.action) {
@@ -365,7 +365,7 @@ class HoldemTournamentGameEngine(
             player.isFinished = true
         }
 
-        // switch to the FINISHED state, no actions and be performed anymore and the results of the round are shown
+        // switch to the FINISHED state, no actions can be performed anymore and the results of the round are shown
         gameData.roundState = GameData.RoundState.FINISHED
 
         thread {
@@ -507,7 +507,7 @@ class HoldemTournamentGameEngine(
                 throw GameException(11, "Rebuy is not possible")
             }
 
-            if (gameData.config.maxRebuys == it.rebuyCount) {
+            if (it.rebuyCount >= gameData.config.maxRebuys) {
                 throw GameException(11, "Max rebuy count exceeded")
             }
 
@@ -516,7 +516,7 @@ class HoldemTournamentGameEngine(
                 it.finalRank = 0
                 it.isRebuyNextRound = true
             } else {
-                throw GameException(19, "Player has not finished yet")
+                throw GameException(19, "Cannot rebuy, you have not lost yet")
             }
         }
 
@@ -528,7 +528,7 @@ class HoldemTournamentGameEngine(
     fun changeName(playerUuid: String, name: String) =
         applyOnPlayer(playerUuid) {
             if (name.length > 10 || name.length == 0) {
-                throw GameException(7, "Invalid name")
+                throw GameException(7, "Invalid name", "Name: $name")
             }
             it.name = name
         }
@@ -570,7 +570,7 @@ class HoldemTournamentGameEngine(
                 if (gameData.gameState == GameData.State.ACTIVE && gameData.roundState == GameData.RoundState.FINISHED) {
                     gameData.pause(true)
                 } else {
-                    throw GameException(15, "Game can be paused only when a round is finished")
+                    throw GameException(15, "The game can be paused only when a round is finished")
                 }
             } else {
                 if (gameData.gameState == GameData.State.PAUSED) {
@@ -592,12 +592,12 @@ class HoldemTournamentGameEngine(
     private fun applyOnPlayer(uuid: String, action: (Player) -> Unit) =
         gameData.allPlayers.firstOrNull { it.uuid == uuid }?.let {
             action(it)
-        } ?: throw GameException(13, "Invalid player UUID")
+        } ?: throw GameException(13, "Invalid player UUID", "UUID: $uuid")
 
     private fun applyOnAdminPlayer(playerUuid: String, action: (Player) -> Unit) =
         applyOnPlayer(playerUuid) {
             if (!it.isAdmin) {
-                throw GameException(5, "Only admin can perform this action")
+                throw GameException(5, "Only an admin can perform this action")
             }
 
             action(it)

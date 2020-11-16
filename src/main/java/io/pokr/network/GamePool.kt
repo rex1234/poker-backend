@@ -34,7 +34,7 @@ class GamePool {
     fun createGame(gameConfig: GameConfig, playerSessionId: String, playerName: String) {
 
         if (!gameConfig.isValid) {
-            throw GameException(1, "Invalid gameConfig")
+            throw GameException(1, "Invalid game configuration", "Config: ${gameConfig.toString()}")
         }
 
         val playerSession = PlayerSession(playerSessionId, TokenGenerator.nextPlayerToken())
@@ -95,7 +95,7 @@ class GamePool {
     ) {
         gameSessions[gameUuid]?.let { gameSession ->
             if (playerName.length > 10 || playerName.length == 0) {
-                throw GameException(7, "Invalid name")
+                throw GameException(7, "Invalid name", "Name: $playerName")
             }
 
             val playerSession = gameSession.playerSessions.firstOrNull {
@@ -155,7 +155,7 @@ class GamePool {
      */
     fun executePlayerActionOnSession(playerSessionId: String, action: PlayerAction) {
         val gameSession = getGameSessionByPlayerSession(playerSessionId)
-            ?: throw GameException(21, "No such player in any game session")
+            ?: throw GameException(21, "No such player in any game session", "Player session ID: $playerSessionId")
 
         val playerSession = gameSession.playerSessions.first {
             it.sessionId == playerSessionId
@@ -186,7 +186,7 @@ class GamePool {
      */
     private fun executePlayerAction(playerUuid: String, action: PlayerAction) {
         val gameSession = getGameSessionByPlayerUuid(playerUuid)
-            ?: throw GameException(21, "No such player in any game session")
+            ?: throw GameException(21, "No such player in any game session", "Player UUID: $playerUuid")
 
         val gameEngine = gameSession.gameEngine
 
