@@ -675,27 +675,34 @@ function showControls(data) {
             $betsizeThird.removeClass('disabled');
 
             if (street === 'preflop') {
-                $betsizeFirst
-                    .html('2.5BB')
-                    .off('click')
-                    .on('click', () => raiseChange(Math.min(5 * data.smallBlind, maxRaise)));
-                $betsizeSecond
-                    .html('3BB')
-                    .off('click')
-                    .on('click', () => raiseChange(Math.min(6 * data.smallBlind, maxRaise)));
-                $betsizeThird
-                    .html('3.5BB')
-                    .off('click')
-                    .on('click', () => raiseChange(Math.min(7 * data.smallBlind, maxRaise)));
-                $betsizeLast.off('click').on('click', () => raiseChange(maxRaise));
-                //hide the buttons if preflop action
-
-                if (data.pot > 3 * data.smallBlind) {
-                    $betsizeFirst.addClass('disabled');
-                    $betsizeSecond.addClass('disabled');
-                    $betsizeThird.addClass('disabled');
+                if (data.pot <= 3 * data.smallBlind) {
+                    $betsizeFirst
+                        .html('2.5BB')
+                        .off('click')
+                        .on('click', () => raiseChange(Math.min(5 * data.smallBlind, maxRaise)));
+                    $betsizeSecond
+                        .html('3BB')
+                        .off('click')
+                        .on('click', () => raiseChange(Math.min(6 * data.smallBlind, maxRaise)));
+                    $betsizeThird
+                        .html('3.5BB')
+                        .off('click')
+                        .on('click', () => raiseChange(Math.min(7 * data.smallBlind, maxRaise)));
+                } else {
+                    $betsizeFirst
+                        .html('Pot')
+                        .off('click')
+                        .on('click', () => raiseChange(Math.min(data.pot, maxRaise)));
+                    $betsizeSecond
+                        .html('1.5Pot')
+                        .off('click')
+                        .on('click', () => raiseChange(Math.min(1.5 * data.pot, maxRaise)));
+                    $betsizeThird
+                        .html('2Pot')
+                        .off('click')
+                        .on('click', () => raiseChange(Math.min(2 * data.pot, maxRaise)));
                 }
-
+                $betsizeLast.off('click').on('click', () => raiseChange(maxRaise));
             } else {
                 const bigBlind = 2 * data.smallBlind;
                 const potThird = parseInt(data.pot / 3);
