@@ -556,10 +556,7 @@ function showControls(data) {
     if (data.user.currentBet === data.user.chips) {
         gameCall();
     } else {
-        //show fold if cannot check
-        if (data.targetBet > data.user.currentBet) {
-            $('#fold').removeClass('disabled');
-        }
+        $('#fold').removeClass('disabled');
 
         if (data.targetBet === data.user.currentBet) {
             $('#check').removeClass('disabled');
