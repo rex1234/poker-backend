@@ -62,6 +62,7 @@ class SocketEngine(
 
                 override fun onEventException(e: Exception, args: MutableList<Any>?, client: SocketIOClient?) {
                     if (e is GameException) {
+                        logger.debug("Game exception: ${e.message}${e.additionalInfo?.let { " ($it)" }.orEmpty()}")
                         client?.sendEvent(
                             Events.ERROR.key, ErrorResponse(
                                 e.code, e.message ?: ""

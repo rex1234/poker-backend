@@ -167,18 +167,18 @@ socket.on('error', function (data) {
     //hide loader if err
     $('#loader').hide();
 
-    if (data.code === 20 && $('#gameid').val().length > 0) { // invalid game UUID
+    if (data.code === 20) { // invalid game UUID
         localStorage.removeItem('player_uuid');
         localStorage.removeItem('game_uuid');
-        joinInputValidated[1] = false;
-        const $gameIdErr = $('#gameid ~ .errmsginput');
-        $gameIdErr.show();
-        $gameIdErr.text('Invalid game ID.');
-        $('#gameid').addClass('invalid');
-        $('#join-err').html('Some of the fields do not have correct value.').show();
-    }
-
-    if (data.code === 7) {
+        if ($('#gameid').val().length > 0) {
+            joinInputValidated[1] = false;
+            const $gameIdErr = $('#gameid ~ .errmsginput');
+            $gameIdErr.show();
+            $gameIdErr.text('Invalid game ID.');
+            $('#gameid').addClass('invalid');
+            $('#join-err').html('Some of the fields do not have correct value.').show();
+        }
+    } else if (data.code === 7) {
         joinInputValidated[0] = false;
         createInputValidated[0] = false;
         $('#userid-create ~ .errmsginput').text('Invalid name.').show();
@@ -187,14 +187,19 @@ socket.on('error', function (data) {
         $('#userid-join').addClass('invalid');
         $('#join-err').html('Some of the fields do not have correct value.').show();
         $('#create-err').html('Some of the fields do not have correct value.').show();
-    }
-
-    if (data.code === 10) {
+    } else if (data.code === 10) {
         $('#join-err').html('Game is already full.').show();
-    }
-
-    if (data.code === 11) {
+    } else if (data.code === 11) {
         $('#join-err').html('Late registration is not possible.').show();
+    } else {
+        $.toast({
+            heading: 'Error',
+            text: `${data.message}.`,
+            loader: false,
+            bgColor: '#FF5500',
+            textColor: 'white',
+            icon: 'error',
+        })
     }
 
 });
