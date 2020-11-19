@@ -373,8 +373,8 @@ function printPlayers(data) {
     showRebuyAndAddonsStats(data);
     updateLastPlayedHand(data);
 
-    const userCurrentStreetBet = data.user.currentBet > data.previousTargetBet
-        ? data.user.currentBet - data.previousTargetBet
+    const userCurrentStreetBet = data.user.currentBet > data.previousStreetTargetBet
+        ? data.user.currentBet - data.previousStreetTargetBet
         : 0;
     playerBets += userCurrentStreetBet;
 
@@ -460,8 +460,8 @@ function printPlayers(data) {
         } else {
             $('#player' + position + ' .player-chips').html(data.players[i].chips - data.players[i].currentBet);
         }
-        const playerCurrentStreetBet = data.players[i].currentBet > data.previousTargetBet
-            ? data.players[i].currentBet - data.previousTargetBet
+        const playerCurrentStreetBet = data.players[i].currentBet > data.previousStreetTargetBet
+            ? data.players[i].currentBet - data.previousStreetTargetBet
             : 0;
         assignChipsImg(playerCurrentStreetBet, 'player' + position, data);
         playerBets += playerCurrentStreetBet;
@@ -571,25 +571,25 @@ function showControls(data) {
         if (data.targetBet > data.user.currentBet) {
             $('#call')
                 .removeClass('disabled')
-                .html('Call<br>' + Math.max(Math.min(data.user.chips - (data.user.currentBet - data.previousTargetBet), data.targetBet - data.user.currentBet)));
+                .html('Call<br>' + Math.min(data.user.chips - data.user.currentBet, data.targetBet - data.user.currentBet));
         }
 
         //show raise if can
-        if (data.targetBet < data.user.chips) {
+        if (data.user.canRaise && data.targetBet < data.user.chips) {
             const $raise = $('#raise');
             $raise.removeClass('disabled');
 
-            const chipsBehind = data.user.chips - data.user.currentBet;
-            const chipsInPot = data.user.currentBet - data.previousTargetBet;
-            const minRaiseFromCurr = getMinRaiseValue(data) - chipsInPot;
-            const maxRaiseFromCurr = chipsBehind;
-            const raiseBy = Math.min(minRaiseFromCurr, maxRaiseFromCurr);
-            const raiseTo = chipsInPot + raiseBy;
-            const maxRaise = maxRaiseFromCurr + chipsInPot;
+            const currentBetThisStreet = data.user.currentBet - data.previousStreetTargetBet;
+
+            const minRaiseTo = Math.min(data.minRaiseTo, data.user.chips);
+            const minRaiseBy = minRaiseTo - data.user.currentBet;
+
+            const minRaiseToThisStreet = minRaiseTo - data.previousStreetTargetBet;
+            const maxRaiseToThisStreet = data.user.chips - data.previousStreetTargetBet;
 
             let buttonDesc;
 
-            if (data.targetBet === data.previousTargetBet) {
+            if (data.targetBet === data.previousStreetTargetBet) {
                 buttonDesc = 'Bet<br>';
             } else {
                 buttonDesc = 'Raise to<br>';
@@ -598,11 +598,11 @@ function showControls(data) {
             //adjust the raise in the button
             $raise
                 .off('click')
-                .on('click', () => gameRaise(raiseBy))
-                .html(buttonDesc + raiseTo);
+                .on('click', () => gameRaise(minRaiseBy))
+                .html(buttonDesc + minRaiseToThisStreet);
 
             //if there are not enough chips to raise more, don't show the slider and input
-            if (chipsBehind > minRaiseFromCurr) {
+            if (data.user.chips > data.minRaiseTo) {
                 $('.raise-slider').removeClass('disabled');
             }
 
@@ -615,18 +615,18 @@ function showControls(data) {
             const $raiseInput = $('.raise-input');
             //affect slider and input accordingly
             $raiseInput.attr({
-                'min': raiseTo,
-                'max': maxRaiseFromCurr,
-                'value': raiseTo,
+                'min': minRaiseToThisStreet,
+                'max': maxRaiseToThisStreet,
+                'value': minRaiseToThisStreet,
             });
 
             let changingInput = false;
-            $raiseInput.val(raiseTo);
+            $raiseInput.val(minRaiseToThisStreet);
             $raiseInput.on('keyup', function (e) {
                 //min value is min raise, max is max raise
-                let value = Math.min(maxRaise, Math.max(raiseTo, e.target.value));
+                let value = Math.min(maxRaiseToThisStreet, Math.max(minRaiseToThisStreet, e.target.value));
                 const $raise = $('#raise');
-                $raise.off('click').on('click', () => gameRaise(value - chipsInPot));
+                $raise.off('click').on('click', () => gameRaise(value - currentBetThisStreet));
 
                 //treat empty input as 0
                 $raise.html(buttonDesc + value);
@@ -641,26 +641,26 @@ function showControls(data) {
 
             const $rangeSlider = $('#range-slider');
             $rangeSlider.attr({
-                'min': raiseTo,
-                'max': maxRaise,
-                'value': raiseTo,
+                'min': minRaiseToThisStreet,
+                'max': maxRaiseToThisStreet,
+                'value': minRaiseToThisStreet,
             });
 
-            $rangeSlider[0].value = raiseTo;
+            $rangeSlider[0].value = minRaiseToThisStreet;
 
             $rangeSlider[0].oninput = function () {
-                const value = Math.min(maxRaise, Math.max(minRaiseFromCurr, this.value));
+                const value = Math.min(maxRaiseToThisStreet, Math.max(minRaiseToThisStreet, this.value));
                 //Round to 10s, but exclude max value
                 let roundedVal = parseInt(value / 10) * 10;
-                if (roundedVal + 9 >= maxRaise) {
-                    roundedVal = maxRaise;
+                if (roundedVal + 9 >= maxRaiseToThisStreet) {
+                    roundedVal = maxRaiseToThisStreet;
                 }
-                if (roundedVal < raiseTo) {
-                    roundedVal = raiseTo;
+                if (roundedVal < minRaiseToThisStreet) {
+                    roundedVal = minRaiseToThisStreet;
                 }
                 $('#raise')
                     .off('click')
-                    .on('click', () => gameRaise(roundedVal - chipsInPot))
+                    .on('click', () => gameRaise(roundedVal - currentBetThisStreet))
                     .html(buttonDesc + roundedVal);
                 $('.raise-input').val(roundedVal);
             };
@@ -681,64 +681,64 @@ function showControls(data) {
                     $betsizeFirst
                         .html('2.5BB')
                         .off('click')
-                        .on('click', () => raiseChange(Math.min(5 * data.smallBlind, maxRaise)));
+                        .on('click', () => raiseChange(Math.min(5 * data.smallBlind, maxRaiseToThisStreet)));
                     $betsizeSecond
                         .html('3BB')
                         .off('click')
-                        .on('click', () => raiseChange(Math.min(6 * data.smallBlind, maxRaise)));
+                        .on('click', () => raiseChange(Math.min(6 * data.smallBlind, maxRaiseToThisStreet)));
                     $betsizeThird
                         .html('3.5BB')
                         .off('click')
-                        .on('click', () => raiseChange(Math.min(7 * data.smallBlind, maxRaise)));
+                        .on('click', () => raiseChange(Math.min(7 * data.smallBlind, maxRaiseToThisStreet)));
                 } else {
                     $betsizeFirst
                         .html('Pot')
                         .off('click')
-                        .on('click', () => raiseChange(Math.min(data.pot, maxRaise)));
+                        .on('click', () => raiseChange(Math.min(data.pot, maxRaiseToThisStreet)));
                     $betsizeSecond
                         .html('1.5Pot')
                         .off('click')
-                        .on('click', () => raiseChange(Math.min(1.5 * data.pot, maxRaise)));
+                        .on('click', () => raiseChange(Math.min(1.5 * data.pot, maxRaiseToThisStreet)));
                     $betsizeThird
                         .html('2Pot')
                         .off('click')
-                        .on('click', () => raiseChange(Math.min(2 * data.pot, maxRaise)));
+                        .on('click', () => raiseChange(Math.min(2 * data.pot, maxRaiseToThisStreet)));
                 }
-                $betsizeLast.off('click').on('click', () => raiseChange(maxRaise));
+                $betsizeLast.off('click').on('click', () => raiseChange(maxRaiseToThisStreet));
             } else {
                 const bigBlind = 2 * data.smallBlind;
                 const potThird = parseInt(data.pot / 3);
                 const potHalf = parseInt(data.pot / 2);
                 const potTwoThirds = parseInt(2 * data.pot / 3);
 
-                if (potThird > bigBlind && potThird > raiseTo) {
+                if (potThird > bigBlind && potThird > minRaiseToThisStreet && potThird < maxRaiseToThisStreet) {
                     $betsizeFirst
                         .html('33%')
                         .off('click')
-                        .on('click', () => raiseChange(Math.min(potThird, maxRaise)));
+                        .on('click', () => raiseChange(Math.min(potThird, maxRaiseToThisStreet)));
                 } else {
                     $betsizeFirst.addClass('disabled');
                 }
 
-                if (potHalf > bigBlind && potHalf > raiseTo) {
+                if (potHalf > bigBlind && potHalf > minRaiseToThisStreet && potHalf < maxRaiseToThisStreet) {
                     $betsizeSecond
                         .html('50%')
                         .off('click')
-                        .on('click', () => raiseChange(Math.min(potHalf, maxRaise)));
+                        .on('click', () => raiseChange(Math.min(potHalf, maxRaiseToThisStreet)));
                 } else {
                     $betsizeSecond.addClass('disabled');
                 }
 
-                if (potTwoThirds > bigBlind && potTwoThirds > raiseTo) {
+                if (potTwoThirds > bigBlind && potTwoThirds > minRaiseToThisStreet && potTwoThirds < maxRaiseToThisStreet) {
                     $betsizeThird
                         .html('66%')
                         .off('click')
-                        .on('click', () => raiseChange(Math.min(potTwoThirds, maxRaise)));
+                        .on('click', () => raiseChange(Math.min(potTwoThirds, maxRaiseToThisStreet)));
                 } else {
                     $betsizeThird.addClass('disabled');
                 }
 
-                $betsizeLast.off('click').on('click', () => raiseChange(maxRaise));
+                $betsizeLast.off('click').on('click', () => raiseChange(maxRaiseToThisStreet));
             }
 
         }
@@ -799,34 +799,6 @@ function checkHighestBet(data) {
         result = Math.max(result, data.players[i].currentBet);
     }
     return result;
-}
-
-//calculates min-raise
-function getMinRaiseValue(data) {
-    let arr = [data.user.currentBet - data.previousTargetBet];
-    for (let i = 0; i < data.players.length; i++) {
-        if (data.players[i].currentBet >= data.previousTargetBet) {
-            arr.push(data.players[i].currentBet - data.previousTargetBet);
-        }
-    }
-    arr = sortUnique(arr);
-
-    //TODO skipping blinds
-
-    if (arr.length <= 1) {
-        return Math.max(data.smallBlind * 2, arr[0] * 2);
-    }
-
-    //PREFLOP: everyone called BB
-    if (data.user.currentBet === data.smallBlind * 2 && arr.length === 1) {
-        return data.smallBlind * 2;
-    }
-
-    //POST FLOP + PREFLOP: basis raise *2 previous jump
-    if (arr.length >= 2) {
-        return Math.max(4 * data.smallBlind, arr[arr.length - 1] + (arr[arr.length - 1] - arr[arr.length - 2]));
-    }
-
 }
 
 //returns true if everyone is folded or allin
@@ -1399,7 +1371,7 @@ function assignTags(data) {
                 } else {
                     $playerTag
                         .addClass('raise')
-                        .html(prevData.previousTargetBet === prevData.targetBet ? 'Bet' : 'Raise')
+                        .html(prevData.previousStreetTargetBet === prevData.targetBet ? 'Bet' : 'Raise')
                         .show()
                         .delay(600)
                         .queue(function (n) {
@@ -1780,7 +1752,7 @@ function getLastAction(data) {
             }
         }
         if (cardChanged) {
-            if ((prevData.targetBet === prevData.previousTargetBet || data.targetBet === 2 * data.smallBlind)) {
+            if ((prevData.targetBet === prevData.previousStreetTargetBet || data.targetBet === 2 * data.smallBlind)) {
                 return 'check';
             } else {
                 return 'call';

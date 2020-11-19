@@ -1,9 +1,8 @@
-package io.pokr.game
+package io.pokr.game.model
 
-import io.pokr.game.model.*
 import org.junit.*
 
-class HandParserTest {
+class CardListTest {
 
     val cardListPair = CardList(listOf(
         Card(Card.Color.CLUBS, Card.Value.QUEEN),

@@ -19,9 +19,12 @@ class Player(
     var isOnMove = false
     var moveStart = 0L // time when the player's action began
     var action = PlayerAction.Action.NONE
+    var pendingAction = false
     var cards = CardList()
     var hand: HandComparator.Hand? = null
     var currentBet = 0
+    var lastTargetBet = 0
+    var canRaise = true
     var chips = 0
     var rebuyCount = 0
     var finalRank = 0 // final game rank
@@ -41,7 +44,7 @@ class Player(
     }
 
     val isAllIn
-        get() = chips - currentBet == 0
+        get() = chips == currentBet
 
     override fun equals(other: Any?): Boolean {
         return other is Player && uuid == other.uuid

@@ -24,7 +24,8 @@ class GameResponse(
         val smallBlind: Int,
         val bigBlind: Int,
         val targetBet: Int,
-        var previousTargetBet: Int,
+        var previousStreetTargetBet: Int,
+        var minRaiseTo: Int,
         val isLateRegistrationEnabled: Boolean,
     )
 
@@ -43,6 +44,7 @@ class GameResponse(
         val bestCards: String?,
         val chips: Int,
         val currentBet: Int,
+        val canRaise: Boolean,
         val hasLeft: Boolean,
         val isRebuyNextRound: Boolean,
         val rebuyCount: Int,
@@ -79,7 +81,8 @@ class GameResponse(
                     it.uuid != currentPlayerUuid
                 }.map { it.playerState(false, game) },
                 targetBet = game.targetBet,
-                previousTargetBet = game.previousTargetBet,
+                previousStreetTargetBet = game.previousStreetTargetBet,
+                minRaiseTo = game.minRaiseTo,
                 isLateRegistrationEnabled = game.isLateRegistrationEnabled
             )
 
@@ -101,6 +104,7 @@ class GameResponse(
                 bestCards = if (forSelf || (game.roundState == GameData.RoundState.FINISHED && showCards)) bestCards?.toString() else null,
                 chips = chips,
                 currentBet = currentBet,
+                canRaise = canRaise,
                 lastWin = lastWin,
                 isWinner = isWinner,
                 finalRank = finalRank
