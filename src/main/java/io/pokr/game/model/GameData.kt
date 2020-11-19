@@ -22,7 +22,8 @@ class GameData constructor(
     var previousTargetBet = 0 // FOR FE purposes
     var smallBlind = 0
     var bigBlind = 0
-    var nextBlinds = 0L
+    var nextSmallBlind = 0
+    var nextBlindsChangeAt = 0L
 
     var round = 0
     var gameStart: Long = 0
@@ -81,7 +82,7 @@ class GameData constructor(
             gameState = State.ACTIVE
             val pauseTime = System.currentTimeMillis() - pauseStart
             totalPauseTime += pauseTime
-            nextBlinds += pauseTime
+            nextBlindsChangeAt += pauseTime
         }
     }
 }

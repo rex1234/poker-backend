@@ -20,9 +20,10 @@ class GameResponse(
         val pot: Int?,
         val cards: String,
         val bestCards: String?,
-        val nextBlinds: Long,
+        val nextBlindsChangeAt: Long,
         val smallBlind: Int,
         val bigBlind: Int,
+        val nextSmallBlind: Int,
         val targetBet: Int,
         var previousTargetBet: Int,
         val isLateRegistrationEnabled: Boolean,
@@ -74,7 +75,8 @@ class GameResponse(
                 pot = game.allPlayers.sumBy { it.currentBet },
                 smallBlind = game.smallBlind,
                 bigBlind = game.bigBlind,
-                nextBlinds = game.nextBlinds,
+                nextSmallBlind = game.nextSmallBlind,
+                nextBlindsChangeAt = game.nextBlindsChangeAt,
                 players = game.allPlayers.filter {
                     it.uuid != currentPlayerUuid
                 }.map { it.playerState(false, game) },
