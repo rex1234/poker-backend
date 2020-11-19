@@ -34,7 +34,7 @@ class GamePool {
     fun createGame(gameConfig: GameConfig, playerSessionId: String, playerName: String) {
 
         if (!gameConfig.isValid) {
-            throw GameException(1, "Invalid game configuration", "Config: ${gameConfig.toString()}")
+            throw GameException(1, "Invalid game configuration", "Config: $gameConfig")
         }
 
         val playerSession = PlayerSession(playerSessionId, TokenGenerator.nextPlayerToken())
