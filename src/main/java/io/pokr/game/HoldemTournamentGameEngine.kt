@@ -81,8 +81,9 @@ class HoldemTournamentGameEngine(
         gameData.gameStart = System.currentTimeMillis()
 
         gameData.smallBlind = gameData.config.startingBlinds
+        gameData.nextSmallBlind = BlindCalculator.nextBlind(gameData.smallBlind)
         gameData.bigBlind = gameData.smallBlind * 2
-        gameData.nextBlinds = gameData.gameStart + gameData.config.blindIncreaseTime * 1000
+        gameData.nextBlindsChangeAt = gameData.gameStart + gameData.config.blindIncreaseTime * 1000
 
         gameData.allPlayers.sortBy { it.index }
 
@@ -510,10 +511,13 @@ class HoldemTournamentGameEngine(
     }
 
     private fun increaseBlinds() {
-        if (System.currentTimeMillis() > gameData.nextBlinds) {
+        if (System.currentTimeMillis() > gameData.nextBlindsChangeAt) {
+            val sb = BlindCalculator.nextBlind(gameData.smallBlind)
+            val nextSb = BlindCalculator.nextBlind(sb)
             gameData.apply {
-                nextBlinds = System.currentTimeMillis() + config.blindIncreaseTime * 1000
-                smallBlind = BlindCalculator.nextBlind(smallBlind)
+                nextBlindsChangeAt = System.currentTimeMillis() + config.blindIncreaseTime * 1000
+                smallBlind = sb
+                nextSmallBlind = nextSb
                 bigBlind = smallBlind * 2
 
                 //updateStateListener(this@HoldemTournamentGameEngine)

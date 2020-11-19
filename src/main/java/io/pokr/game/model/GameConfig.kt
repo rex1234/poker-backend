@@ -19,10 +19,10 @@ data class GameConfig @ConstructorProperties(
 ) {
 
     val isValid
-        get() = startingChips > 100 && startingChips < 1_000_000 &&
-                startingBlinds > 10 && startingBlinds < 1_000_000 &&
-                blindIncreaseTime > 1 * 60 && blindIncreaseTime < Integer.MAX_VALUE &&
-                playerMoveTime > 5 && playerMoveTime < 60 * 60 &&
-                rebuyTime >= 0 && rebuyTime < Integer.MAX_VALUE &&
-                maxRebuys >= 0 && maxRebuys < Integer.MAX_VALUE
+        get() = startingChips >= 100 && startingChips <= 1_000_000 &&
+                startingBlinds >= 1 && startingBlinds <= 1_000_000 &&
+                blindIncreaseTime >= 1 * 60 && blindIncreaseTime <= 24 * 60 * 60 &&
+                playerMoveTime >= 5 && playerMoveTime <= 60 * 60 &&
+                rebuyTime >= 0 && rebuyTime <= 24 * 60 * 60 &&
+                maxRebuys >= 0 && maxRebuys <= 100
 }

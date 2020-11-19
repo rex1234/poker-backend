@@ -81,11 +81,11 @@ socket.on('gameState', function (data) {
 
         //show blinds and othe info
         currentSmallBlind = data.smallBlind;
-        $('.blinds-state .current').html(data.smallBlind + ' / ' + data.smallBlind * 2);
+        $('.blinds-state .current').html(`${data.smallBlind} / ${data.smallBlind * 2}`);
         if ($(window).width() > 1023) {
-            $('.blinds-state .next').html(getNextSmallBlind(data.smallBlind) + ' / ' + getNextSmallBlind(data.smallBlind) * 2);
+            $('.blinds-state .next').html(`${data.nextSmallBlind} / ${data.nextSmallBlind * 2}`);
         }
-        blindsTimer(data.nextBlinds, data.state);
+        blindsTimer(data.nextBlindsChangeAt, data.state);
         lateRegTimer(data.config.rebuyTime, data.gameStart, data.state);
         updateLeaderboard(data);
         assignTags(data);
@@ -1086,18 +1086,7 @@ function getBiggestWinner(data) {
     return index;
 }
 
-//returns next level's blinds
-function getNextSmallBlind(blinds) {
-    const arr = [10, 20, 30, 50, 75, 100, 150, 250, 400, 600, 800, 1000];
-    for (let i = 0; i < arr.length - 1; i++) {
-        if (blinds === arr[i]) {
-            return arr[i + 1];
-        }
-    }
-    return blinds * 2;
-}
-
-function blindsTimer(nextBlinds, state) {
+function blindsTimer(nextBlindsChangeAt, state) {
     const intervalID = setInterval(function () {
         if (timerBlinds !== intervalID) {
             if (timerBlinds !== -1) {
@@ -1107,7 +1096,7 @@ function blindsTimer(nextBlinds, state) {
         }
 
         if (state !== 'paused') {
-            const remaining = nextBlinds - Date.now();
+            const remaining = nextBlindsChangeAt - Date.now();
             let minutes = parseInt(remaining / 1000 / 60);
             let seconds = parseInt(remaining / 1000 - minutes * 60);
             if (minutes < 10) {
