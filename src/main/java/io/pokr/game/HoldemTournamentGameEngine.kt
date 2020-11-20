@@ -575,10 +575,10 @@ class HoldemTournamentGameEngine(
 
     fun changeName(playerUuid: String, name: String) =
         applyOnPlayer(playerUuid) {
-            if (name.length > 10 || name.length == 0) {
+            if (name.length > 10 || name.trim().isEmpty()) {
                 throw GameException(7, "Invalid name", "Name: $name")
             }
-            it.name = name
+            it.name = name.trim()
         }
 
     fun playerConnected(playerUuid: String, isConnected: Boolean) =

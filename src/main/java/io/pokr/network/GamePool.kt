@@ -37,6 +37,8 @@ class GamePool {
             throw GameException(1, "Invalid game configuration", "Config: $gameConfig")
         }
 
+        validatePlayerName(playerName)
+
         val playerSession = PlayerSession(playerSessionId, TokenGenerator.nextPlayerToken())
 
         val gameUuid = TokenGenerator.nextGameToken()
@@ -94,9 +96,7 @@ class GamePool {
         playerName: String,
     ) {
         gameSessions[gameUuid]?.let { gameSession ->
-            if (playerName.length > 10 || playerName.length == 0) {
-                throw GameException(7, "Invalid name", "Name: $playerName")
-            }
+            validatePlayerName(playerName)
 
             val playerSession = gameSession.playerSessions.firstOrNull {
                 it.uuid == playerUuid
@@ -252,4 +252,12 @@ class GamePool {
         gameSessions.values.firstOrNull {
             playerUuid in it.playerSessions.map { it.uuid }
         }
+
+
+    private fun validatePlayerName(playerName: String) {
+        if (playerName.length > 10 || playerName.trim().isEmpty()) {
+            throw GameException(7, "Invalid name", "Name: $playerName")
+        }
+    }
+
 }

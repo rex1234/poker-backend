@@ -100,7 +100,11 @@ class SocketEngine(
                         throw GameException(30, "Missing game config param")
                     }
 
-                    gamePool.createGame(data.gameConfig!!, client.sessionId.toString(), data.name)
+                    gamePool.createGame(
+                        data.gameConfig!!,
+                        client.sessionId.toString(),
+                        data.name
+                    )
                 } else {
                     gamePool.connectToGame(
                         client.sessionId.toString(),

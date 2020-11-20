@@ -34,7 +34,7 @@ socket.on('gameState', function (data) {
     if (data.state !== 'finished') {
         localStorage.setItem('player_uuid', data.user.uuid);
         localStorage.setItem('game_uuid', data.uuid);
-        localStorage.setItem('nick', data.user.name);
+        localStorage.setItem('nick', $('<textarea/>').html(data.user.name).text());
     }
     initializeVars(data);
     //user is in game
