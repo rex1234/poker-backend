@@ -21,10 +21,10 @@ def getLastCommitMessage = { ->
     try {
         def stdout = new ByteArrayOutputStream()
         exec {
-            commandLine 'git', 'log', '-1', '--pretty=%B'
+            commandLine 'git', 'log', '-1', '--pretty=reference'
             standardOutput = stdout
         }
-        return stdout.toString().trim().replaceAll("\r\n", " ").replaceAll("\n", " ").replaceAll("\"", "\\\"")
+        return stdout.toString().trim().replace("\"", "\\\"")
     }
     catch (ignored) {
         return null;
