@@ -275,17 +275,17 @@ function leave() {
 }
 
 function gameCall() {
-    $('#autocheck').prop('checked', false);
+    uncheckAutoActions();
     sendAction('call');
 }
 
 function gameCheck() {
-    $('#autocheck').prop('checked', false);
+    uncheckAutoActions();
     sendAction('check');
 }
 
 function gameFold() {
-    $('#autofold').prop('checked', false);
+    uncheckAutoActions();
     sendAction('fold');
 }
 
@@ -755,6 +755,11 @@ function hideControls() {
     $('#check').addClass('disabled');
     $('#raise').addClass('disabled');
     $('.raise-slider').addClass('disabled');
+}
+
+function uncheckAutoActions() {
+    $('#autocheck').prop('checked', false);
+    $('#autofold').prop('checked', false);
 }
 
 function autoControls(data) {
