@@ -4,6 +4,7 @@ const socket = io.connect(location.protocol + '//' + window.location.hostname + 
 let reconnected = false;
 
 //data
+let gameState;
 let finishedData;
 let finishedPrev;
 let prevData;
@@ -31,7 +32,8 @@ let showCardsInProgress = false;
 
 // inbound events
 socket.on('gameState', function (data) {
-    if (data.state !== 'finished') {
+    gameState = data.state;
+    if (gameState !== 'finished') {
         localStorage.setItem('player_uuid', data.user.uuid);
         localStorage.setItem('game_uuid', data.uuid);
         localStorage.setItem('nick', $('<textarea/>').html(data.user.name).text());
@@ -46,7 +48,7 @@ socket.on('gameState', function (data) {
     $('.game-container').show();
     $('.errmsg').html('');
 
-    if (data.state === 'created') {
+    if (gameState === 'created') {
         $('.pregame').show();
         $('#code').text(data.uuid);
         const $adminText = $('.admin-text');
@@ -75,7 +77,7 @@ socket.on('gameState', function (data) {
         }
     }
 
-    if (data.state === 'active' || data.state === 'paused') {
+    if (gameState === 'active' || gameState === 'paused') {
         $('.pregame').hide();
         $('.game-info').show();
 
@@ -85,14 +87,14 @@ socket.on('gameState', function (data) {
         if ($(window).width() > 1023) {
             $('.blinds-state .next').html(`${data.nextSmallBlind} / ${data.nextSmallBlind * 2}`);
         }
-        blindsTimer(data.nextBlindsChangeAt, data.state);
-        lateRegTimer(data.config.rebuyTime, data.gameStart, data.state);
+        blindsTimer(data.nextBlindsChangeAt, gameState);
+        lateRegTimer(data.config.rebuyTime, data.gameStart, gameState);
         updateLeaderboard(data);
         assignTags(data);
     }
 
     if (data.user.admin) {
-        if (data.state === 'active') {
+        if (gameState === 'active') {
             if (data.roundState === 'finished') {
                 $('#pause').removeClass('disabled');
                 $('#unpause').addClass('disabled');
@@ -100,7 +102,7 @@ socket.on('gameState', function (data) {
                 $('#pause').addClass('disabled');
             }
         }
-        if (data.state === 'paused') {
+        if (gameState === 'paused') {
             refreshCards();
             $('.showCards').removeClass('showCards');
             $('#unpause').removeClass('disabled');
@@ -108,7 +110,7 @@ socket.on('gameState', function (data) {
         }
     }
 
-    if (data.state === 'finished') {
+    if (gameState === 'finished') {
         $('.game-info').hide();
         $('#pot').hide();
         $('#total-pot').hide();
@@ -152,7 +154,7 @@ socket.on('gameState', function (data) {
     }
 
     //results of the game
-    if (data.state === 'finished') {
+    if (gameState === 'finished') {
         updateLeaderboard(data);
         showResults(data);
         localStorage.removeItem('player_uuid');
@@ -205,10 +207,10 @@ socket.on('error', function (data) {
 });
 
 socket.on('gameDisbanded', function () {
+    gameState = 'finished';
+
     localStorage.removeItem('player_uuid');
     print({msg: 'game ended'});
-
-    // TODO: show some end message, redirect back to the connection screen
 });
 
 socket.on('chat', function (data) {
@@ -260,7 +262,9 @@ function sendAction(action, numericValue = null, textValue = null) {
 }
 
 function leave() {
-    sendAction('leave');
+    if (gameState !== 'finished') {
+        sendAction('leave');
+    }
 
     localStorage.removeItem('game_uuid');
     localStorage.removeItem('player_uuid');
