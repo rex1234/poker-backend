@@ -24,7 +24,7 @@ def getLastCommitMessage = { ->
             commandLine 'git', 'log', '-1', '--pretty=%B'
             standardOutput = stdout
         }
-        return stdout.toString().trim().replaceAll("\r\n", " ").replaceAll("\n", " ")
+        return stdout.toString().trim().replaceAll("\r\n", " ").replaceAll("\n", " ").replaceAll("\"", "\\\"")
     }
     catch (ignored) {
         return null;
