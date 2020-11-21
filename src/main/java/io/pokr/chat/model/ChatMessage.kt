@@ -1,8 +1,8 @@
 package io.pokr.chat.model
 
 data class ChatMessage(
-    val from: String,
+    val from: String?,
     val text: String,
-    val isFlash: Boolean,
+    val isFlash: Boolean = false,
     val time: Long = System.currentTimeMillis()
 )

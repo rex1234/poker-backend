@@ -6,7 +6,7 @@ import org.apache.commons.text.*
 
 class ChatResponse(
     val name: String,
-    val index: Int,
+    val index: Int?,
     val time: Long,
     val message: String,
     val flash: Boolean = false,
@@ -16,10 +16,10 @@ class ChatResponseFactory {
 
     companion object {
 
-        fun fromChatMessage(player: Player, chatMessage: ChatMessage) =
+        fun fromChatMessage(player: Player?, chatMessage: ChatMessage) =
             ChatResponse(
-                StringEscapeUtils.escapeHtml4(player.name),
-                player.index,
+                StringEscapeUtils.escapeHtml4(player?.name ?: "System"),
+                player?.index ?: -1,
                 System.currentTimeMillis(),
                 StringEscapeUtils.escapeHtml4(chatMessage.text),
                 chatMessage.isFlash

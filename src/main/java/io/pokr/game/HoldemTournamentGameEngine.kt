@@ -16,6 +16,7 @@ class HoldemTournamentGameEngine(
     private val gameFinishedListener: (HoldemTournamentGameEngine) -> Unit,
     private val playerKickedListener: (HoldemTournamentGameEngine, Player) -> Unit,
     private val restorePointCreatedListener: (HoldemTournamentGameEngine) -> Unit,
+    private val messageLogListener: (HoldemTournamentGameEngine, String) -> Unit,
 ) {
 
     val gameData: GameData
@@ -24,7 +25,7 @@ class HoldemTournamentGameEngine(
     var gameRestorePoint: GameRestorePoint? = null
 
     init {
-        if(initialGameData != null) {
+        if (initialGameData != null) {
             gameData = initialGameData
         } else {
             gameData = GameData(gameUuid)
@@ -51,7 +52,7 @@ class HoldemTournamentGameEngine(
         get() = gameData.uuid
 
 
-    fun addPlayer(playerUUID: String) {
+    fun addPlayer(playerUUID: String, playerName: String) {
         if (gameData.allPlayers.size == 9) {
             throw GameException(10, "The game is already full")
         }
@@ -60,7 +61,7 @@ class HoldemTournamentGameEngine(
             throw GameException(11, "Late registration is not possible")
         }
 
-        gameData.allPlayers.add(Player(playerUUID).apply {
+        val player = Player(playerUUID).apply {
             // assign random table index for a player
             index = ((1..9).toList() - gameData.allPlayers.map { it.index }).shuffled().first()
 
@@ -75,7 +76,12 @@ class HoldemTournamentGameEngine(
                 isRebuyNextRound = true
                 connectedToRound = gameData.round
             }
-        })
+        }
+
+        gameData.allPlayers.add(player)
+        changeName(playerUUID, playerName)
+
+        messageLogListener(this, "Player ${player.name} connected")
 
         gameData.allPlayers.sortBy { it.index }
     }
@@ -113,6 +119,8 @@ class HoldemTournamentGameEngine(
         startNewRound()
 
         gameTimer.start()
+
+        messageLogListener(this, "Game started")
     }
 
     private fun startNewRound() {
@@ -379,15 +387,15 @@ class HoldemTournamentGameEngine(
 
         val canShowdown =
             gameData.players.size - allInPlayersCount - foldedPlayersCount <= 1 && (
-                pendingActionPlayersCount == 0 ||
-                gameData.players.all { it.isAllIn } || (
-                    // it would still be one last player's turn but their current bet is
-                    // already higher than any other all in -> we can go to showdown
-                    lastPendingActionPlayer != null &&
-                    highestAllInBet != null &&
-                    lastPendingActionPlayer.currentBet >= highestAllInBet
-                )
-            )
+                    pendingActionPlayersCount == 0 ||
+                            gameData.players.all { it.isAllIn } || (
+                            // it would still be one last player's turn but their current bet is
+                            // already higher than any other all in -> we can go to showdown
+                            lastPendingActionPlayer != null &&
+                                    highestAllInBet != null &&
+                                    lastPendingActionPlayer.currentBet >= highestAllInBet
+                            )
+                    )
 
         if (canShowdown) {
             logger.debug("Showdown")
@@ -489,6 +497,8 @@ class HoldemTournamentGameEngine(
         ).forEachIndexed { i, player ->
             player.finalRank = nonFinishingPlayerCount + i + 1
             player.isFinished = true
+
+            messageLogListener(this, "Player ${player.name} has finished on ${player.finalRank}. place")
         }
     }
 
@@ -635,6 +645,8 @@ class HoldemTournamentGameEngine(
                 it.rebuyCount++
                 it.finalRank = 0
                 it.isRebuyNextRound = true
+
+                messageLogListener(this, "Player ${it.name} has rebought")
             } else {
                 throw GameException(19, "Cannot rebuy, you have not lost yet")
             }
@@ -682,6 +694,7 @@ class HoldemTournamentGameEngine(
             }
 
             logger.info("Player ${kickedPlayer.name} has been kicked or has left")
+            messageLogListener(this, "Player ${kickedPlayer.name} has been kicked or has left")
         }
 
     fun pause(playerUuid: String, pause: Boolean) =
@@ -689,6 +702,7 @@ class HoldemTournamentGameEngine(
             if (pause) {
                 if (gameData.gameState == GameData.State.ACTIVE && gameData.roundState == GameData.RoundState.FINISHED) {
                     gameData.pause(true)
+                    messageLogListener(this, "Game paused")
                 } else {
                     throw GameException(15, "The game can be paused only when a round is finished")
                 }
@@ -697,6 +711,7 @@ class HoldemTournamentGameEngine(
                     if (!isRoundEndThreadRunning) {
                         gameData.pause(false)
                         startNewRound()
+                        messageLogListener(this, "Game unpaused")
                     }
                 }
             }
