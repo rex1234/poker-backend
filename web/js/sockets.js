@@ -406,7 +406,10 @@ function printPlayers(data) {
     }
 
     //show cards button
-    if ((data.roundState === 'finished' && data.user.action === 'fold') || (everyoneFolded(data) && data.state === 'active')) {
+    if (
+        (data.roundState === 'finished' && data.user.action === 'fold') ||
+        (everyoneElseFoldedOrBusted(data) && data.state === 'active')
+    ) {
         setTimeout(function () {
             $('#additional').removeClass('disabled');
         }, showCardsDelay);
@@ -1654,14 +1657,9 @@ function showRebuyControls(data) {
     }
 }
 
-function everyoneFolded(data) {
-    for (let i = 0; i < data.players.length; i++) {
-        if (data.players[i].action !== 'fold') {
-            return false;
-        }
-    }
-
-    return true;
+function everyoneElseFoldedOrBusted(data) {
+    const foldedOrBusted = data.players.filter(player => player.action === 'fold' || player.chips === 0);
+    return foldedOrBusted.length === data.players.length;
 }
 
 function showResults(data) {
