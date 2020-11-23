@@ -115,7 +115,7 @@ socket.on('gameState', function (data) {
         $('#pot').hide();
         $('#total-pot').hide();
         $('#start').hide();
-        $('#rebuys').hide();
+        $('#rebuys-btn').hide();
 
         $('.postgame').show();
 
@@ -1612,14 +1612,14 @@ function initializeVars(data) {
 
 function showRebuyControls(data) {
     const $player1 = $('#player1');
-    const $rebuys = $('#rebuys');
+    const $rebuyBtn = $('#rebuy-btn');
     const $rebuyMsg = $('#rebuyMsg');
     $player1.removeClass('rebuyed');
 
     if (data.state === 'active') {
         //if he busts, show rebuys
         if (data.roundState !== 'finished' && data.user.chips === 0 && data.lateRegistrationEnabled === true && data.user.rebuyNextRound === false) {
-            $rebuys
+            $rebuyBtn
                 .removeClass('disabled')
                 .addClass('rebuyed')
                 .show()
@@ -1637,7 +1637,7 @@ function showRebuyControls(data) {
             }
             $rebuyMsg.show();
             $player1.addClass('rebuyed');
-            $rebuys
+            $rebuyBtn
                 .removeClass('disabled')
                 .hide();
         }
@@ -1646,12 +1646,12 @@ function showRebuyControls(data) {
         if (data.user.chips > 0) {
             $rebuyMsg.hide();
             $player1.removeClass('rebuyed');
-            $rebuys.hide();
+            $rebuyBtn.hide();
         }
 
         //hide it after the late reg is over
         if (data.lateRegistrationEnabled === false) {
-            $rebuys.hide();
+            $rebuyBtn.hide();
             $rebuyMsg.hide();
         }
     }
