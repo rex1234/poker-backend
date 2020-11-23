@@ -28,7 +28,7 @@ class GameResponse(
         val targetBet: Int,
         var previousStreetTargetBet: Int,
         var minRaiseTo: Int,
-        val isLateRegistrationEnabled: Boolean,
+        val isLateRegistrationPossible: Boolean,
     )
 
     class PlayerState(
@@ -86,7 +86,7 @@ class GameResponse(
                 targetBet = game.targetBet,
                 previousStreetTargetBet = game.previousStreetTargetBet,
                 minRaiseTo = game.minRaiseTo,
-                isLateRegistrationEnabled = game.isLateRegistrationEnabled
+                isLateRegistrationPossible = game.isLateRegistrationPossible
             )
 
             fun Player.playerState(forSelf: Boolean, game: GameData) = PlayerState(

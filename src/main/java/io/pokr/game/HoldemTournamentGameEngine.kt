@@ -56,8 +56,8 @@ class HoldemTournamentGameEngine(
             throw GameException(10, "The game is already full")
         }
 
-        if (gameData.gameState != GameData.State.CREATED && !gameData.isLateRegistrationEnabled) {
-            throw GameException(11, "Late registration is not available")
+        if (gameData.gameState != GameData.State.CREATED && !gameData.isLateRegistrationPossible) {
+            throw GameException(11, "Late registration is not possible")
         }
 
         gameData.allPlayers.add(Player(playerUUID).apply {
@@ -580,12 +580,12 @@ class HoldemTournamentGameEngine(
 
     fun rebuy(playerUuid: String) =
         applyOnPlayer(playerUuid) {
-            if (!gameData.isLateRegistrationEnabled || it.isKicked) {
-                throw GameException(11, "Rebuy is not possible")
+            if (!gameData.isLateRegistrationPossible || gameData.config.maxRebuys == 0 || it.isKicked) {
+                throw GameException(14, "Rebuy is not possible")
             }
 
             if (it.rebuyCount >= gameData.config.maxRebuys) {
-                throw GameException(11, "Max rebuy count exceeded")
+                throw GameException(14, "Max rebuy count reached")
             }
 
             if (it.isFinished) {

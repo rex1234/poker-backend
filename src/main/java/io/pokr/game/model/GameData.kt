@@ -34,11 +34,11 @@ class GameData constructor(
     var pauseStart: Long? = null
     var totalPauseTime = 0L
 
-    val isLateRegistrationEnabled
-        get() = System.currentTimeMillis() - gameStart - totalPauseTime < config.rebuyTime * 1000
-
     val gameTime
         get() = System.currentTimeMillis() - gameStart - totalPauseTime
+
+    val isLateRegistrationPossible
+        get() = gameTime < config.rebuyTime * 1000
 
     lateinit var config: GameConfig
     lateinit var cardStack: CardStack

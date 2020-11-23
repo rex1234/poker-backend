@@ -1618,7 +1618,7 @@ function showRebuyControls(data) {
 
     if (data.state === 'active') {
         //if he busts, show rebuys
-        if (data.roundState !== 'finished' && data.user.chips === 0 && data.lateRegistrationEnabled === true && data.user.rebuyNextRound === false) {
+        if (data.roundState !== 'finished' && data.user.chips === 0 && data.lateRegistrationPossible === true && data.user.rebuyNextRound === false) {
             $rebuyBtn
                 .removeClass('disabled')
                 .addClass('rebuyed')
@@ -1650,7 +1650,7 @@ function showRebuyControls(data) {
         }
 
         //hide it after the late reg is over
-        if (data.lateRegistrationEnabled === false) {
+        if (data.lateRegistrationPossible === false) {
             $rebuyBtn.hide();
             $rebuyMsg.hide();
         }
