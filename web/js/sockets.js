@@ -1618,14 +1618,14 @@ function showRebuyControls(data) {
 
     if (data.state === 'active') {
         //if he busts, show rebuys
-        if (data.roundState !== 'finished' && data.user.chips === 0 && data.lateRegistrationPossible === true && data.user.rebuyNextRound === false) {
-            $rebuyBtn
-                .removeClass('disabled')
-                .addClass('rebuyed')
-                .show()
-                .html('Rebuy')
-                .off('click')
-                .on('click', addRebuy);
+        if (
+            data.lateRegistrationPossible &&
+            data.config.maxRebuys > data.user.rebuyCount &&
+            data.roundState !== 'finished' &&
+            data.user.chips === 0 &&
+            !data.user.rebuyNextRound
+        ) {
+            $rebuyBtn.removeClass('disabled').show()
         }
 
         //the round that he had rebuy
