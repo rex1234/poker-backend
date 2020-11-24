@@ -88,7 +88,7 @@ socket.on('gameState', function (data) {
             $('.blinds-state .next').html(`${data.nextSmallBlind} / ${data.nextSmallBlind * 2}`);
         }
         blindsTimer(data.nextBlindsChangeAt, gameState);
-        lateRegTimer(data.config.rebuyTime, data.gameStart, gameState);
+        lateRegTimer(data.config.maxRebuys, data.config.rebuyTime, data.gameStart, gameState);
         updateLeaderboard(data);
         assignTags(data);
     }
@@ -1258,8 +1258,8 @@ function updateLastPlayedHand(data) {
     }
 }
 
-function lateRegTimer(rebuyTime, gameStart, state) {
-    updateLateRegTime(rebuyTime, gameStart, state);
+function lateRegTimer(maxRebuys, rebuyTime, gameStart, state) {
+    updateLateRegTime(maxRebuys, rebuyTime, gameStart, state);
 
     const intervalID = setInterval(function () {
         if (timerRebuys !== intervalID) {
@@ -1269,11 +1269,11 @@ function lateRegTimer(rebuyTime, gameStart, state) {
             timerRebuys = intervalID;
         }
 
-        updateLateRegTime(rebuyTime, gameStart, state);
+        updateLateRegTime(maxRebuys, rebuyTime, gameStart, state);
     }, 1000);
 }
 
-function updateLateRegTime(rebuyTime, gameStart, state, intervalID) {
+function updateLateRegTime(maxRebuys, rebuyTime, gameStart, state, intervalID) {
     if (state !== 'paused') {
         const lateReg = rebuyTime * 1000 + gameStart;
         const remaining = lateReg - Date.now();
@@ -1281,11 +1281,11 @@ function updateLateRegTime(rebuyTime, gameStart, state, intervalID) {
         let minutes = parseInt(remaining / 1000 / 60);
         let seconds = parseInt(remaining / 1000 - minutes * 60);
 
-        let txt = 'Rebuy, Late reg. end: ';
-        let endedtxt = 'Rebuy, Late reg. period ended.';
+        const isSmallScreen = $(window).width() < 1024;
+
+        let txt = `${maxRebuys > 0 ? `Rebuys (${maxRebuys}), ` : ''}Late reg. end: `;
         if ($(window).width() < 1024) {
-            txt = 'Rebuy: ';
-            endedtxt = 'Rebuys ended.';
+            txt = maxRebuys > 0 ? 'Rebuys: ' : 'Late reg.: ';
         }
 
         if (minutes < 10) {
@@ -1302,6 +1302,10 @@ function updateLateRegTime(rebuyTime, gameStart, state, intervalID) {
         }
 
         if (remaining <= 0) {
+            let endedtxt = `${maxRebuys > 0 ? 'Rebuys, ' : ''}Late reg. period ended.`;
+            if (isSmallScreen) {
+                endedtxt = maxRebuys > 0 ? 'Rebuys ended.' : 'Late reg. ended.';
+            }
             $('.rebuys-late-addon').html(endedtxt);
             if (intervalID) {
                 window.clearInterval(intervalID);
