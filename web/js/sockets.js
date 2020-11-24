@@ -1099,6 +1099,8 @@ function getBiggestWinner(data) {
 }
 
 function blindsTimer(nextBlindsChangeAt, state) {
+    updateBlindsTime(nextBlindsChangeAt, state);
+
     const intervalID = setInterval(function () {
         if (timerBlinds !== intervalID) {
             if (timerBlinds !== -1) {
@@ -1107,27 +1109,33 @@ function blindsTimer(nextBlindsChangeAt, state) {
             timerBlinds = intervalID;
         }
 
-        if (state !== 'paused') {
-            const remaining = nextBlindsChangeAt - Date.now();
-            let minutes = parseInt(remaining / 1000 / 60);
-            let seconds = parseInt(remaining / 1000 - minutes * 60);
-            if (minutes < 10) {
-                minutes = '0' + minutes;
-            }
-            if (seconds < 10) {
-                seconds = '0' + seconds;
-            }
-            if (remaining < 0) {
-                minutes = '00';
-                seconds = '00';
-            }
-            $('.level-time span').html(minutes + ':' + seconds);
-            if (remaining <= 0) {
+        updateBlindsTime(nextBlindsChangeAt, state, intervalID);
+    }, 1000);
+}
+
+function updateBlindsTime(nextBlindsChangeAt, state, intervalID) {
+    if (state !== 'paused') {
+        const remaining = nextBlindsChangeAt - Date.now();
+        let minutes = parseInt(remaining / 1000 / 60);
+        let seconds = parseInt(remaining / 1000 - minutes * 60);
+        if (minutes < 10) {
+            minutes = '0' + minutes;
+        }
+        if (seconds < 10) {
+            seconds = '0' + seconds;
+        }
+        if (remaining < 0) {
+            minutes = '00';
+            seconds = '00';
+        }
+        $('.level-time span').html(minutes + ':' + seconds);
+        if (remaining <= 0) {
+            if (intervalID) {
                 window.clearInterval(intervalID);
                 timerBlinds = -1;
             }
         }
-    }, 1000);
+    }
 }
 
 function updateLeaderboard(data) {
@@ -1251,6 +1259,8 @@ function updateLastPlayedHand(data) {
 }
 
 function lateRegTimer(rebuyTime, gameStart, state) {
+    updateLateRegTime(rebuyTime, gameStart, state);
+
     const intervalID = setInterval(function () {
         if (timerRebuys !== intervalID) {
             if (timerRebuys !== -1) {
@@ -1259,40 +1269,46 @@ function lateRegTimer(rebuyTime, gameStart, state) {
             timerRebuys = intervalID;
         }
 
-        if (state !== 'paused') {
-            const lateReg = rebuyTime * 1000 + gameStart;
-            const remaining = lateReg - Date.now();
-            const hours = parseInt(remaining / 1000 / 60 / 60);
-            let minutes = parseInt(remaining / 1000 / 60);
-            let seconds = parseInt(remaining / 1000 - minutes * 60);
+        updateLateRegTime(rebuyTime, gameStart, state);
+    }, 1000);
+}
 
-            let txt = 'Rebuy, Late reg. end: ';
-            let endedtxt = 'Rebuy, Late reg. period ended.';
-            if ($(window).width() < 1024) {
-                txt = 'Rebuy: ';
-                endedtxt = 'Rebuys ended.';
-            }
+function updateLateRegTime(rebuyTime, gameStart, state, intervalID) {
+    if (state !== 'paused') {
+        const lateReg = rebuyTime * 1000 + gameStart;
+        const remaining = lateReg - Date.now();
+        const hours = parseInt(remaining / 1000 / 60 / 60);
+        let minutes = parseInt(remaining / 1000 / 60);
+        let seconds = parseInt(remaining / 1000 - minutes * 60);
 
-            if (minutes < 10) {
-                minutes = '0' + minutes;
-            }
-            if (seconds < 10) {
-                seconds = '0' + seconds;
-            }
+        let txt = 'Rebuy, Late reg. end: ';
+        let endedtxt = 'Rebuy, Late reg. period ended.';
+        if ($(window).width() < 1024) {
+            txt = 'Rebuy: ';
+            endedtxt = 'Rebuys ended.';
+        }
 
-            if (hours < 1) {
-                $('.rebuys-late-addon').html(txt + minutes + ':' + seconds);
-            } else {
-                $('.rebuys-late-addon').html(txt + hours + '.' + (minutes - hours * 60) + ':' + seconds);
-            }
+        if (minutes < 10) {
+            minutes = '0' + minutes;
+        }
+        if (seconds < 10) {
+            seconds = '0' + seconds;
+        }
 
-            if (remaining <= 0) {
-                $('.rebuys-late-addon').html(endedtxt);
+        if (hours < 1) {
+            $('.rebuys-late-addon').html(txt + minutes + ':' + seconds);
+        } else {
+            $('.rebuys-late-addon').html(txt + hours + '.' + (minutes - hours * 60) + ':' + seconds);
+        }
+
+        if (remaining <= 0) {
+            $('.rebuys-late-addon').html(endedtxt);
+            if (intervalID) {
                 window.clearInterval(intervalID);
                 timerRebuys = -1;
             }
         }
-    }, 1000);
+    }
 }
 
 function showRebuyAndAddonsStats(data) {
