@@ -31,7 +31,7 @@ class GameData constructor(
     var gameStart: Long = 0
     var roundState = RoundState.ACTIVE
 
-    var pauseStart = 0L
+    var pauseStart: Long? = null
     var totalPauseTime = 0L
 
     val isLateRegistrationEnabled
@@ -82,9 +82,11 @@ class GameData constructor(
             pauseStart = System.currentTimeMillis()
         } else {
             gameState = State.ACTIVE
-            val pauseTime = System.currentTimeMillis() - pauseStart
+            val pauseTime = System.currentTimeMillis() - (pauseStart ?: 0L)
             totalPauseTime += pauseTime
             nextBlindsChangeAt += pauseTime
+
+            pauseStart = null
         }
     }
 }

@@ -142,3 +142,4 @@ gradle-app.setting
 run.sh
 dist/*
 logs/*
+state/*
