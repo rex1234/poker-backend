@@ -37,11 +37,15 @@ class SerializationManager {
 
         if (stateFile.exists()) {
             val serializedState = stateFile.readText()
-            val deserializedState = Gson().fromJson(serializedState, GamePoolState::class.java)
+            try {
+                val deserializedState = Gson().fromJson(serializedState, GamePoolState::class.java)
 
-            gamePool.createGameSessionWithGameData(deserializedState)
+                gamePool.createGameSessionWithGameData(deserializedState)
 
-            logger.info("Game state restored from file ${this.stateFile}")
+                logger.info("Game state restored from file $stateFile")
+            } catch (e: JsonSyntaxException) {
+                logger.error("Invalid state file ($stateFile) contents", e)
+            }
         } else {
             logger.info("No state file found. Restoring no games.")
         }
