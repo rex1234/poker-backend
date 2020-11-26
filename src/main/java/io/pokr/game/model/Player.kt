@@ -21,7 +21,6 @@ data class Player(
     var cards: CardList = CardList(),
     var hand: HandComparator.Hand? = null,
     var currentBet: Int = 0,
-    var lastTargetBet: Int = 0,
     var canRaise: Boolean = true,
     var chips: Int = 0,
     var rebuyCount: Int = 0,

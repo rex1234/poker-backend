@@ -1,6 +1,7 @@
 package io.pokr.network.responses
 
 import io.pokr.game.model.*
+import io.pokr.game.model.GameData.*
 import org.apache.commons.text.*
 
 class GameResponse(
@@ -66,13 +67,13 @@ class GameResponse(
                 uuid = game.uuid,
                 config = game.config,
                 state = game.gameState.toString().toLowerCase(),
-                gameStart = if (game.gameState == GameData.State.ACTIVE) game.gameStart else null,
+                gameStart = if (game.gameState == State.ACTIVE) game.gameStart else null,
                 round = game.round,
                 roundState = game.roundState.toString().toLowerCase(),
                 user = game.allPlayers.first {
                     it.uuid == currentPlayerUuid
                 }.playerState(true, game),
-                cards = if (game.gameState == GameData.State.ACTIVE) game.tableCards.toString() else "",
+                cards = if (game.gameState in listOf(State.ACTIVE, State.PAUSED)) game.tableCards.toString() else "",
                 bestCards = game.bestCards?.toString(),
                 pot = game.allPlayers.sumBy { it.currentBet },
                 smallBlind = game.smallBlind,

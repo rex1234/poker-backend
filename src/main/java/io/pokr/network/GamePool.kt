@@ -46,8 +46,6 @@ class GamePool {
             }
 
             gameSessions[it.uuid] = gameSession
-
-            // TODO: adjust games with gamePoolState.serializedAt delay
         }
 
     /**

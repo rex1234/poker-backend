@@ -6,6 +6,8 @@ data class GameRestorePoint(
     val uuid: String,
     val gameConfig: GameConfig,
     val gameState: GameData.State,
+    val cardStack: CardList,
+    val tableCards: CardList,
     val allPlayers: List<Player>,
     val targetBet: Int,
     val lastFullRaiseDiff: Int,
@@ -27,6 +29,8 @@ data class GameRestorePoint(
            GameRestorePoint(
                uuid = gameData.uuid,
                gameConfig = gameData.config,
+               cardStack = CardList.fromCardStack(gameData.cardStack),
+               tableCards = gameData.tableCards,
                gameState = GameData.State.PAUSED,
                allPlayers = gameData.allPlayers.map { it.copy() },
                targetBet = gameData.targetBet,
@@ -49,6 +53,8 @@ data class GameRestorePoint(
         GameData(uuid).also {
             it.config = gameConfig
             it.gameState = gameState
+            it.tableCards = tableCards
+            it.cardStack = CardStack(cardStack.cards)
             it.allPlayers.addAll(allPlayers)
             it.targetBet = targetBet
             it.lastFullRaiseDiff = lastFullRaiseDiff

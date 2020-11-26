@@ -4,7 +4,7 @@ package io.pokr.game.model
  * Shuffled stack from which cards can be drawn
  */
 class CardStack(
-    var stack: List<Card>,
+    var stack: List<Card>, // TODO: use CardList instead
 ) {
 
     companion object {
