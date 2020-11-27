@@ -9,7 +9,7 @@ class HoldemTournamentGameEngineTest {
     private val startingSmallBlind = 10
     private val startingBigBlind = startingSmallBlind * 2
 
-    private fun initEngine(adminUuid: String = "admin", nrOfPlayers: Int = 5) : HoldemTournamentGameEngine {
+    private fun initEngine(adminUuid: String = "admin", nrOfPlayers: Int = 5): HoldemTournamentGameEngine {
         val engine = HoldemTournamentGameEngine(
             gameUuid = "engine",
             gameConfig = GameConfig(2500, startingSmallBlind, 10, 60, 30, 2),
@@ -26,7 +26,7 @@ class HoldemTournamentGameEngineTest {
         return engine
     }
 
-    private fun initEngineAndStart(adminUuid: String = "admin", nrOfPlayers: Int = 5) : HoldemTournamentGameEngine {
+    private fun initEngineAndStart(adminUuid: String = "admin", nrOfPlayers: Int = 5): HoldemTournamentGameEngine {
         val engine = initEngine(adminUuid, nrOfPlayers)
         engine.startGame(adminUuid)
         return engine
@@ -315,6 +315,29 @@ class HoldemTournamentGameEngineTest {
 
         Assert.assertEquals(true, button.isDealer)
         Assert.assertEquals(true, button.isOnMove)
+    }
+
+    @Test
+    fun assignCorrectRanksTest() {
+        val engine = initEngine(nrOfPlayers = 0)
+
+        val players = listOf(
+            Player("1").apply { name = "0"; chips = 1000 },
+            Player("2").apply { name = "0"; chips = 1500 },
+            Player("3").apply { name = "3"; chips = 0; chipsAtStartOfTheRound = 700 },
+            Player("4").apply { name = "4"; chips = 0; chipsAtStartOfTheRound = 300 },
+            Player("5").apply { name = "5"; chips = 0; chipsAtStartOfTheRound = 100 },
+            Player("6").apply { name = "6"; chips = 3000; isLeaveNextRound = true },
+            Player("7").apply { name = "7"; chips = 500; isLeaveNextRound = true; chipsAtStartOfTheRound = 500 },
+            Player("8").apply { name = "8"; chips = 500; isLeaveNextRound = true; chipsAtStartOfTheRound = 300 },
+            Player("9").apply { name = "9"; chips = 0; isLeaveNextRound = true; chipsAtStartOfTheRound = 0 },
+        )
+
+        engine.gameData.allPlayers.addAll(players)
+
+        engine.calculateFinalRanks()
+
+        Assert.assertEquals(players.map { it.name.toInt() }, players.map { it.finalRank })
     }
 
 }

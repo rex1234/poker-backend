@@ -119,16 +119,17 @@ class HoldemTournamentGameEngine(
         }
 
         // we will add chips to players that rebought
-        gameData.allPlayers.filter { it.isRebuyNextRound }.forEach {
-            it.isFinished = false
-            it.isRebuyNextRound = false
-            it.finalRank = 0
-            it.chips = gameData.config.startingChips
+        gameData.allPlayers.filter { it.isRebuyNextRound }.forEach { player ->
 
-            // we have to increase ranks of players that are not playing anymore
-            (gameData.allPlayers - gameData.activePlayers).forEach {
+            // we have to increase ranks of players that are not playing anymore and were in front of the rebought player
+            gameData.allPlayers.filter { it.finalRank != 0 && it.finalRank < player.finalRank }.forEach {
                 it.finalRank++
             }
+
+            player.isFinished = false
+            player.isRebuyNextRound = false
+            player.finalRank = 0
+            player.chips = gameData.config.startingChips
         }
 
         // reset players' states
@@ -371,11 +372,11 @@ class HoldemTournamentGameEngine(
     }
 
     private fun finishRound() {
-        val chipsBeforeWinnings = gameData.players.map { it to it.chips }.toMap()
+        gameData.players.map { it.chipsAtStartOfTheRound = it.chips }
 
         calculateWinnings()
 
-        // calculate hands
+        // calculate hand strengths
         if (gameData.tableCards.cards.size >= 3) {
             gameData.players.forEach {
                 it.hand = handComparator.findHighestHand(it.cards, gameData.tableCards)
@@ -387,28 +388,7 @@ class HoldemTournamentGameEngine(
             gameData.players.filter { it.action != PlayerAction.Action.FOLD }.forEach { it.showCards = true }
         }
 
-        // we will discard players that have left / have been kicked
-        gameData.allPlayers.filter { it.isLeaveNextRound }.forEach {
-            it.finalRank = gameData.players.size + 1
-
-            it.isFinished = true
-            it.isLeaveNextRound = false
-            it.chips = 0
-            it.isAdmin = false
-
-            if (it.isAdmin && gameData.players.isNotEmpty()) {
-                gameData.players.first().isAdmin = true
-            }
-        }
-
-        // if a player has 0 chips, he is finished and won't play anymore (unless he rebuys)
-        // player with more chips at the round start has better final rank
-        gameData.allPlayers.filter { it.finalRank == 0 && it.chips == 0 }.sortedByDescending {
-            chipsBeforeWinnings[it]
-        }.forEachIndexed { i, player ->
-            player.finalRank = gameData.players.size + i
-            player.isFinished = true
-        }
+        calculateFinalRanks()
 
         // switch to the FINISHED state, no actions can be performed anymore and the results of the round are shown
         gameData.roundState = GameData.RoundState.FINISHED
@@ -434,6 +414,39 @@ class HoldemTournamentGameEngine(
 
             }
             isRoundEndThreadRunning = false
+        }
+    }
+
+    /**
+     * Calculates rank of players that won't play the next round (either left or finished with 0 chips)
+     * Sorting criteria are:
+     *  1. players that finished the game without leaving with more chips at the beginning of the round
+     *  2. players that left with more chips at the end of the round
+     *  3. players that left with more chips at the beginning of the round
+     */
+    fun calculateFinalRanks() {
+
+        val nonFinishingPlayerCount = gameData.allPlayers.count {
+            it.finalRank == 0 && it.chips > 0 && !it.isLeaveNextRound
+        }
+
+        gameData.allPlayers.filter {
+            it.finalRank == 0 && (it.chips == 0 || it.isLeaveNextRound)
+        }.sortedWith(
+            compareBy({ it.isLeaveNextRound }, { -it.chips }, { -it.chipsAtStartOfTheRound })
+        ).forEachIndexed { i, player ->
+            player.finalRank = nonFinishingPlayerCount + i + 1
+            player.isFinished = true
+
+            if(player.isLeaveNextRound) {
+                player.isLeaveNextRound = false
+                player.chips = 0
+                player.isAdmin = false
+
+                if (player.isAdmin && gameData.players.isNotEmpty()) {
+                    gameData.players.first().isAdmin = true
+                }
+            }
         }
     }
 
