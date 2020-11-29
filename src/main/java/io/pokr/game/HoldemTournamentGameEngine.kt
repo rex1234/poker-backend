@@ -121,7 +121,7 @@ class HoldemTournamentGameEngine(
         // we will add chips to players that rebought
         gameData.allPlayers.filter { it.isRebuyNextRound }.forEach { player ->
 
-            // we have to increase ranks of players that are not playing anymore and were in front of the rebought player
+            // adjust ranks of other players
             gameData.allPlayers.filter { it.finalRank != 0 && it.finalRank < player.finalRank }.forEach {
                 it.finalRank++
             }
@@ -145,6 +145,7 @@ class HoldemTournamentGameEngine(
             it.currentBet = 0
             it.canRaise = true
             it.isWinner = false
+            it.chipsAtStartOfTheRound = it.chips
         }
 
         // draw cards for each non-finished player
@@ -372,8 +373,6 @@ class HoldemTournamentGameEngine(
     }
 
     private fun finishRound() {
-        gameData.players.map { it.chipsAtStartOfTheRound = it.chips }
-
         calculateWinnings()
 
         // calculate hand strengths
@@ -426,19 +425,18 @@ class HoldemTournamentGameEngine(
      */
     fun calculateFinalRanks() {
 
-        val nonFinishingPlayerCount = gameData.allPlayers.count {
-            it.finalRank == 0 && it.chips > 0 && !it.isLeaveNextRound
-        }
-
-        gameData.allPlayers.filter {
+        val finishingPlayers = gameData.allPlayers.filter {
             it.finalRank == 0 && (it.chips == 0 || it.isLeaveNextRound)
-        }.sortedWith(
+        }
+        val nonFinishingPlayerCount = gameData.allPlayers.size - finishingPlayers.size
+
+        finishingPlayers.sortedWith(
             compareBy({ it.isLeaveNextRound }, { -it.chips }, { -it.chipsAtStartOfTheRound })
         ).forEachIndexed { i, player ->
             player.finalRank = nonFinishingPlayerCount + i + 1
             player.isFinished = true
 
-            if(player.isLeaveNextRound) {
+            if (player.isLeaveNextRound) {
                 player.isLeaveNextRound = false
                 player.chips = 0
                 player.isAdmin = false
