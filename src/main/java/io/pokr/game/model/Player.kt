@@ -23,7 +23,6 @@ class Player(
     var cards = CardList()
     var hand: HandComparator.Hand? = null
     var currentBet = 0
-    var lastTargetBet = 0
     var canRaise = true
     var chips = 0
     var rebuyCount = 0
@@ -37,6 +36,9 @@ class Player(
     var showCards = false
     var lastWin = 0
     var isWinner = false
+
+    // helper vars
+    @Transient var chipsAtStartOfTheRound = 0
 
     fun startMove() {
         moveStart = System.currentTimeMillis()
