@@ -75,6 +75,8 @@ class HoldemTournamentGameEngine(
                 isRebuyNextRound = true
             }
         })
+
+        gameData.allPlayers.sortBy { it.index }
     }
 
     fun startGame(playerUuid: String) {
@@ -99,8 +101,6 @@ class HoldemTournamentGameEngine(
         gameData.nextSmallBlind = BlindCalculator.nextBlind(gameData.smallBlind)
         gameData.bigBlind = gameData.smallBlind * 2
         gameData.nextBlindsChangeAt = gameData.gameStart + gameData.config.blindIncreaseTime * 1000
-
-        gameData.allPlayers.sortBy { it.index }
 
         gameData.allPlayers.shuffled().first().isDealer = true // chose random dealer
 
