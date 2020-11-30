@@ -136,15 +136,17 @@ class HoldemTournamentGameEngine(
         // we will add chips to players that rebought
         gameData.allPlayers.filter { it.isRebuyNextRound }.forEach { player ->
 
-            // adjust ranks of other players
-            gameData.allPlayers.filter { it.finalRank != 0 && it.finalRank < player.finalRank }.forEach {
-                it.finalRank++
-            }
+            if (canPlayerJoinNextRound(player)) {
+                // adjust ranks of other players
+                gameData.allPlayers.filter { it.finalRank != 0 && it.finalRank < player.finalRank }.forEach {
+                    it.finalRank++
+                }
 
-            player.isFinished = false
-            player.isRebuyNextRound = false
-            player.finalRank = 0
-            player.chips = gameData.config.startingChips
+                player.isFinished = false
+                player.isRebuyNextRound = false
+                player.finalRank = 0
+                player.chips = gameData.config.startingChips
+            }
         }
 
         // reset players' states
@@ -576,6 +578,24 @@ class HoldemTournamentGameEngine(
             )
             updateStateListener(this)
         }
+    }
+
+    // if a player joins the game or rebuys in a position between the current SB and BB, they have to wait another round
+    fun canPlayerJoinNextRound(player: Player): Boolean {
+        // unless there are just two players in the game, in that case, they can join at any position
+        if (gameData.players.size <= 2) {
+            return true
+        }
+
+        val potentialNextRoundPlayers = gameData.allPlayers.filter { it == player || (!it.isFinished && !it.isKicked) }
+        val playerIndex = potentialNextRoundPlayers.indexOf(player)
+        val prevPositionPlayer = if (playerIndex > 0) playerIndex - 1 else potentialNextRoundPlayers.size - 1
+
+        if (potentialNextRoundPlayers[prevPositionPlayer] == gameData.nextDealer) {
+            return false
+        }
+
+        return true
     }
 
     fun rebuy(playerUuid: String) =

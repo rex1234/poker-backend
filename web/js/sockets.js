@@ -1651,9 +1651,9 @@ function showRebuyControls(data) {
         //the round that he had rebuy
         if (data.user.rebuyNextRound === true) {
             if (data.user.rebuyCount === 0) {
-                $rebuyMsg.html('Successfully joined. You will play next hand.');
+                $rebuyMsg.html('Successfully joined. You will play in the next possible hand.');
             } else {
-                $rebuyMsg.html('Rebuy added. You will play next hand.');
+                $rebuyMsg.html('Rebuy added. You will play in the next possible hand.');
             }
             $rebuyMsg.show();
             $player1.addClass('rebuyed');

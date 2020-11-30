@@ -341,4 +341,63 @@ class HoldemTournamentGameEngineTest {
         Assert.assertEquals(players.map { it.name.toInt() }, players.map { it.finalRank })
     }
 
+    @Test
+    fun canPlayerJoinTwoOtherPlayersNextRoundTest() {
+        val engine = initEngine(nrOfPlayers = 0)
+
+        val players = listOf(
+            Player("rebought").apply {
+                isFinished = true
+                isRebuyNextRound = true
+            },
+            Player("1").apply { isDealer = true },
+            Player("2"),
+        )
+
+        engine.gameData.allPlayers.addAll(players)
+
+        Assert.assertTrue(engine.canPlayerJoinNextRound(players.get(0)))
+    }
+
+    @Test
+    fun canPlayerJoinNextRoundTest() {
+        val engine = initEngine(nrOfPlayers = 0)
+
+        val players = listOf(
+            Player("rebought").apply {
+                isFinished = true
+                isRebuyNextRound = true
+            },
+            Player("1").apply { isDealer = true },
+            Player("2"),
+            Player("3"),
+            Player("4"),
+            Player("5"),
+        )
+
+        engine.gameData.allPlayers.addAll(players)
+
+        Assert.assertTrue(engine.canPlayerJoinNextRound(players.get(0)))
+    }
+
+    @Test
+    fun canPlayerJoinNextRoundAsSmallBlindTest() {
+        val engine = initEngine(nrOfPlayers = 0)
+
+        val players = listOf(
+            Player("rebought").apply {
+                isFinished = true
+                isRebuyNextRound = true
+            },
+            Player("1"),
+            Player("2"),
+            Player("3"),
+            Player("4").apply { isDealer = true },
+            Player("5"),
+        )
+
+        engine.gameData.allPlayers.addAll(players)
+
+        Assert.assertFalse(engine.canPlayerJoinNextRound(players.get(0)))
+    }
 }
