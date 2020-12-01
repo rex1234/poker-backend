@@ -6,7 +6,6 @@ import io.pokr.game.model.*
 import io.pokr.network.*
 import org.slf4j.*
 import java.io.*
-import java.lang.Exception
 
 class SerializationManager {
 
@@ -19,8 +18,8 @@ class SerializationManager {
     init {
         gson = GsonBuilder()
             .registerTypeAdapter(CardList::class.java, object: TypeAdapter<CardList>() {
-                override fun write(json: JsonWriter, value: CardList) {
-                    json.value(value.toString())
+                override fun write(json: JsonWriter, value: CardList?) {
+                    json.value(value?.toString().orEmpty())
                 }
 
                 override fun read(json: JsonReader) =
