@@ -6,6 +6,7 @@ import io.pokr.game.model.*
 import io.pokr.network.model.*
 import io.pokr.network.responses.*
 import io.pokr.network.util.*
+import io.pokr.serialization.*
 import org.slf4j.*
 
 /**
@@ -14,6 +15,8 @@ import org.slf4j.*
 class GamePool {
 
     private val logger = LoggerFactory.getLogger(GamePool::class.java)
+
+    private val serializationManager = SerializationManager()
 
     val gameSessions = mutableMapOf<String, GameSession>()
 
@@ -26,6 +29,24 @@ class GamePool {
      * Called when game state should be sent to connected clients
      */
     var gameStateUpdatedListener: ((playerSession: String, gameState: GameResponse.GameState) -> Unit)? = null
+
+    init {
+        serializationManager.restoreState(this)
+    }
+
+    /**
+     * Adds games stored in GamePoolState to this GamePool
+     */
+    fun createGameSessionWithGameData(gamePoolState: GamePoolState) =
+        gamePoolState.gameSessions.forEach {
+            val gameEngine = createGameEngine(it.uuid, it.gameRestorePoint.gameConfig, it.gameRestorePoint.toGameData())
+
+            val gameSession = GameSession(it.uuid, gameEngine).apply {
+                playerSessions.addAll(it.playerSessions)
+            }
+
+            gameSessions[it.uuid] = gameSession
+        }
 
     /**
      * Created a new game game discarding any previous games with the same UUID (should not happen outside of debugging).
@@ -48,22 +69,7 @@ class GamePool {
 
         logger.info("Created game session: ${gameUuid}")
 
-        val gameEngine = HoldemTournamentGameEngine(
-            gameUuid = gameUuid,
-            gameConfig = gameConfig,
-
-            updateStateListener = {
-                notifyPlayers(it.gameData.uuid)
-            },
-
-            gameFinishedListener = {
-                discardGame(it.gameData.uuid)
-            },
-
-            playerKickedListener = { gameEngine, player ->
-                removePlayerSession(gameEngine.gameData.uuid, player.uuid)
-            }
-        )
+        val gameEngine = createGameEngine(gameUuid, gameConfig)
 
         val gameSession = GameSession(gameUuid, gameEngine).apply {
             playerSessions.add(playerSession)
@@ -214,6 +220,27 @@ class GamePool {
                 gameEngine.nextPlayerMove(playerUuid, action)
         }
     }
+
+    private fun createGameEngine(gameUuid: String, gameConfig: GameConfig, gameData: GameData? = null) =
+        HoldemTournamentGameEngine(
+            gameUuid = gameUuid,
+            gameConfig = gameConfig,
+            initialGameData = gameData,
+
+            updateStateListener = {
+                notifyPlayers(it.gameData.uuid)
+            },
+
+            gameFinishedListener = {
+                discardGame(it.gameData.uuid)
+            },
+
+            playerKickedListener = { gameEngine, player ->
+                removePlayerSession(gameEngine.gameData.uuid, player.uuid)
+            },
+
+            restorePointCreatedListener =  { serializationManager.storeState(this) }
+        )
 
     /**
      * Sends current game state to all players in a GameSession with given gameUuid

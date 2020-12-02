@@ -15,7 +15,8 @@ class HoldemTournamentGameEngineTest {
             gameConfig = GameConfig(2500, startingSmallBlind, 10, 60, 30, 2),
             updateStateListener = {},
             gameFinishedListener = {},
-            playerKickedListener = { _, _ -> }
+            playerKickedListener = { _, _ -> },
+            restorePointCreatedListener = {}
         )
         if (nrOfPlayers > 0) {
             engine.addPlayer(adminUuid)

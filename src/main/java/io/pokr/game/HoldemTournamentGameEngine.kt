@@ -3,6 +3,7 @@ package io.pokr.game
 import io.pokr.game.exceptions.*
 import io.pokr.game.model.*
 import io.pokr.game.tools.*
+import io.pokr.serialization.*
 import org.slf4j.*
 import kotlin.concurrent.*
 import kotlin.math.*
@@ -10,10 +11,27 @@ import kotlin.math.*
 class HoldemTournamentGameEngine(
     gameUuid: String,
     gameConfig: GameConfig,
-    val updateStateListener: (HoldemTournamentGameEngine) -> Unit,
-    val gameFinishedListener: (HoldemTournamentGameEngine) -> Unit,
-    val playerKickedListener: (HoldemTournamentGameEngine, Player) -> Unit,
+    initialGameData: GameData? = null,
+    private val updateStateListener: (HoldemTournamentGameEngine) -> Unit,
+    private val gameFinishedListener: (HoldemTournamentGameEngine) -> Unit,
+    private val playerKickedListener: (HoldemTournamentGameEngine, Player) -> Unit,
+    private val restorePointCreatedListener: (HoldemTournamentGameEngine) -> Unit,
 ) {
+
+    val gameData: GameData
+
+    // game data stored after each round
+    var gameRestorePoint: GameRestorePoint? = null
+
+    init {
+        if(initialGameData != null) {
+            gameData = initialGameData
+        } else {
+            gameData = GameData(gameUuid)
+        }
+
+        gameData.config = gameConfig
+    }
 
     private val handComparator = HandComparator()
 
@@ -29,12 +47,9 @@ class HoldemTournamentGameEngine(
     // whether we the timer at the round's end is running
     private var isRoundEndThreadRunning = false
 
-    val gameData: GameData
+    val gameUuid
+        get() = gameData.uuid
 
-    init {
-        gameData = GameData(gameUuid)
-        gameData.config = gameConfig
-    }
 
     fun addPlayer(playerUUID: String) {
         if (gameData.allPlayers.size == 9) {
@@ -391,6 +406,9 @@ class HoldemTournamentGameEngine(
 
         // switch to the FINISHED state, no actions can be performed anymore and the results of the round are shown
         gameData.roundState = GameData.RoundState.FINISHED
+
+        gameRestorePoint = GameRestorePoint.fromGameData(gameData)
+        restorePointCreatedListener(this)
 
         thread {
             // otherwise we will wait some time and start a new round
