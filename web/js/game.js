@@ -446,7 +446,7 @@ $(document).ready(function () {
 
 function nameValidation(obj, elem) {
     //regex explained: https://stackoverflow.com/a/39134560
-    const regexname = /[^0-9a-zA-Z\u00C0-\u024F\u1E00-\u1EFF ]/;
+    const regexname = /[^.:%!?@#^$&*(),+|'_=\-0-9a-zA-Z\u00C0-\u024F\u1E00-\u1EFF ]/;
 
     if (elem === 1) {
         $('#userid-create').val($(obj).val());
