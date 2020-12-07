@@ -445,7 +445,8 @@ $(document).ready(function () {
 });
 
 function nameValidation(obj, elem) {
-    const regexname = /[^a-zA-ZÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËèéêëÇçÌÍÎÏìíîïÙÚÛÜŮùúûüůÿÑñčČřŘšŠěĚďĎľĽňŇťŤžŽ0-9.:%!?@#^$&*(),+|\\\/_=\- ]/;
+    //regex explained: https://stackoverflow.com/a/39134560
+    const regexname = /[^.:%!?@#^$&*(),+|'_=\-0-9a-zA-Z\u00C0-\u024F\u1E00-\u1EFF ]/;
 
     if (elem === 1) {
         $('#userid-create').val($(obj).val());

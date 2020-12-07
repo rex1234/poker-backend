@@ -3,6 +3,7 @@ package io.pokr.network
 import io.pokr.game.*
 import io.pokr.game.exceptions.*
 import io.pokr.game.model.*
+import io.pokr.game.tools.*
 import io.pokr.network.model.*
 import io.pokr.network.responses.*
 import io.pokr.network.util.*
@@ -54,7 +55,7 @@ class GamePool {
      */
     fun createGame(gameConfig: GameConfig, playerSessionId: String, playerName: String) {
 
-        if (!gameConfig.isValid) {
+        if (!InputValidator.validateGameConfig(gameConfig)) {
             throw GameException(1, "Invalid game configuration", "Config: $gameConfig")
         }
 
@@ -282,7 +283,7 @@ class GamePool {
 
 
     private fun validatePlayerName(playerName: String) {
-        if (playerName.length > 10 || playerName.trim().isEmpty()) {
+        if (!InputValidator.validatePlayerName(playerName)) {
             throw GameException(7, "Invalid name", "Name: $playerName")
         }
     }
