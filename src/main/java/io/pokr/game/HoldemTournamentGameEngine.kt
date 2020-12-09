@@ -114,6 +114,8 @@ class HoldemTournamentGameEngine(
         gameTimer.start()
     }
 
+    // TODO: FE: Uncaught TypeError: Cannot read property 'currentBet' of undefined
+    // TODO: cards of a newcomer sometimes don't appear
     private fun startNewRound() {
         if (gameData.gameState == GameData.State.PAUSED) {
             return
@@ -133,22 +135,6 @@ class HoldemTournamentGameEngine(
             tableCards = CardList()
         }
 
-        // we will add chips to players that rebought
-        gameData.allPlayers.filter { it.isRebuyNextRound }.forEach { player ->
-
-            if (canPlayerJoinNextRound(player)) {
-                // adjust ranks of other players
-                gameData.allPlayers.filter { it.finalRank != 0 && it.finalRank < player.finalRank }.forEach {
-                    it.finalRank++
-                }
-
-                player.isFinished = false
-                player.isRebuyNextRound = false
-                player.finalRank = 0
-                player.chips = gameData.config.startingChips
-            }
-        }
-
         // reset players' states
         gameData.allPlayers.forEach {
             it.cards = CardList()
@@ -163,6 +149,24 @@ class HoldemTournamentGameEngine(
             it.canRaise = true
             it.isWinner = false
             it.chipsAtStartOfTheRound = it.chips
+            it.didRebuyThisRound = false
+        }
+
+        // we will add chips to players that rebought
+        gameData.allPlayers.filter { it.isRebuyNextRound }.forEach { player ->
+
+            if (canPlayerJoinNextRound(player)) {
+                // adjust ranks of other players
+                gameData.allPlayers.filter { it.finalRank != 0 && it.finalRank < player.finalRank }.forEach {
+                    it.finalRank++
+                }
+
+                player.isFinished = false
+                player.isRebuyNextRound = false
+                player.didRebuyThisRound = true
+                player.finalRank = 0
+                player.chips = gameData.config.startingChips
+            }
         }
 
         // draw cards for each non-finished player

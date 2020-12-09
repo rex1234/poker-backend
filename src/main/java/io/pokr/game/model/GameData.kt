@@ -58,7 +58,18 @@ class GameData constructor(
         get() = allPlayers.first { it.isDealer }
 
     val nextDealer
-        get() = (players + players).run { get(indexOf(currentDealer) + 1) }
+        get() = (players + players).run {
+            // in 3+ players, players who just rebought cannot start playing on the button
+            if (players.size > 3) {
+                for (i in indexOf(currentDealer) + 1 until size) {
+                    if (!get(i).didRebuyThisRound) {
+                        return@run get(i)
+                    }
+                }
+            }
+
+            return@run get(indexOf(currentDealer) + 1)
+        }
 
     val currentPlayerOnMove
         get() = allPlayers.first { it.isOnMove }

@@ -23,11 +23,13 @@ data class Player(
     var currentBet: Int = 0,
     var canRaise: Boolean = true,
     var chips: Int = 0,
-    var rebuyCount: Int = 0,
     var finalRank: Int = 0, // final game rank
 
-    var isLeaveNextRound: Boolean = false,
     var isRebuyNextRound: Boolean = false,
+    var didRebuyThisRound: Boolean = false,
+    var rebuyCount: Int = 0,
+
+    var isLeaveNextRound: Boolean = false,
 
     // only for FE
     var bestCards: CardList? = null,
