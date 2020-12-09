@@ -114,7 +114,6 @@ class HoldemTournamentGameEngine(
         gameTimer.start()
     }
 
-    // TODO: FE: Uncaught TypeError: Cannot read property 'currentBet' of undefined
     // TODO: cards of a newcomer sometimes don't appear
     private fun startNewRound() {
         if (gameData.gameState == GameData.State.PAUSED) {

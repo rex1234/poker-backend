@@ -1331,7 +1331,7 @@ function showRebuyAndAddonsStats(data) {
 }
 
 function assignTags(data) {
-    if (isReconnect(data) === false) {
+    if (isReconnect(data) === false && prevData && prevData.players.length === data.players.length) {
         const players = [...data.players];
         players.push(data.user);
         const prevPlayers = [...prevData.players];
