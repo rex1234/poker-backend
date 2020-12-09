@@ -1124,7 +1124,7 @@ function updateLeaderboard(data) {
     if (data.roundState !== 'finished' || data.state === 'finished') {
         const pls = [];
         const bustedPls = [];
-        for (let i = 0; i < prevData.players.length; i++) {
+        for (let i = 0; i < data.players.length; i++) {
             if (data.players[i].chips > 0) {
                 pls.push([data.players[i].chips, data.players[i].name, data.players[i].rebuyCount]);
             } else {
