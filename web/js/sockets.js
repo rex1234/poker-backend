@@ -1119,47 +1119,38 @@ function updateBlindsTime(nextBlindsChangeAt, state, intervalID) {
     }
 }
 
-function updateLeaderboard(data) {
-    let middle;
+const makeLeaderboardTableRow = (name, rank, chips, rebuyCount, state) =>
+    `<tr>
+        <td>${rank}</td>
+        <td>${name}${rebuyCount ? `<div class="leaderboard-rebuys">${rebuyCount}</div>` : ''}</td>
+        <td>${state ? state : chips}</td>
+    </tr>`;
+
+const updateLeaderboard = data => {
     if (data.roundState !== 'finished' || data.state === 'finished') {
-        const pls = [];
-        const bustedPls = [];
-        for (let i = 0; i < data.players.length; i++) {
-            if (data.players[i].chips > 0) {
-                pls.push([data.players[i].chips, data.players[i].name, data.players[i].rebuyCount]);
-            } else {
-                bustedPls.push([data.players[i].finalRank, data.players[i].name, data.players[i].rebuyCount]);
+        const players = [data.user, ...data.players].sort((a, b) => {
+            if (a.finalRank === b.finalRank) {
+                return b.chips - a.chips;
             }
-        }
-        if (data.user.chips > 0) {
-            pls.push([data.user.chips, data.user.name, data.user.rebuyCount]);
-        } else {
-            bustedPls.push([data.user.finalRank, data.user.name, data.user.rebuyCount]);
-        }
-        pls.sort(function (a, b) {
-            return a[0] - b[0];
+            return a.finalRank - b.finalRank;
         });
-        bustedPls.sort(function (a, b) {
-            return b[0] - a[0];
-        });
+
         const $leaderboardTable = $('#leaderboard .inside table');
         $leaderboardTable.html('');
-        for (let i = pls.length - 1; i >= 0; i--) {
-            middle = '';
-            if (pls[i][2] > 0) {
-                middle = '<div class="leaderboard-rebuys">' + pls[i][2] + '</div>';
+
+        players.forEach((player, idx) => {
+            let state;
+            if (player.rebuyNextRound) {
+                state = player.rebuyCount === 0 ? 'Late reg.' : 'Rebuy';
+            } else if (player.chips <= 0) {
+                state = 'Busted!'
             }
-            $leaderboardTable.append('<tr><td>' + (pls.length - i) + '</td><td>' + pls[i][1] + middle + '</td><td>' + pls[i][0] + '</td></tr>');
-        }
-        for (let i = bustedPls.length - 1; i >= 0; i--) {
-            middle = '';
-            if (bustedPls[i][2] > 0) {
-                middle = '<div class="leaderboard-rebuys">' + bustedPls[i][2] + '</div>';
-            }
-            $leaderboardTable.append('<tr><td>' + (pls.length + bustedPls.length - i) + '</td><td>' + bustedPls[i][1] + middle + '</td><td>Busted!</td></tr>');
-        }
+            $leaderboardTable.append(
+                makeLeaderboardTableRow(player.name, player.finalRank || idx + 1, player.chips, player.rebuyCount, state)
+            );
+        })
     }
-}
+};
 
 function updateLastPlayedHand(data) {
     if ((data.roundState !== 'finished' && roundAfterReconnect !== 0) || data.state === 'finished') {
@@ -1191,7 +1182,6 @@ function updateLastPlayedHand(data) {
         } else if (finishedData.user.action === 'fold' && showedCards === data.round - 1) {
             foldedPls.push([finishedData.user.lastWin, finishedData.user.cards, finishedData.user.hand, finishedData.user.name]);
         }
-        //TODO last hand fix – when someone busts, it does not show him in the last played hand
         for (let i = 0; i < finishedData.players.length; i++) {
             if (finishedData.players[i].action !== 'fold' && finishedData.players[i].finalRank === 0) {
                 pls.push([finishedData.players[i].lastWin, finishedData.players[i].cards, finishedData.players[i].hand, finishedData.players[i].name]);
