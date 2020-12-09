@@ -490,10 +490,10 @@ function printPlayers(data) {
     //hide inactive users
     for (let i = 1; i <= 9; i++) {
         const player = positionedPlayers.get(i);
-        if (data.state !== 'active' || !player || player.finalRank !== 0 || player.rebuyNextRound) {
-            $(`#player${i}`).addClass('folded');
-        } else {
+        if (data.state === 'active' && player && player.finalRank === 0 && !player.rebuyNextRound && !player.hasLeft) {
             $(`#player${i}`).removeClass('folded');
+        } else {
+            $(`#player${i}`).addClass('folded');
         }
     }
 

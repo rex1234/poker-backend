@@ -406,7 +406,17 @@ class HoldemTournamentGameEngine(
             gameData.players.filter { it.action != PlayerAction.Action.FOLD }.forEach { it.showCards = true }
         }
 
-        calculateFinalRanks()
+        gameData.allPlayers.forEach {
+            if (it.isLeaveNextRound) {
+                it.isLeaveNextRound = false
+                it.chips = 0
+                it.isAdmin = false
+
+                if (it.isAdmin && gameData.players.isNotEmpty()) {
+                    gameData.players.first().isAdmin = true
+                }
+            }
+        }
 
         // switch to the FINISHED state, no actions can be performed anymore and the results of the round are shown
         gameData.roundState = GameData.RoundState.FINISHED
@@ -424,6 +434,8 @@ class HoldemTournamentGameEngine(
             Thread.sleep(2_000 + min(3_000 + max((gameData.players.count { it.showCards } - 1), 0) * 1500L,
                 6000L) + extraRoundTime)
             extraRoundTime = 0L
+
+            calculateFinalRanks()
 
             // if there is only one player with chips we will finish the game
             if (gameData.allPlayers.count { it.chips > 0 || it.isRebuyNextRound } == 1) {
@@ -457,16 +469,6 @@ class HoldemTournamentGameEngine(
         ).forEachIndexed { i, player ->
             player.finalRank = nonFinishingPlayerCount + i + 1
             player.isFinished = true
-
-            if (player.isLeaveNextRound) {
-                player.isLeaveNextRound = false
-                player.chips = 0
-                player.isAdmin = false
-
-                if (player.isAdmin && gameData.players.isNotEmpty()) {
-                    gameData.players.first().isAdmin = true
-                }
-            }
         }
     }
 
