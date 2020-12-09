@@ -390,17 +390,6 @@ function printPlayers(data) {
         $('#player1 .card-2').html('<img src="img/cards/' + cardsSettings + cards[1] + '.svg"/>');
     }
 
-    const positions = [1, 0, 0, 0, 0, 0, 0, 0, 0];
-
-    if (data.state === 'active') {
-        if (prevData.user.finalRank !== 0) {
-            positions[0] = 0;
-        } else if (data.roundState !== 'finished' && data.user.finalRank !== 0) {
-            positions[0] = 0;
-        } else {
-            positions[0] = 1;
-        }
-    }
     if (showCardsInProgress === false) {
         dealCards(data);
     }
@@ -427,24 +416,15 @@ function printPlayers(data) {
         playerCountdown(data.user.moveStart, 1, data.config.playerMoveTime);
     }
 
+    const positionedPlayers = new Map([[1, data.user]]);
+
     let $player;
     for (let i = 0; i < data.players.length; i++) {
         const position = getPlayerPosition(data, data.players[i].index);
+        positionedPlayers.set(position, data.players[i]);
 
         $player = $('#player' + position);
         $player.removeClass('seatopen');
-
-        if (data.state === 'active') {
-            if (typeof prevData.players[i] !== 'undefined') {
-                if (prevData.players[i].finalRank !== 0) {
-                    positions[position - 1] = 0;
-                } else if (data.roundState !== 'finished' && data.players[i].finalRank !== 0) {
-                    positions[position - 1] = 0;
-                } else {
-                    positions[position - 1] = 1;
-                }
-            }
-        }
 
         players.push([position, data.players[i].dealer]);
 
@@ -508,11 +488,12 @@ function printPlayers(data) {
     }
 
     //hide inactive users
-    for (let i = 0; i < 9; i++) {
-        if (positions[i] !== 1) {
-            $('#player' + (i + 1)).addClass('folded');
+    for (let i = 1; i <= 9; i++) {
+        const player = positionedPlayers.get(i);
+        if (data.state !== 'active' || !player || player.finalRank !== 0 || player.rebuyNextRound) {
+            $(`#player${i}`).addClass('folded');
         } else {
-            $('#player' + (i + 1)).removeClass('folded');
+            $(`#player${i}`).removeClass('folded');
         }
     }
 

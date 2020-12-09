@@ -114,7 +114,6 @@ class HoldemTournamentGameEngine(
         gameTimer.start()
     }
 
-    // TODO: cards of a newcomer sometimes don't appear
     private fun startNewRound() {
         if (gameData.gameState == GameData.State.PAUSED) {
             return
