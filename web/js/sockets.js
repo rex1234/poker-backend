@@ -88,7 +88,7 @@ socket.on('gameState', function (data) {
             $('.blinds-state .next').html(`${data.nextSmallBlind} / ${data.nextSmallBlind * 2}`);
         }
         blindsTimer(data.nextBlindsChangeAt, gameState);
-        lateRegTimer(data.config.rebuyTime, data.gameStart, gameState);
+        lateRegTimer(data.config.maxRebuys, data.config.rebuyTime, data.gameStart, gameState);
         updateLeaderboard(data);
         assignTags(data);
     }
@@ -115,7 +115,7 @@ socket.on('gameState', function (data) {
         $('#pot').hide();
         $('#total-pot').hide();
         $('#start').hide();
-        $('#rebuys').hide();
+        $('#rebuys-btn').hide();
 
         $('.postgame').show();
 
@@ -390,17 +390,6 @@ function printPlayers(data) {
         $('#player1 .card-2').html('<img src="img/cards/' + cardsSettings + cards[1] + '.svg"/>');
     }
 
-    const positions = [1, 0, 0, 0, 0, 0, 0, 0, 0];
-
-    if (data.state === 'active') {
-        if (prevData.user.finalRank !== 0) {
-            positions[0] = 0;
-        } else if (data.roundState !== 'finished' && data.user.finalRank !== 0) {
-            positions[0] = 0;
-        } else {
-            positions[0] = 1;
-        }
-    }
     if (showCardsInProgress === false) {
         dealCards(data);
     }
@@ -427,24 +416,15 @@ function printPlayers(data) {
         playerCountdown(data.user.moveStart, 1, data.config.playerMoveTime);
     }
 
+    const positionedPlayers = new Map([[1, data.user]]);
+
     let $player;
     for (let i = 0; i < data.players.length; i++) {
         const position = getPlayerPosition(data, data.players[i].index);
+        positionedPlayers.set(position, data.players[i]);
 
         $player = $('#player' + position);
         $player.removeClass('seatopen');
-
-        if (data.state === 'active') {
-            if (typeof prevData.players[i] !== 'undefined') {
-                if (prevData.players[i].finalRank !== 0) {
-                    positions[position - 1] = 0;
-                } else if (data.roundState !== 'finished' && data.players[i].finalRank !== 0) {
-                    positions[position - 1] = 0;
-                } else {
-                    positions[position - 1] = 1;
-                }
-            }
-        }
 
         players.push([position, data.players[i].dealer]);
 
@@ -508,11 +488,12 @@ function printPlayers(data) {
     }
 
     //hide inactive users
-    for (let i = 0; i < 9; i++) {
-        if (positions[i] !== 1) {
-            $('#player' + (i + 1)).addClass('folded');
+    for (let i = 1; i <= 9; i++) {
+        const player = positionedPlayers.get(i);
+        if (data.state === 'active' && player && player.finalRank === 0 && !player.rebuyNextRound && !player.hasLeft) {
+            $(`#player${i}`).removeClass('folded');
         } else {
-            $('#player' + (i + 1)).removeClass('folded');
+            $(`#player${i}`).addClass('folded');
         }
     }
 
@@ -1099,6 +1080,8 @@ function getBiggestWinner(data) {
 }
 
 function blindsTimer(nextBlindsChangeAt, state) {
+    updateBlindsTime(nextBlindsChangeAt, state);
+
     const intervalID = setInterval(function () {
         if (timerBlinds !== intervalID) {
             if (timerBlinds !== -1) {
@@ -1107,70 +1090,67 @@ function blindsTimer(nextBlindsChangeAt, state) {
             timerBlinds = intervalID;
         }
 
-        if (state !== 'paused') {
-            const remaining = nextBlindsChangeAt - Date.now();
-            let minutes = parseInt(remaining / 1000 / 60);
-            let seconds = parseInt(remaining / 1000 - minutes * 60);
-            if (minutes < 10) {
-                minutes = '0' + minutes;
-            }
-            if (seconds < 10) {
-                seconds = '0' + seconds;
-            }
-            if (remaining < 0) {
-                minutes = '00';
-                seconds = '00';
-            }
-            $('.level-time span').html(minutes + ':' + seconds);
-            if (remaining <= 0) {
+        updateBlindsTime(nextBlindsChangeAt, state, intervalID);
+    }, 1000);
+}
+
+function updateBlindsTime(nextBlindsChangeAt, state, intervalID) {
+    if (state !== 'paused') {
+        const remaining = nextBlindsChangeAt - Date.now();
+        let minutes = parseInt(remaining / 1000 / 60);
+        let seconds = parseInt(remaining / 1000 - minutes * 60);
+        if (minutes < 10) {
+            minutes = '0' + minutes;
+        }
+        if (seconds < 10) {
+            seconds = '0' + seconds;
+        }
+        if (remaining < 0) {
+            minutes = '00';
+            seconds = '00';
+        }
+        $('.level-time span').html(minutes + ':' + seconds);
+        if (remaining <= 0) {
+            if (intervalID) {
                 window.clearInterval(intervalID);
                 timerBlinds = -1;
             }
         }
-    }, 1000);
-}
-
-function updateLeaderboard(data) {
-    let middle;
-    if (data.roundState !== 'finished' || data.state === 'finished') {
-        const pls = [];
-        const bustedPls = [];
-        for (let i = 0; i < prevData.players.length; i++) {
-            if (data.players[i].chips > 0) {
-                pls.push([data.players[i].chips, data.players[i].name, data.players[i].rebuyCount]);
-            } else {
-                bustedPls.push([data.players[i].finalRank, data.players[i].name, data.players[i].rebuyCount]);
-            }
-        }
-        if (data.user.chips > 0) {
-            pls.push([data.user.chips, data.user.name, data.user.rebuyCount]);
-        } else {
-            bustedPls.push([data.user.finalRank, data.user.name, data.user.rebuyCount]);
-        }
-        pls.sort(function (a, b) {
-            return a[0] - b[0];
-        });
-        bustedPls.sort(function (a, b) {
-            return b[0] - a[0];
-        });
-        const $leaderboardTable = $('#leaderboard .inside table');
-        $leaderboardTable.html('');
-        for (let i = pls.length - 1; i >= 0; i--) {
-            middle = '';
-            if (pls[i][2] > 0) {
-                middle = '<div class="leaderboard-rebuys">' + pls[i][2] + '</div>';
-            }
-            $leaderboardTable.append('<tr><td>' + (pls.length - i) + '</td><td>' + pls[i][1] + middle + '</td><td>' + pls[i][0] + '</td></tr>');
-        }
-        for (let i = bustedPls.length - 1; i >= 0; i--) {
-            middle = '';
-            if (bustedPls[i][2] > 0) {
-                middle = '<div class="leaderboard-rebuys">' + bustedPls[i][2] + '</div>';
-            }
-            $leaderboardTable.append('<tr><td>' + (pls.length + bustedPls.length - i) + '</td><td>' + bustedPls[i][1] + middle + '</td><td>Busted!</td></tr>');
-        }
     }
 }
+
+const makeLeaderboardTableRow = (name, rank, chips, rebuyCount, state) =>
+    `<tr>
+        <td>${rank}</td>
+        <td>${name}${rebuyCount ? `<div class="leaderboard-rebuys">${rebuyCount}</div>` : ''}</td>
+        <td>${state ? state : chips}</td>
+    </tr>`;
+
+const updateLeaderboard = data => {
+    if (data.roundState !== 'finished' || data.state === 'finished') {
+        const players = [data.user, ...data.players].sort((a, b) => {
+            if (a.finalRank === b.finalRank) {
+                return b.chips - a.chips;
+            }
+            return a.finalRank - b.finalRank;
+        });
+
+        const $leaderboardTable = $('#leaderboard .inside table');
+        $leaderboardTable.html('');
+
+        players.forEach((player, idx) => {
+            let state;
+            if (player.rebuyNextRound) {
+                state = player.rebuyCount === 0 ? 'Late reg.' : 'Rebuy';
+            } else if (player.chips <= 0) {
+                state = 'Busted!'
+            }
+            $leaderboardTable.append(
+                makeLeaderboardTableRow(player.name, player.finalRank || idx + 1, player.chips, player.rebuyCount, state)
+            );
+        })
+    }
+};
 
 function updateLastPlayedHand(data) {
     if ((data.roundState !== 'finished' && roundAfterReconnect !== 0) || data.state === 'finished') {
@@ -1202,7 +1182,6 @@ function updateLastPlayedHand(data) {
         } else if (finishedData.user.action === 'fold' && showedCards === data.round - 1) {
             foldedPls.push([finishedData.user.lastWin, finishedData.user.cards, finishedData.user.hand, finishedData.user.name]);
         }
-        //TODO last hand fix – when someone busts, it does not show him in the last played hand
         for (let i = 0; i < finishedData.players.length; i++) {
             if (finishedData.players[i].action !== 'fold' && finishedData.players[i].finalRank === 0) {
                 pls.push([finishedData.players[i].lastWin, finishedData.players[i].cards, finishedData.players[i].hand, finishedData.players[i].name]);
@@ -1250,7 +1229,9 @@ function updateLastPlayedHand(data) {
     }
 }
 
-function lateRegTimer(rebuyTime, gameStart, state) {
+function lateRegTimer(maxRebuys, rebuyTime, gameStart, state) {
+    updateLateRegTime(maxRebuys, rebuyTime, gameStart, state);
+
     const intervalID = setInterval(function () {
         if (timerRebuys !== intervalID) {
             if (timerRebuys !== -1) {
@@ -1259,40 +1240,50 @@ function lateRegTimer(rebuyTime, gameStart, state) {
             timerRebuys = intervalID;
         }
 
-        if (state !== 'paused') {
-            const lateReg = rebuyTime * 1000 + gameStart;
-            const remaining = lateReg - Date.now();
-            const hours = parseInt(remaining / 1000 / 60 / 60);
-            let minutes = parseInt(remaining / 1000 / 60);
-            let seconds = parseInt(remaining / 1000 - minutes * 60);
+        updateLateRegTime(maxRebuys, rebuyTime, gameStart, state);
+    }, 1000);
+}
 
-            let txt = 'Rebuy, Late reg. end: ';
-            let endedtxt = 'Rebuy, Late reg. period ended.';
-            if ($(window).width() < 1024) {
-                txt = 'Rebuy: ';
-                endedtxt = 'Rebuys ended.';
-            }
+function updateLateRegTime(maxRebuys, rebuyTime, gameStart, state, intervalID) {
+    if (state !== 'paused') {
+        const lateReg = rebuyTime * 1000 + gameStart;
+        const remaining = lateReg - Date.now();
+        const hours = parseInt(remaining / 1000 / 60 / 60);
+        let minutes = parseInt(remaining / 1000 / 60);
+        let seconds = parseInt(remaining / 1000 - minutes * 60);
 
-            if (minutes < 10) {
-                minutes = '0' + minutes;
-            }
-            if (seconds < 10) {
-                seconds = '0' + seconds;
-            }
+        const isSmallScreen = $(window).width() < 1024;
 
-            if (hours < 1) {
-                $('.rebuys-late-addon').html(txt + minutes + ':' + seconds);
-            } else {
-                $('.rebuys-late-addon').html(txt + hours + '.' + (minutes - hours * 60) + ':' + seconds);
-            }
+        let txt = `${maxRebuys > 0 ? `Rebuys (${maxRebuys}), ` : ''}Late reg. end: `;
+        if ($(window).width() < 1024) {
+            txt = maxRebuys > 0 ? 'Rebuys: ' : 'Late reg.: ';
+        }
 
-            if (remaining <= 0) {
-                $('.rebuys-late-addon').html(endedtxt);
+        if (minutes < 10) {
+            minutes = '0' + minutes;
+        }
+        if (seconds < 10) {
+            seconds = '0' + seconds;
+        }
+
+        if (hours < 1) {
+            $('.rebuys-late-addon').html(txt + minutes + ':' + seconds);
+        } else {
+            $('.rebuys-late-addon').html(txt + hours + '.' + (minutes - hours * 60) + ':' + seconds);
+        }
+
+        if (remaining <= 0) {
+            let endedtxt = `${maxRebuys > 0 ? 'Rebuys, ' : ''}Late reg. period ended.`;
+            if (isSmallScreen) {
+                endedtxt = maxRebuys > 0 ? 'Rebuys ended.' : 'Late reg. ended.';
+            }
+            $('.rebuys-late-addon').html(endedtxt);
+            if (intervalID) {
                 window.clearInterval(intervalID);
                 timerRebuys = -1;
             }
         }
-    }, 1000);
+    }
 }
 
 function showRebuyAndAddonsStats(data) {
@@ -1311,7 +1302,7 @@ function showRebuyAndAddonsStats(data) {
 }
 
 function assignTags(data) {
-    if (isReconnect(data) === false) {
+    if (isReconnect(data) === false && prevData && prevData.players.length === data.players.length) {
         const players = [...data.players];
         players.push(data.user);
         const prevPlayers = [...prevData.players];
@@ -1612,32 +1603,32 @@ function initializeVars(data) {
 
 function showRebuyControls(data) {
     const $player1 = $('#player1');
-    const $rebuys = $('#rebuys');
+    const $rebuyBtn = $('#rebuy-btn');
     const $rebuyMsg = $('#rebuyMsg');
     $player1.removeClass('rebuyed');
 
     if (data.state === 'active') {
         //if he busts, show rebuys
-        if (data.roundState !== 'finished' && data.user.chips === 0 && data.lateRegistrationEnabled === true && data.user.rebuyNextRound === false) {
-            $rebuys
-                .removeClass('disabled')
-                .addClass('rebuyed')
-                .show()
-                .html('Rebuy')
-                .off('click')
-                .on('click', addRebuy);
+        if (
+            data.lateRegistrationPossible &&
+            data.config.maxRebuys > data.user.rebuyCount &&
+            data.roundState !== 'finished' &&
+            data.user.chips === 0 &&
+            !data.user.rebuyNextRound
+        ) {
+            $rebuyBtn.removeClass('disabled').show()
         }
 
         //the round that he had rebuy
         if (data.user.rebuyNextRound === true) {
             if (data.user.rebuyCount === 0) {
-                $rebuyMsg.html('Successfully joined. You will play next hand.');
+                $rebuyMsg.html('Successfully joined. You will play in the next possible hand.');
             } else {
-                $rebuyMsg.html('Rebuy added. You will play next hand.');
+                $rebuyMsg.html('Rebuy added. You will play in the next possible hand.');
             }
             $rebuyMsg.show();
             $player1.addClass('rebuyed');
-            $rebuys
+            $rebuyBtn
                 .removeClass('disabled')
                 .hide();
         }
@@ -1646,12 +1637,12 @@ function showRebuyControls(data) {
         if (data.user.chips > 0) {
             $rebuyMsg.hide();
             $player1.removeClass('rebuyed');
-            $rebuys.hide();
+            $rebuyBtn.hide();
         }
 
         //hide it after the late reg is over
-        if (data.lateRegistrationEnabled === false) {
-            $rebuys.hide();
+        if (data.lateRegistrationPossible === false) {
+            $rebuyBtn.hide();
             $rebuyMsg.hide();
         }
     }

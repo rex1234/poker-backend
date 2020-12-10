@@ -59,7 +59,7 @@ $('#additional').on('click', () => {
     showCards();
     $('#player1').addClass('showCards');
 });
-$('#rebuys').on('click', rebuy);
+$('#rebuy-btn').on('click', addRebuy);
 $('#sad-react').on('click', () => sendReaction('sad'));
 
 $('.openbtn').on('click', openNav);

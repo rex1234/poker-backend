@@ -56,8 +56,8 @@ class HoldemTournamentGameEngine(
             throw GameException(10, "The game is already full")
         }
 
-        if (gameData.gameState != GameData.State.CREATED && !gameData.isLateRegistrationEnabled) {
-            throw GameException(11, "Late registration is not available")
+        if (gameData.gameState != GameData.State.CREATED && !gameData.isLateRegistrationPossible) {
+            throw GameException(11, "Late registration is not possible")
         }
 
         gameData.allPlayers.add(Player(playerUUID).apply {
@@ -75,6 +75,8 @@ class HoldemTournamentGameEngine(
                 isRebuyNextRound = true
             }
         })
+
+        gameData.allPlayers.sortBy { it.index }
     }
 
     fun startGame(playerUuid: String) {
@@ -99,8 +101,6 @@ class HoldemTournamentGameEngine(
         gameData.nextSmallBlind = BlindCalculator.nextBlind(gameData.smallBlind)
         gameData.bigBlind = gameData.smallBlind * 2
         gameData.nextBlindsChangeAt = gameData.gameStart + gameData.config.blindIncreaseTime * 1000
-
-        gameData.allPlayers.sortBy { it.index }
 
         gameData.allPlayers.shuffled().first().isDealer = true // chose random dealer
 
@@ -133,20 +133,6 @@ class HoldemTournamentGameEngine(
             tableCards = CardList()
         }
 
-        // we will add chips to players that rebought
-        gameData.allPlayers.filter { it.isRebuyNextRound }.forEach { player ->
-
-            // adjust ranks of other players
-            gameData.allPlayers.filter { it.finalRank != 0 && it.finalRank < player.finalRank }.forEach {
-                it.finalRank++
-            }
-
-            player.isFinished = false
-            player.isRebuyNextRound = false
-            player.finalRank = 0
-            player.chips = gameData.config.startingChips
-        }
-
         // reset players' states
         gameData.allPlayers.forEach {
             it.cards = CardList()
@@ -161,6 +147,24 @@ class HoldemTournamentGameEngine(
             it.canRaise = true
             it.isWinner = false
             it.chipsAtStartOfTheRound = it.chips
+            it.didRebuyThisRound = false
+        }
+
+        // we will add chips to players that rebought
+        gameData.allPlayers.filter { it.isRebuyNextRound }.forEach { player ->
+
+            if (canPlayerJoinNextRound(player)) {
+                // adjust ranks of other players
+                gameData.allPlayers.filter { it.finalRank != 0 && it.finalRank < player.finalRank }.forEach {
+                    it.finalRank++
+                }
+
+                player.isFinished = false
+                player.isRebuyNextRound = false
+                player.didRebuyThisRound = true
+                player.finalRank = 0
+                player.chips = gameData.config.startingChips
+            }
         }
 
         // draw cards for each non-finished player
@@ -402,7 +406,17 @@ class HoldemTournamentGameEngine(
             gameData.players.filter { it.action != PlayerAction.Action.FOLD }.forEach { it.showCards = true }
         }
 
-        calculateFinalRanks()
+        gameData.allPlayers.forEach {
+            if (it.isLeaveNextRound) {
+                it.isLeaveNextRound = false
+                it.chips = 0
+                it.isAdmin = false
+
+                if (it.isAdmin && gameData.players.isNotEmpty()) {
+                    gameData.players.first().isAdmin = true
+                }
+            }
+        }
 
         // switch to the FINISHED state, no actions can be performed anymore and the results of the round are shown
         gameData.roundState = GameData.RoundState.FINISHED
@@ -420,6 +434,8 @@ class HoldemTournamentGameEngine(
             Thread.sleep(2_000 + min(3_000 + max((gameData.players.count { it.showCards } - 1), 0) * 1500L,
                 6000L) + extraRoundTime)
             extraRoundTime = 0L
+
+            calculateFinalRanks()
 
             // if there is only one player with chips we will finish the game
             if (gameData.allPlayers.count { it.chips > 0 || it.isRebuyNextRound } == 1) {
@@ -453,16 +469,6 @@ class HoldemTournamentGameEngine(
         ).forEachIndexed { i, player ->
             player.finalRank = nonFinishingPlayerCount + i + 1
             player.isFinished = true
-
-            if (player.isLeaveNextRound) {
-                player.isLeaveNextRound = false
-                player.chips = 0
-                player.isAdmin = false
-
-                if (player.isAdmin && gameData.players.isNotEmpty()) {
-                    gameData.players.first().isAdmin = true
-                }
-            }
         }
     }
 
@@ -578,14 +584,32 @@ class HoldemTournamentGameEngine(
         }
     }
 
+    // if a player joins the game or rebuys in a position between the current SB and BB, they have to wait another round
+    fun canPlayerJoinNextRound(player: Player): Boolean {
+        // unless there are just two players in the game, in that case, they can join at any position
+        if (gameData.players.size <= 2) {
+            return true
+        }
+
+        val potentialNextRoundPlayers = gameData.allPlayers.filter { it == player || (!it.isFinished && !it.isKicked) }
+        val playerIndex = potentialNextRoundPlayers.indexOf(player)
+        val prevPositionPlayer = if (playerIndex > 0) playerIndex - 1 else potentialNextRoundPlayers.size - 1
+
+        if (potentialNextRoundPlayers[prevPositionPlayer] == gameData.nextDealer) {
+            return false
+        }
+
+        return true
+    }
+
     fun rebuy(playerUuid: String) =
         applyOnPlayer(playerUuid) {
-            if (!gameData.isLateRegistrationEnabled || it.isKicked) {
-                throw GameException(11, "Rebuy is not possible")
+            if (!gameData.isLateRegistrationPossible || gameData.config.maxRebuys == 0 || it.isKicked) {
+                throw GameException(14, "Rebuy is not possible")
             }
 
             if (it.rebuyCount >= gameData.config.maxRebuys) {
-                throw GameException(11, "Max rebuy count exceeded")
+                throw GameException(14, "Max rebuy count reached")
             }
 
             if (it.isFinished) {
