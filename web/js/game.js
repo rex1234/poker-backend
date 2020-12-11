@@ -202,7 +202,7 @@ function playerCountdown(start, playerPosition, limit) {
         }
 
         const $player = $('#player' + playerPosition);
-        if (++x === limit * 25 || $player.hasClass('none') === false || $player.hasClass('onMove') === false || prc < 1) {
+        if (++x === limit * 25 || $player.hasClass('onMove') === false || prc < 1) {
             window.clearInterval(intervalID);
             timerOn = 0;
         }
