@@ -679,18 +679,30 @@ function showControls(data) {
                         .off('click')
                         .on('click', () => raiseChange(Math.min(7 * data.smallBlind, maxRaiseToThisStreet)));
                 } else {
-                    $betsizeFirst
-                        .html('Pot')
-                        .off('click')
-                        .on('click', () => raiseChange(Math.min(data.pot, maxRaiseToThisStreet)));
-                    $betsizeSecond
-                        .html('1.5Pot')
-                        .off('click')
-                        .on('click', () => raiseChange(Math.min(1.5 * data.pot, maxRaiseToThisStreet)));
-                    $betsizeThird
-                        .html('2Pot')
-                        .off('click')
-                        .on('click', () => raiseChange(Math.min(2 * data.pot, maxRaiseToThisStreet)));
+                    if (data.pot > minRaiseToThisStreet && data.pot < maxRaiseToThisStreet) {
+                        $betsizeFirst
+                            .html('Pot')
+                            .off('click')
+                            .on('click', () => raiseChange(Math.min(data.pot, maxRaiseToThisStreet)));
+                    } else {
+                        $betsizeFirst.addClass('disabled');
+                    }
+                    if (1.5 * data.pot > minRaiseToThisStreet && 1.5 * data.pot < maxRaiseToThisStreet) {
+                        $betsizeSecond
+                            .html('1.5Pot')
+                            .off('click')
+                            .on('click', () => raiseChange(Math.min(1.5 * data.pot, maxRaiseToThisStreet)));
+                    } else {
+                        $betsizeSecond.addClass('disabled');
+                    }
+                    if (2 * data.pot > minRaiseToThisStreet && 2 * data.pot < maxRaiseToThisStreet) {
+                        $betsizeThird
+                            .html('2Pot')
+                            .off('click')
+                            .on('click', () => raiseChange(Math.min(2 * data.pot, maxRaiseToThisStreet)));
+                    } else {
+                        $betsizeThird.addClass('disabled');
+                    }
                 }
                 $betsizeLast.off('click').on('click', () => raiseChange(maxRaiseToThisStreet));
             } else {
