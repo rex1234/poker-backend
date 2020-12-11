@@ -31,10 +31,6 @@
         width: 180px;
     }
 
-    #settings {
-        padding-top: 100px;
-    }
-
     .game-container {
         width: auto;
         height: 100%;
@@ -769,17 +765,4 @@
         width: 40%;
         align-self: auto;
     }
-
-    #settings {
-        position: static;
-        height: auto;
-        width: 60%;
-        padding-top: 0;
-        align-self: center;
-    }
-
-    #createGame {
-        margin-bottom: 112px;
-    }
-
 }

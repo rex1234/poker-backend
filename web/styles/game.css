@@ -817,13 +817,18 @@ h1 {
 }
 
 #settings {
+    display: flex;
+    flex-direction: column;
     position: fixed;
     overflow-x: hidden;
     right: 0;
     top: 0;
     width: 60%;
     height: 100%;
-    padding-top: 120px;
+}
+
+#settings-wrapper {
+    margin: auto;
 }
 
 #settings > div {
@@ -854,7 +859,6 @@ h1 {
     margin: 0 auto;
     padding-top: 1px;
     background-color: #0F2E4B;
-    margin-bottom: 180px;
 }
 
 .input-wrapper {
