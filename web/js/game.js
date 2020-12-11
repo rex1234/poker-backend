@@ -89,9 +89,10 @@ $('#settings h2').hover(
 );
 
 $('.raise-slider').on('wheel', (event) => {
+    event.preventDefault();
     const $rangeSlider = $('#range-slider');
     const roundedVal = Math.round(parseInt($rangeSlider.val()) / currentSmallBlind) * currentSmallBlind;
-    const nextVal = event.originalEvent.wheelDelta > 0
+    const nextVal = event.originalEvent.deltaY < 0
         ? roundedVal + currentSmallBlind
         : roundedVal - currentSmallBlind;
     $rangeSlider.val(nextVal).trigger('input');
