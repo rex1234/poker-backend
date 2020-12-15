@@ -458,11 +458,11 @@ class HoldemTournamentGameEngine(
      *  3. players that left with more chips at the beginning of the round
      */
     fun calculateFinalRanks() {
-
+        val previouslyFinishedPlayerCount = gameData.allPlayers.count { it.finalRank != 0 }
         val finishingPlayers = gameData.allPlayers.filter {
             it.finalRank == 0 && (it.chips == 0 || it.isLeaveNextRound)
         }
-        val nonFinishingPlayerCount = gameData.allPlayers.size - finishingPlayers.size
+        val nonFinishingPlayerCount = gameData.allPlayers.size - finishingPlayers.size - previouslyFinishedPlayerCount
 
         finishingPlayers.sortedWith(
             compareBy({ it.isLeaveNextRound }, { -it.chips }, { -it.chipsAtStartOfTheRound })
