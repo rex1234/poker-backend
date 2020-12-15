@@ -1,5 +1,7 @@
 package io.pokr.game.model
 
+import kotlin.math.*
+
 import io.pokr.game.tools.*
 
 /**
@@ -44,6 +46,13 @@ data class Player(
     fun startMove() {
         moveStart = System.currentTimeMillis()
         isOnMove = true
+    }
+
+    fun postBlind(amount: Int) {
+        currentBet = min(chips, amount)
+        if (isAllIn) {
+            pendingAction = false
+        }
     }
 
     val isAllIn

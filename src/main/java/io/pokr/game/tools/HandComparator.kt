@@ -71,6 +71,7 @@ class HandComparator {
         var player: Player,
         var hand: Hand? = null,
         var bestCards: Pair<CardList, CardList>? = null,
+        var winnings: Int = 0,
     )
 
     fun findHighestHand(cardList: CardList) =

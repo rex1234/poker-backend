@@ -32,138 +32,139 @@ let showCardsInProgress = false;
 
 // inbound events
 socket.on('gameState', function (data) {
-    gameState = data.state;
-    if (gameState !== 'finished') {
-        localStorage.setItem('player_uuid', data.user.uuid);
-        localStorage.setItem('game_uuid', data.uuid);
-        localStorage.setItem('nick', $('<textarea/>').html(data.user.name).text());
-    }
-    initializeVars(data);
-    //user is in game
-    $('#loader').hide();
-    loader.pause();
-    $('#settings').hide();
-    $('.left-container').hide();
-    $('#main-screen').hide();
-    $('.game-container').show();
-    $('.errmsg').html('');
+    setStreet(data);
 
-    if (gameState === 'created') {
-        $('.pregame').show();
-        $('#code').text(data.uuid);
-        const $adminText = $('.admin-text');
-        //user is admin
-        if (data.user.admin) {
-            if (data.players.length > 0) {
-                $adminText.html('');
-                $('#start').show();
+    if (shouldRefreshView(data)) {
+        gameState = data.state;
+        if (gameState !== 'finished') {
+            localStorage.setItem('player_uuid', data.user.uuid);
+            localStorage.setItem('game_uuid', data.uuid);
+            localStorage.setItem('nick', $('<textarea/>').html(data.user.name).text());
+        }
+        initializeVars(data);
+        //user is in game
+        $('#loader').hide();
+        loader.pause();
+        $('#settings').hide();
+        $('.left-container').hide();
+        $('#main-screen').hide();
+        $('.game-container').show();
+        $('.errmsg').html('');
+
+        if (gameState === 'created') {
+            $('.pregame').show();
+            $('#code').text(data.uuid);
+            const $adminText = $('.admin-text');
+            //user is admin
+            if (data.user.admin) {
+                if (data.players.length > 0) {
+                    $adminText.html('');
+                    $('#start').show();
+                } else {
+                    $adminText.html('You will be able to start the game when there are 2 or more players.');
+                    $('#start').hide();
+                }
             } else {
-                $adminText.html('You will be able to start the game when there are 2 or more players.');
-                $('#start').hide();
+                $adminText.html('Waiting for admin to start the game.');
             }
-        } else {
-            $adminText.html('Waiting for admin to start the game.');
+
+            if (prevData && data.players.length < prevData.players.length) {
+                const playersToRemove = prevData.players.filter(prevPlayer =>
+                    !data.players.some(({index}) => index === prevPlayer.index));
+                const positionsToClear = playersToRemove.map(({index}) => getPlayerPosition(data, index));
+                positionsToClear.forEach(pos => {
+                    $(`#player${pos}`).removeClass('created none').addClass('seatopen');
+                    $(`#player${pos} .info-box .player-name`).text('');
+                    $(`#player${pos} .info-box .player-chips`).text('');
+                });
+            }
         }
 
-        if (data.players.length < prevData.players.length) {
-            const playersToRemove = prevData.players.filter(prevPlayer =>
-                !data.players.some(({index}) => index === prevPlayer.index));
-            const positionsToClear = playersToRemove.map(({index}) => getPlayerPosition(data, index));
-            positionsToClear.forEach(pos => {
-                $(`#player${pos}`).removeClass('created none').addClass('seatopen');
-                $(`#player${pos} .info-box .player-name`).text('');
-                $(`#player${pos} .info-box .player-chips`).text('');
-            });
+        if (gameState === 'active' || gameState === 'paused') {
+            $('.pregame').hide();
+            $('.game-info').show();
+
+            //show blinds and othe info
+            currentSmallBlind = data.smallBlind;
+            $('.blinds-state .current').html(`${data.smallBlind} / ${data.smallBlind * 2}`);
+            if ($(window).width() > 1023) {
+                $('.blinds-state .next').html(`${data.nextSmallBlind} / ${data.nextSmallBlind * 2}`);
+            }
+            blindsTimer(data.nextBlindsChangeAt, gameState);
+            lateRegTimer(data.config.maxRebuys, data.config.rebuyTime, data.gameStart, gameState);
+            updateLeaderboard(data);
+            assignTags(data);
         }
-    }
 
-    if (gameState === 'active' || gameState === 'paused') {
-        $('.pregame').hide();
-        $('.game-info').show();
-
-        //show blinds and othe info
-        currentSmallBlind = data.smallBlind;
-        $('.blinds-state .current').html(`${data.smallBlind} / ${data.smallBlind * 2}`);
-        if ($(window).width() > 1023) {
-            $('.blinds-state .next').html(`${data.nextSmallBlind} / ${data.nextSmallBlind * 2}`);
-        }
-        blindsTimer(data.nextBlindsChangeAt, gameState);
-        lateRegTimer(data.config.maxRebuys, data.config.rebuyTime, data.gameStart, gameState);
-        updateLeaderboard(data);
-        assignTags(data);
-    }
-
-    if (data.user.admin) {
-        if (gameState === 'active') {
-            if (data.roundState === 'finished') {
-                $('#pause').removeClass('disabled');
-                $('#unpause').addClass('disabled');
-            } else {
+        if (data.user.admin) {
+            if (gameState === 'active') {
+                if (data.roundState === 'finished') {
+                    $('#pause').removeClass('disabled');
+                    $('#unpause').addClass('disabled');
+                } else {
+                    $('#pause').addClass('disabled');
+                }
+            }
+            if (gameState === 'paused') {
+                refreshCards();
+                $('.showCards').removeClass('showCards');
+                $('#unpause').removeClass('disabled');
                 $('#pause').addClass('disabled');
             }
         }
-        if (gameState === 'paused') {
-            refreshCards();
-            $('.showCards').removeClass('showCards');
-            $('#unpause').removeClass('disabled');
-            $('#pause').addClass('disabled');
+
+        if (gameState === 'finished') {
+            $('.game-info').hide();
+            $('#pot').hide();
+            $('#total-pot').hide();
+            $('#start').hide();
+            $('#rebuys-btn').hide();
+
+            $('.postgame').show();
+
+            if (data.user.admin) {
+                ga('send', 'event', 'Action', 'Game finished');
+                ga('send', {
+                    hitType: 'timing',
+                    timingCategory: 'Game',
+                    timingVar: 'Total duration',
+                    timingValue: data.time - data.gameStart,
+                });
+            }
+        }
+
+        if (data.roundState === 'finished') {
+            roundAfterReconnect++;
+        }
+
+        //if user reconnects, set rebuy round to current round (so user don't show the rebuy button again)
+        if (reconnected) {
+            rebuyRound = data.round;
+        }
+        console.log(data);
+
+        printPlayers(data);
+
+        if (prevRoundState === 'finished') {
+            $('#pot').hide();
+        }
+
+        showCardsInProgress = false;
+
+        //results of the game
+        if (gameState === 'finished') {
+            updateLeaderboard(data);
+            showResults(data);
+            localStorage.removeItem('player_uuid');
+            localStorage.removeItem('game_uuid');
         }
     }
 
-    if (gameState === 'finished') {
-        $('.game-info').hide();
-        $('#pot').hide();
-        $('#total-pot').hide();
-        $('#start').hide();
-        $('#rebuys-btn').hide();
-
-        $('.postgame').show();
-
-        if (data.user.admin) {
-            ga('send', 'event', 'Action', 'Game finished');
-            ga('send', {
-                hitType: 'timing',
-                timingCategory: 'Game',
-                timingVar: 'Total duration',
-                timingValue: data.time - data.gameStart,
-            });
-        }
-    }
-
-    if (data.roundState === 'finished') {
-        roundAfterReconnect++;
-    }
-
-    //if user reconnects, set rebuy round to current round (so user don't show the rebuy button again)
-    if (reconnected) {
-        rebuyRound = data.round;
-    }
-    console.log(data);
-
-    printPlayers(data);
-    print(data);
-
-    if (prevRoundState === 'finished') {
-        $('#pot').hide();
-    }
-
-    showCardsInProgress = false;
+    prevData = data;
     prevRoundState = data.roundState;
-    if (data.roundState !== 'finished') {
-        prevData = data;
-    }
-
-    //results of the game
-    if (gameState === 'finished') {
-        updateLeaderboard(data);
-        showResults(data);
-        localStorage.removeItem('player_uuid');
-        localStorage.removeItem('game_uuid');
-    }
 });
 
 socket.on('error', function (data) {
-    print(data);
     console.log(data);
 
     //hide loader if err
@@ -210,7 +211,6 @@ socket.on('gameDisbanded', function () {
     gameState = 'finished';
 
     localStorage.removeItem('player_uuid');
-    print({msg: 'game ended'});
 });
 
 socket.on('chat', function (data) {
@@ -313,7 +313,7 @@ function startGame() {
         hitType: 'event',
         eventCategory: 'Action',
         eventAction: 'Game started',
-        eventLabel: prevData.players.length + 1,
+        eventLabel: prevData ? prevData.players.length + 1 : 0,
     });
 }
 
@@ -347,9 +347,33 @@ function sendChatMessage(msg) {
 
 // MISC
 
-function print(data) {
-    //document.getElementById("content").innerHTML = JSON.stringify(data)
-}
+const setPlayerChips = (data, player, prevDataPlayer, playerPosition) => {
+    const $chips = $(`#${playerPosition} .player-chips`);
+
+    let extraShowdownPotChips = 0;
+
+    if (data.roundState === 'finished') {
+        if (prevDataPlayer) {
+            const playerBets = [
+                data.user.currentBet,
+                ...data.players.map(player => player.currentBet)
+            ].sort((a, b) => b - a);
+
+            if (player.currentBet === playerBets[0]) {
+                // if the highest betting player's bet isn't matched by the second highest betting player,
+                // we return the extra chips to the highest betting player before going through with the showdown
+                extraShowdownPotChips = playerBets[0] - playerBets[1];
+            }
+            $chips.html(prevDataPlayer.chips - player.currentBet + extraShowdownPotChips);
+        } else {
+            $chips.html('Loading...');
+        }
+    } else {
+        $chips.html(player.chips - player.currentBet);
+    }
+
+    return extraShowdownPotChips;
+};
 
 //TODO refactor, split into multiple functions
 function printPlayers(data) {
@@ -362,16 +386,9 @@ function printPlayers(data) {
     const players = [[1, data.user.dealer]];
 
     $('#player1 .player-name').html(data.user.name);
-    //hacky way to determine what to show when all in and last to act – otherwise you can see who won in advance
-    if (data.roundState === 'finished' && data.state === 'active') {
-        if (data.user.onMove) {
-            $('#player1 .player-chips').html(Math.max(0, prevData.user.chips - data.targetBet));
-        } else {
-            $('#player1 .player-chips').html(prevData.user.chips - prevData.user.currentBet);
-        }
-    } else {
-        $('#player1 .player-chips').html(data.user.chips - data.user.currentBet);
-    }
+
+    let extraPotChips = setPlayerChips(data, data.user, prevData ? prevData.user : null, 'player1');
+    pot -= extraPotChips;
 
     showRebuyControls(data);
     showRebuyAndAddonsStats(data);
@@ -384,7 +401,7 @@ function printPlayers(data) {
 
     assignChipsImg(userCurrentStreetBet, 'player1', data);
 
-    if (data.user.cards.length > 0 && (prevData.user.cards !== data.user.cards || reconnected)) {
+    if (data.user.cards.length > 0 && (reconnected || prevData.user.cards !== data.user.cards)) {
         cards = data.user.cards.split(' ');
         $('#player1 .card-1').html('<img src="img/cards/' + cardsSettings + cards[0] + '.svg"/>');
         $('#player1 .card-2').html('<img src="img/cards/' + cardsSettings + cards[1] + '.svg"/>');
@@ -430,23 +447,15 @@ function printPlayers(data) {
 
         giveCSSClasses(data, position, i);
         $('#player' + position + ' .player-name').html(data.players[i].name);
-        //hacky way to determine what to show when all in and last to act – otherwise you can see who won in advance
-        if (data.roundState === 'finished' && data.state === 'active') {
 
-            if (data.players[i].onMove) {
-                $('#player' + position + ' .player-chips').html(Math.max(0, prevData.players[i].chips - data.targetBet));
-            } else {
-                $('#player' + position + ' .player-chips').html(prevData.players[i].chips - prevData.players[i].currentBet);
-            }
+        extraPotChips = setPlayerChips(data, data.players[i], prevData ? prevData.players[i] : null, `player${position}`);
+        pot -= extraPotChips;
 
+        if (data.roundState === 'finished' && data.state === 'active' && typeof data.players[i].cards !== 'undefined') {
             //showCard fuctionality
-            if (typeof data.players[i].cards !== 'undefined') {
-                $player.removeClass('fold');
-            }
-
-        } else {
-            $('#player' + position + ' .player-chips').html(data.players[i].chips - data.players[i].currentBet);
+            $player.removeClass('fold');
         }
+
         const playerCurrentStreetBet = data.players[i].currentBet > data.previousStreetTargetBet
             ? data.players[i].currentBet - data.previousStreetTargetBet
             : 0;
@@ -531,8 +540,10 @@ function printPlayers(data) {
 
     //display pot
     if (data.roundState === 'finished') {
-        pot = lastWinSum(data);
-        assignChipsImg(pot, 'pot', data);
+        // if the round is finished, the pot is computed from prevData; without it, better not display anything
+        if (prevData) {
+            assignChipsImg(pot, 'pot', data);
+        }
     } else if (data.roundState === 'active') {
         const centerPot = pot - playerBets;
         if (centerPot > 0) {
@@ -540,7 +551,8 @@ function printPlayers(data) {
         }
     }
 
-    if (data.state === 'active') {
+    // if the round is finished, the pot is computed from prevData; without it, better not display anything
+    if (data.state === 'active' && (prevData || data.roundState !== 'finished')) {
         $('#total-pot').html('Pot: ' + pot);
     }
 }
@@ -822,6 +834,12 @@ function dealCards(data) {
     const cards = data.cards.split(' ');
     cards.reverse();
 
+    function clearBoard() {
+        for (let i = 1; i <= 5; i++) {
+            $(`.dealt-cards-${i}`).html('').css('opacity', 0);
+        }
+    }
+
     function addFlop() {
         $('.dealt-cards-1').html('<img src="img/cards/' + cardsSettings + cards[0] + '.svg"/>');
         $('.dealt-cards-2').html('<img src="img/cards/' + cardsSettings + cards[1] + '.svg"/>');
@@ -838,9 +856,7 @@ function dealCards(data) {
 
     //delete cards from previous game
     if (cards[0] === '') {
-        for (let i = 1; i <= 5; i++) {
-            $(`.dealt-cards-${i}`).html('').css('opacity', 0);
-        }
+        clearBoard();
     }
 
     if (reconnected || switchedTab) {
@@ -854,7 +870,7 @@ function dealCards(data) {
             animationFlopInstant();
             animationTurnInstant();
         }
-        if (street === 'river') {
+        if (street === 'river' || (street === 'preflopShow' && data.cards.length === 14)) {
             addFlop();
             addTurn();
             addRiver();
@@ -885,8 +901,7 @@ function dealCards(data) {
         }
         if (street === 'preflopShow' && data.cards.length === 14) {
             showCardsDelay = 5000;
-            $('.dealt-cards-5').css('opacity', 0);
-            $('.dealt-cards-4').css('opacity', 0);
+            clearBoard();
             addFlop();
             addTurn();
             addRiver();
@@ -968,7 +983,7 @@ function highlightCards(data) {
     const $dealtCards = $('.dealt-cards div');
 
     //turn off animations for other players when user reconnects
-    if (isReconnect(data)) {
+    if (isConnectionChangeData(data)) {
         $card1.addClass('notransition');
         $card2.addClass('notransition');
         $dealtCards.addClass('notransition');
@@ -1314,7 +1329,7 @@ function showRebuyAndAddonsStats(data) {
 }
 
 function assignTags(data) {
-    if (isReconnect(data) === false && prevData && prevData.players.length === data.players.length) {
+    if (prevData && prevData.players.length === data.players.length) {
         const players = [...data.players];
         players.push(data.user);
         const prevPlayers = [...prevData.players];
@@ -1399,7 +1414,7 @@ function assignTags(data) {
 function assignChipsImg(chipcount, player, data) {
     //clear chips from before
     if (player === 'pot') {
-        if (player === 'pot' && prevData.round !== data.round) {
+        if (player === 'pot' && prevData && prevData.round !== data.round) {
             for (let i = 1; i <= 5; i++) {
                 $(`#${player} .stack-${i}`).html('');
             }
@@ -1407,7 +1422,7 @@ function assignChipsImg(chipcount, player, data) {
         $('#pot').show();
         $('#pot .amount').html(chipcount);
     } else {
-        if (chipcount <= 0) {
+        if (chipcount <= 0 || data.roundState === 'finished') {
             $('#' + player + ' .bet .amount').html('');
         } else {
             $('#' + player + ' .bet .amount').html(chipcount);
@@ -1419,8 +1434,8 @@ function assignChipsImg(chipcount, player, data) {
 
     if (chipcount > 0) {
 
-        //for pot, change only when street changed
-        if (player !== 'pot' || (player === 'pot' && street !== prevStreet && street !== 'preflop')) {
+        // for players, do not render when the round is finished
+        if (player === 'pot' || (player !== 'pot' && data.roundState !== 'finished')) {
             const blinds = [1, 5, 20, 100, 500, 1000, 2000, 5000, 10000, 2000, 5000, 10000, 20000, 50000, 100000, 250000, 500000, 1000000];
             for (let i = 1; i <= 5; i++) {
                 $(`#${player} .stack-${i}`).html('');
@@ -1495,24 +1510,51 @@ function assignChipsImg(chipcount, player, data) {
     }
 }
 
-function isAllInShowdown(data) {
-    let peopleAllIn = 0;
-    let peopleActive = 0;
-    if (prevData.user.action !== 'fold') {
-        peopleActive++;
-        if (data.user.chips === data.user.currentBet) {
-            peopleAllIn++;
+function setStreet(data) {
+    if (data.roundState === 'active') {
+        switch (data.cards.split(' ').length) {
+            case 1:
+                street = 'preflop';
+                break;
+            case 3:
+                street = 'flop';
+                break;
+            case 4:
+                street = 'turn';
+                break;
+            case 5:
+                street = 'river';
+                break;
+            default:
+                street = 'preflop';
         }
-    }
-    for (let i = 0; i < data.players[i]; i++) {
-        if (prevData.players[i].action !== 'fold') {
-            peopleActive++;
-            if (data.players[i].chips === data.players[i].currentBet) {
-                peopleAllIn++;
+    } else if (data.roundState === 'finished') {
+        // if a finished round follows a finished round, the new round goes straight into showdown
+        if (prevRoundState === 'finished' || !prevData) {
+            street = 'preflopShow';
+        } else {
+            switch (prevData.cards.split(' ').length) {
+                case 1:
+                    street = 'preflopShow';
+                    break;
+                case 3:
+                    street = 'flopShow';
+                    break;
+                case 4:
+                    street = 'turnShow';
+                    break;
+                case 5:
+                    street = 'riverShow';
+                    break;
+                default:
+                    street = 'preflopShow';
             }
         }
     }
-    return peopleActive - peopleAllIn <= 1;
+
+    if (data.state === 'finished') {
+        street = 'done';
+    }
 }
 
 function initializeVars(data) {
@@ -1565,53 +1607,11 @@ function initializeVars(data) {
         roundTurn = 0;
     }
 
-    if (typeof prevData === 'undefined') {
-        prevData = data;
-    }
-
-    cardChanged = (prevData.cards !== data.cards);
+    cardChanged = !prevData || prevData.cards !== data.cards;
     if (cardChanged) {
         play('cards');
     }
-
-    if (data.roundState === 'active') {
-        switch (data.cards.split(' ').length) {
-            case 1:
-                street = 'preflop';
-                break;
-            case 3:
-                street = 'flop';
-                break;
-            case 4:
-                street = 'turn';
-                break;
-            case 5:
-                street = 'river';
-                break;
-        }
-    } else if (data.roundState === 'finished') {
-        switch (prevData.cards.split(' ').length) {
-            case 1:
-                street = 'preflopShow';
-                break;
-            case 3:
-                street = 'flopShow';
-                break;
-            case 4:
-                street = 'turnShow';
-                break;
-            case 5:
-                street = 'riverShow';
-                break;
-            default:
-                street = 'preflop';
-        }
-    }
-    if (data.state === 'finished') {
-        street = 'done';
-    }
 }
-
 
 function showRebuyControls(data) {
     const $player1 = $('#player1');
@@ -1706,7 +1706,7 @@ function addRebuy() {
     rebuy();
     $('#player1').addClass('rebuyed');
     $('#rebuyMsg').show();
-    rebuyRound = prevData.round;
+    rebuyRound = prevData ? prevData.round : data.round;
 }
 
 function playSound(data) {
@@ -1764,37 +1764,28 @@ function getLastAction(data) {
     }
 }
 
-//checks if the socket change is only in reconnection var
-function isReconnect(data) {
-    if (data.state === 'created') {
-        return false;
+const shouldRefreshView = (data) => {
+    if (!prevData || data.state === 'created') {
+        return true
     }
-    if (prevStreet !== street) {
-        return false;
-    }
-    if (data.roundState !== prevRoundState) {
-        return false;
-    }
-    if (data.user.onMove !== prevData.user.onMove) {
-        return false;
-    }
-    for (let i = 0; i < data.players.length; i++) {
-        if (typeof prevData.players[i] !== 'undefined') {
-            if (data.players[i].onMove !== prevData.players[i].onMove) {
-                return false;
-            }
-        }
-    }
-    return true;
+    return !isConnectionChangeData(data);
 }
 
-//sums all last wins
-function lastWinSum(data) {
-    let lastWin = data.user.lastWin;
-    for (let i = 0; i < data.players.length; i++) {
-        lastWin += data.players[i].lastWin;
+// checks if the socket data only inform about a player (dis)connecting
+function isConnectionChangeData(data) {
+    if (!prevData) {
+        return false;
     }
-    return lastWin;
+
+    const sanitizedPrevData = Object.assign({}, prevData);
+    sanitizedPrevData.players.forEach(player => delete player.connected);
+    delete sanitizedPrevData.time;
+
+    const sanitizedData = Object.assign({}, data)
+    sanitizedData.players.forEach(player => delete player.connected);
+    delete sanitizedData.time;
+
+    return JSON.stringify(sanitizedPrevData) === JSON.stringify(sanitizedData);
 }
 
 //HELPERS

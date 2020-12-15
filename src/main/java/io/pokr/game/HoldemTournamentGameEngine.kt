@@ -183,22 +183,28 @@ class HoldemTournamentGameEngine(
             // dealer is SB and is on move, the other player is BB
             if (gameData.activePlayers.size == 2) {
                 gameData.currentDealer.apply {
-                    currentBet = min(chips, gameData.smallBlind)
+                    postBlind(gameData.smallBlind)
                     startMove()
                 }
 
                 get(indexOf(gameData.currentDealer) + 1).apply {
-                    currentBet = min(chips, gameData.bigBlind)
+                    if (gameData.currentDealer.isAllIn) {
+                        // if the blind made SB go all in, BB bets whatever SB bet and we go straight to showdown
+                        postBlind(gameData.currentDealer.currentBet)
+                        pendingAction = false
+                    } else {
+                        postBlind(gameData.bigBlind)
+                    }
                 }
             } else {
                 // otherwise, the next player to the dealer is SB
                 get(indexOf(gameData.currentDealer) + 1).apply {
-                    currentBet = min(chips, gameData.smallBlind)
+                    postBlind(gameData.smallBlind)
                 }
 
                 // the next one is BB
                 get(indexOf(gameData.currentDealer) + 2).apply {
-                    currentBet = min(chips, gameData.bigBlind)
+                    postBlind(gameData.bigBlind)
                 }
 
                 // and the next one is on move
@@ -362,14 +368,27 @@ class HoldemTournamentGameEngine(
 
 
     private fun tryShowdown(): Boolean {
-        // ((if one player is not all in AND all the rest is all in) OR everyone is all in)
-        // AND all other players are folded
-        if (gameData.players.size
-            - gameData.players.count { it.isAllIn }
-            - gameData.players.count { it.action == PlayerAction.Action.FOLD } <= 1 &&
-            (gameData.players.none { it.pendingAction } || gameData.players.all { it.isAllIn })
-        ) {
+        val pendingActionPlayersCount = gameData.players.count { it.pendingAction }
+        val allInPlayersCount = gameData.players.count { it.isAllIn }
+        val foldedPlayersCount = gameData.players.count { it.action == PlayerAction.Action.FOLD }
 
+        val lastPendingActionPlayer = if (pendingActionPlayersCount == 1)
+            gameData.players.firstOrNull { it.pendingAction } else null
+        val highestAllInBet = gameData.players.filter { it.isAllIn }.map { it.currentBet }.maxOrNull()
+
+        val canShowdown =
+            gameData.players.size - allInPlayersCount - foldedPlayersCount <= 1 && (
+                pendingActionPlayersCount == 0 ||
+                gameData.players.all { it.isAllIn } || (
+                    // it would still be one last player's turn but their current bet is
+                    // already higher than any other all in -> we can go to showdown
+                    lastPendingActionPlayer != null &&
+                    highestAllInBet != null &&
+                    lastPendingActionPlayer.currentBet >= highestAllInBet
+                )
+            )
+
+        if (canShowdown) {
             logger.debug("Showdown")
 
             // add extra round time for showdown card animation
@@ -425,7 +444,7 @@ class HoldemTournamentGameEngine(
         restorePointCreatedListener(this)
 
         thread {
-            // otherwise we will wait some time and start a new round
+            // we will wait some time and start a new round
             // there can be bug when a player unpauses before this time limit (and startNewRound will be called 2x)
             // isRoundEndThreadRunning prevents this
 
@@ -480,7 +499,6 @@ class HoldemTournamentGameEngine(
             val pot = gameData.players.sumBy { it.currentBet }
             gameData.players.forEach {
                 it.chips -= it.currentBet
-                it.currentBet = 0
             }
             winner.lastWin = pot
             winner.chips += pot
