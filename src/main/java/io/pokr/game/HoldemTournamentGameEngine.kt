@@ -79,6 +79,24 @@ class HoldemTournamentGameEngine(
         gameData.allPlayers.sortBy { it.index }
     }
 
+    fun distributeButtonAndBlinds(isFirstRound: Boolean) {
+        if (isFirstRound) {
+            gameData.allPlayers.shuffled().apply {
+                get(0).isDealer = true
+
+                if (gameData.allPlayers.size == 2) {
+                    get(0).isSmallBlind = true
+                    get(1).isBigBlind = true
+                } else {
+                    get(1).isSmallBlind = true
+                    get(2).isBigBlind = true
+                }
+            }
+        } else {
+            
+        }
+    }
+
     fun startGame(playerUuid: String) {
         // only admin can start a game
         applyOnAdminPlayer(playerUuid) {}
@@ -172,7 +190,8 @@ class HoldemTournamentGameEngine(
             it.cards = gameData.cardStack.drawCards(2)
         }
 
-        // move dealer to the next position
+        val isJustBigBlind = false // TODO
+
         nextDealer()
 
         // assign blinds and players on move
@@ -183,11 +202,13 @@ class HoldemTournamentGameEngine(
             // dealer is SB and is on move, the other player is BB
             if (gameData.activePlayers.size == 2) {
                 gameData.currentDealer.apply {
+                    isSmallBlind = true
                     postBlind(gameData.smallBlind)
                     startMove()
                 }
 
                 get(indexOf(gameData.currentDealer) + 1).apply {
+                    isBigBlind = true
                     if (gameData.currentDealer.isAllIn) {
                         // if the blind made SB go all in, BB bets whatever SB bet and we go straight to showdown
                         postBlind(gameData.currentDealer.currentBet)
@@ -195,6 +216,12 @@ class HoldemTournamentGameEngine(
                     } else {
                         postBlind(gameData.bigBlind)
                     }
+                }
+            } else if (isJustBigBlind) {
+                // another special case if BB from the previous round is busted, there is no SB this round
+                get(indexOf(gameData.currentDealer) + 1).apply {
+                    isBigBlind = true
+                    postBlind(gameData.bigBlind)
                 }
             } else {
                 // otherwise, the next player to the dealer is SB
@@ -204,6 +231,7 @@ class HoldemTournamentGameEngine(
 
                 // the next one is BB
                 get(indexOf(gameData.currentDealer) + 2).apply {
+                    isBigBlind = true
                     postBlind(gameData.bigBlind)
                 }
 
@@ -213,6 +241,8 @@ class HoldemTournamentGameEngine(
                 }
             }
         }
+
+        bigBlind?.isBigBlind = false
 
         // check players that are all in after cards are dealt (so we can showdown automatically)
         gameData.players.filter { it.isAllIn }.forEach {
@@ -554,7 +584,7 @@ class HoldemTournamentGameEngine(
         nextPlayerOnMove.startMove()
     }
 
-    // moves dealer token to the next player
+    // appropriately moves dealer token to the next player
     fun nextDealer() {
         val currentDealer = gameData.currentDealer
         val nextDealer = gameData.nextDealer
@@ -634,6 +664,9 @@ class HoldemTournamentGameEngine(
                 it.rebuyCount++
                 it.finalRank = 0
                 it.isRebuyNextRound = true
+                it.isDealer = false
+                it.isSmallBlind = false
+                it.isBigBlind = false
             } else {
                 throw GameException(19, "Cannot rebuy, you have not lost yet")
             }
