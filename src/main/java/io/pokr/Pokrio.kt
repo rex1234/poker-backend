@@ -1,6 +1,7 @@
 package io.pokr
 
 import io.pokr.config.*
+import io.pokr.database.*
 import io.pokr.jobs.*
 import io.pokr.network.*
 import org.slf4j.*
@@ -32,9 +33,15 @@ fun main() {
         ClearGamesJob(gamePool)
     ).run()
 
+    DatabaseManager().let {
+        it.init()
+        it.insertGame()
+    }
+
     Signal.handle(Signal("INT")) {
         handleExit()
     }
+
     Signal.handle(Signal("TERM")) {
         handleExit()
     }
