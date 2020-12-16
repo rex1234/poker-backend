@@ -33,11 +33,6 @@ fun main() {
         ClearGamesJob(gamePool)
     ).run()
 
-    DatabaseManager().let {
-        it.init()
-        it.insertGame()
-    }
-
     Signal.handle(Signal("INT")) {
         handleExit()
     }
