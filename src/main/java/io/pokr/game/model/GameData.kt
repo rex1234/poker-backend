@@ -14,6 +14,7 @@ class GameData constructor(
         ACTIVE,
         PAUSED,
         FINISHED,
+        ABANDONED,
     }
 
     var gameState: State = State.CREATED

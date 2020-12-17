@@ -1,5 +1,6 @@
 package io.pokr.network
 
+import io.pokr.database.*
 import io.pokr.game.*
 import io.pokr.game.exceptions.*
 import io.pokr.game.model.*
@@ -71,6 +72,8 @@ class GamePool {
         logger.info("Created game session: ${gameUuid}")
 
         val gameEngine = createGameEngine(gameUuid, gameConfig)
+
+        DatabaseManager.updateGame(gameEngine.gameData)
 
         val gameSession = GameSession(gameUuid, gameEngine).apply {
             playerSessions.add(playerSession)
@@ -152,6 +155,12 @@ class GamePool {
         gameSessions[gameUuid]?.let {
             gameDisbandedListener?.invoke(it.playerSessions.map { it.sessionId })
             gameSessions.remove(it.uuid)
+
+            if(it.gameEngine.gameData.gameState != GameData.State.FINISHED) {
+                it.gameEngine.gameData.gameState = GameData.State.ABANDONED
+            }
+
+            DatabaseManager.updateGame(it.gameEngine.gameData)
 
             logger.info("Game session ${it.uuid} discarded")
         }

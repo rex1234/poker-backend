@@ -1,6 +1,7 @@
 package io.pokr
 
 import io.pokr.config.*
+import io.pokr.database.*
 import io.pokr.jobs.*
 import io.pokr.network.*
 import org.slf4j.*
@@ -35,6 +36,7 @@ fun main() {
     Signal.handle(Signal("INT")) {
         handleExit()
     }
+
     Signal.handle(Signal("TERM")) {
         handleExit()
     }

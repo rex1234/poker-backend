@@ -143,3 +143,4 @@ run.sh
 dist/*
 logs/*
 state/*
+db/*

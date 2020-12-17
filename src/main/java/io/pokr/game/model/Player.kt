@@ -31,6 +31,8 @@ data class Player(
     var didRebuyThisRound: Boolean = false,
     var rebuyCount: Int = 0,
 
+    var connectedToRound: Int = 0, // to which round the player has connected
+
     var isLeaveNextRound: Boolean = false,
 
     // only for FE
