@@ -29,14 +29,14 @@ class GameData constructor(
     var nextBlindsChangeAt = 0L
 
     var round = 0
-    var gameStart: Long = 0
+    var gameStart = 0L
     var roundState = RoundState.ACTIVE
 
     var pauseStart: Long? = null
     var totalPauseTime = 0L
 
     val gameTime
-        get() = System.currentTimeMillis() - gameStart - totalPauseTime
+        get() = if(gameStart == 0L) 0 else System.currentTimeMillis() - gameStart - totalPauseTime
 
     val isLateRegistrationPossible
         get() = gameTime < config.rebuyTime * 1000
