@@ -24,6 +24,13 @@ object DatabaseManager {
                     it[uuid] = gameData.uuid
                     it[state] = gameData.gameState.name
                     it[createdAt] = System.currentTimeMillis()
+
+                    it[startingChips] = gameData.config.startingChips
+                    it[startingBlinds] = gameData.config.startingBlinds
+                    it[blindIncreaseTime] = gameData.config.blindIncreaseTime
+                    it[playerMoveTime] = gameData.config.playerMoveTime
+                    it[rebuyTime] = gameData.config.rebuyTime
+                    it[maxRebuys] = gameData.config.maxRebuys
                 }
             } else {
                 Games.update({ Games.uuid eq gameData.uuid }) {
@@ -32,9 +39,10 @@ object DatabaseManager {
                     it[gameLength] = gameData.gameTime / 1000
                     it[pauseLength] = gameData.totalPauseTime / 1000
                     it[totalRebuys] = gameData.allPlayers.sumBy { it.rebuyCount }
+                    it[rounds] = gameData.round
                 }
 
-                if(gameData.gameState in listOf(GameData.State.FINISHED, GameData.State.DISCARDED)) {
+                if(gameData.gameState in listOf(GameData.State.FINISHED, GameData.State.ABANDONED)) {
                     val gameId = Games
                         .select { Games.uuid eq gameData.uuid}
                         .last()[Games.id]
@@ -54,7 +62,9 @@ object DatabaseManager {
             it[name] = player.name
             it[rank] = player.finalRank
             it[rebuyCount] = player.rebuyCount
-            it[left] = if(player.isKicked) 1 else 0
+            it[hasLeft] = if(player.isKicked) 1 else 0
+            it[isAdmin] =  if(player.isAdmin) 1 else 0
+            it[roundConnected] = player.connectedToRound
             it[Players.gameId] = gameId
         }
     }

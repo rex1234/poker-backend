@@ -157,7 +157,7 @@ class GamePool {
             gameSessions.remove(it.uuid)
 
             if(it.gameEngine.gameData.gameState != GameData.State.FINISHED) {
-                it.gameEngine.gameData.gameState = GameData.State.DISCARDED
+                it.gameEngine.gameData.gameState = GameData.State.ABANDONED
             }
 
             DatabaseManager.updateGame(it.gameEngine.gameData)

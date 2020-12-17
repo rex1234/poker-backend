@@ -73,6 +73,7 @@ class HoldemTournamentGameEngine(
             if (gameData.gameState == GameData.State.ACTIVE) {
                 isFinished = true
                 isRebuyNextRound = true
+                connectedToRound = gameData.round
             }
         })
 
