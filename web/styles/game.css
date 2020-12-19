@@ -1458,7 +1458,7 @@ button.betsizes.last {
     -moz-border-radius: 6px;
     -webkit-border-radius: 6px;
     border-radius: 6px;
-    height: 30px;
+    height: 31px;
     background-color: #0F2E4B;
     font-family: 'Public Sans', sans-serif;
     font-size: 16px;
@@ -1481,11 +1481,11 @@ button.betsizes.last {
     -moz-transition: all 0.2s ease;
     -o-transition: all 0.2s ease;
     transition: all 0.2s ease;
-    margin: 0 6px 0 -3px;
+    margin: 3px 6px 0 -3px;
 }
 
 .game-menu button div {
-    margin-top: 3px;
+    margin-top: 6px;
 }
 
 .game-menu button:hover {

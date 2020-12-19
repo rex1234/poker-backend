@@ -280,7 +280,7 @@
     }
 
     .game-menu button svg {
-        margin: 0 auto;
+        margin: 3px auto 0 auto;;
     }
 
     .dealer {
