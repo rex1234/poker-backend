@@ -4,6 +4,7 @@ import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.features.*
 import io.ktor.http.content.*
+import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
@@ -115,6 +116,11 @@ class WebEngine(
             }
 
             get("/") {
+                if(PokrioConfig.webUrl.contains("www.") && !call.request.host().startsWith("www.")) {
+                    call.respondRedirect(PokrioConfig.webUrl)
+                    return@get
+                }
+                
                 call.respond(ThymeleafContent("game.html", mapOf(
                     "socketsPort" to PokrioConfig.socketsPort,
                     "version" to PokrioConfig.version,
