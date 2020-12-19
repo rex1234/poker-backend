@@ -789,6 +789,8 @@ input[type=number] {
     z-index: 1;
     top: 0;
     overflow-x: hidden;
+    display: flex;
+    flex-flow: column;
 }
 
 .logo {
@@ -798,6 +800,9 @@ input[type=number] {
 .left-container .content {
     margin: 40px 40px 0 40px;
     margin-top: 200px;
+    display: flex;
+    flex-flow: column;
+    height: 100%;
 }
 
 h1 {
@@ -814,6 +819,19 @@ h1 {
     font-size: 20px;
     line-height: 28px;
     font-weight: normal;
+    flex: 1 1 auto;
+}
+
+.disclaimer {
+    color: #061727;
+    font-size: 12px;
+    padding-right: 40px;
+    flex: 0 1 65px;
+    margin-top: 60px;
+}
+
+.disclaimer-mobile {
+    display: none;
 }
 
 #settings {
@@ -849,6 +867,7 @@ h1 {
     margin: 0 auto;
     padding-top: 1px;
     background-color: #0F2E4B;
+    margin-top: 30px;
 }
 
 #createGame {
@@ -859,6 +878,7 @@ h1 {
     margin: 0 auto;
     padding-top: 1px;
     background-color: #0F2E4B;
+    margin-bottom: 30px;
 }
 
 .input-wrapper {

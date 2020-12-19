@@ -723,6 +723,17 @@
         position: static;
     }
 
+    .disclaimer {
+        display: none;
+    }
+
+    .disclaimer-mobile {
+        display: block;
+        width: 290px;
+        color: #36526d;
+        font-size: 12px;
+    }
+
     h1 {
         font-size: 25px;
         line-height: 30px;
@@ -740,29 +751,51 @@
         width: 160px;
     }
 
+    #joinGame {
+        margin-top: 0px;
+    }
+
     #createGame {
-        margin-bottom: 30px;
+        margin-bottom: 0px;
     }
 }
 
 /*landing screen fix big screens */
 @media only screen and (min-width: 1440px) {
-    body, #main {
-        height: 100%;
+
+
+     #main-screen {
+            margin: 0 auto;
+            display: flex;
+            align-content: flex-start;
+            align-items: stretch;
+     }
+
+    .left-wrapper {
+        width: 40%;
+        position: fixed;
+        background-color: #FBF4EC;
+        height: 100vh;
     }
 
-    #main-screen {
-        width: 1440px;
-        margin: 0 auto;
-        display: flex;
-        height: 100vh;
-        align-items: stretch;
-    }
+    .right-wrapper {
+         width: 60%;
+         position: relative;
+         left: 40%;
+     }
 
     .left-container {
-        position: static;
+        position: absolute;
+        right: 0;
         height: auto;
-        width: 40%;
-        align-self: auto;
+        width: 576px;
+        height: 100vh;
+    }
+
+    #settings {
+        position: absolute;
+        left: 0;
+        height: auto;
+        width: 864px;
     }
 }
