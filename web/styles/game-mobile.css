@@ -788,7 +788,7 @@
         position: absolute;
         right: 0;
         height: auto;
-        width: 576px;
+        width: 100%;
         height: 100vh;
     }
 
@@ -796,7 +796,4 @@
         left: 40%;
     }
 
-    #settings-wrapper {
-       margin-left: 20%;
-    }
 }
