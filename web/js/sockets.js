@@ -84,14 +84,25 @@ socket.on('gameState', function (data) {
             $('.pregame').hide();
             $('.game-info').show();
 
-            //show blinds and othe info
+            //show blinds and other info
             currentSmallBlind = data.smallBlind;
             $('.blinds-state .current').html(`${data.smallBlind} / ${data.smallBlind * 2}`);
             if ($(window).width() > 1023) {
                 $('.blinds-state .next').html(`${data.nextSmallBlind} / ${data.nextSmallBlind * 2}`);
             }
-            blindsTimer(data.nextBlindsChangeAt, gameState);
-            lateRegTimer(data.config.maxRebuys, data.config.rebuyTime, data.gameStart, gameState);
+
+            if (gameState === 'paused') {
+                $('.level-time span').html('The game is paused.');
+                if (timerBlinds !== -1) {
+                    window.clearInterval(timerBlinds);
+                }
+                if (timerRebuys !== -1) {
+                    window.clearInterval(timerRebuys);
+                }
+            } else {
+                blindsTimer(data.nextBlindsChangeAt, gameState);
+                lateRegTimer(data.config.maxRebuys, data.config.rebuyTime, data.gameStart, gameState);
+            }
             updateLeaderboard(data);
             assignTags(data);
         }
@@ -353,20 +364,23 @@ const setPlayerChips = (data, player, prevDataPlayer, playerPosition) => {
     let extraShowdownPotChips = 0;
 
     if (data.roundState === 'finished') {
-        if (prevDataPlayer) {
-            const playerBets = [
-                data.user.currentBet,
-                ...data.players.map(player => player.currentBet)
-            ].sort((a, b) => b - a);
+        // if data contain info about the same finished round as previous data, we do not update chips
+        if (!(prevData && prevData.roundState === 'finished' && prevData.round === data.round)) {
+            if (prevDataPlayer) {
+                const playerBets = [
+                    data.user.currentBet,
+                    ...data.players.map(player => player.currentBet)
+                ].sort((a, b) => b - a);
 
-            if (player.currentBet === playerBets[0]) {
-                // if the highest betting player's bet isn't matched by the second highest betting player,
-                // we return the extra chips to the highest betting player before going through with the showdown
-                extraShowdownPotChips = playerBets[0] - playerBets[1];
+                if (player.currentBet === playerBets[0]) {
+                    // if the highest betting player's bet isn't matched by the second highest betting player,
+                    // we return the extra chips to the highest betting player before going through with the showdown
+                    extraShowdownPotChips = playerBets[0] - playerBets[1];
+                }
+                $chips.html(prevDataPlayer.chips - player.currentBet + extraShowdownPotChips);
+            } else {
+                $chips.html(player.chips);
             }
-            $chips.html(prevDataPlayer.chips - player.currentBet + extraShowdownPotChips);
-        } else {
-            $chips.html('Loading...');
         }
     } else {
         $chips.html(player.chips - player.currentBet);
