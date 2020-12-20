@@ -92,6 +92,9 @@ fabric.properties
 .idea/**/markdown-navigator.xml
 .idea/**/markdown-navigator/
 
+# WebStorm for front-end
+web/.idea/
+
 ### Java ###
 # Compiled class file
 *.class
