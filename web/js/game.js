@@ -1,5 +1,6 @@
 let timerOn = -1;
 let beepCounter = 0;
+let timerTick = 0;
 
 const joinInputValidated = [false, false];
 const createInputValidated = [false, true, true, true, true, true, true];
@@ -164,10 +165,12 @@ $('.advanced-settings').on('click', function () {
     $('.advanced-inputs').slideToggle();
 });
 
-function playerCountdown(start, playerPosition, limit) {
+function playerCountdown(start, playerPosition, limit, serverTime) {
     let x = 0;
+    const execEveryMs = 40;
+    timerTick = 0;
     const intervalID = setInterval(function () {
-
+        timerTick++;
         if (timerOn !== intervalID) {
             if (timerOn !== -1) {
                 window.clearInterval(timerOn);
@@ -175,9 +178,10 @@ function playerCountdown(start, playerPosition, limit) {
             timerOn = intervalID;
         }
 
-        const d = new Date();
-        const now = d.getTime();
-        const prc = 100 - 100 * ((now - start) / (limit * 1000));
+        const remainingTimeSocket = (limit * 1000) - (serverTime - start);
+        const remainingTime = remainingTimeSocket - timerTick * execEveryMs;
+
+        const prc = 100 * (remainingTime / (limit * 1000));
 
         if ((lastAction !== 'none' || roundTurn === 1) && playerPosition === 1) {
             if (x === 10) {
@@ -206,7 +210,7 @@ function playerCountdown(start, playerPosition, limit) {
             window.clearInterval(intervalID);
             timerOn = 0;
         }
-    }, 40);
+    }, execEveryMs);
 
 }
 

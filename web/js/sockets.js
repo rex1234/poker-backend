@@ -430,7 +430,7 @@ function printPlayers(data) {
 
     //timer functionality
     if (data.user.onMove) {
-        playerCountdown(data.user.moveStart, 1, data.config.playerMoveTime);
+        playerCountdown(data.user.moveStart, 1, data.config.playerMoveTime, data.time);
     }
 
     const positionedPlayers = new Map([[1, data.user]]);
@@ -477,7 +477,7 @@ function printPlayers(data) {
         }
 
         if (data.players[i].onMove) {
-            playerCountdown(data.players[i].moveStart, position, data.config.playerMoveTime);
+            playerCountdown(data.players[i].moveStart, position, data.config.playerMoveTime, data.time);
         }
 
         pot += data.players[i].currentBet;
