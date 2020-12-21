@@ -441,9 +441,6 @@ class HoldemTournamentGameEngine(
         // switch to the FINISHED state, no actions can be performed anymore and the results of the round are shown
         gameData.roundState = GameData.RoundState.FINISHED
 
-        gameRestorePoint = GameRestorePoint.fromGameData(gameData)
-        restorePointCreatedListener(this)
-
         thread {
             // we will wait some time and start a new round
             // there can be bug when a player unpauses before this time limit (and startNewRound will be called 2x)
@@ -456,6 +453,9 @@ class HoldemTournamentGameEngine(
             extraRoundTime = 0L
 
             calculateFinalRanks()
+
+            gameRestorePoint = GameRestorePoint.fromGameData(gameData)
+            restorePointCreatedListener(this)
 
             // if there is only one player with chips we will finish the game
             if (gameData.allPlayers.count { it.chips > 0 || it.isRebuyNextRound } == 1) {
