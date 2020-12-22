@@ -9,6 +9,9 @@ object PokrioConfig {
     fun exists() =
         File(".env").exists()
 
+    val isDebug
+        get() = dotenv()["ENV"] == null || dotenv()["ENV"] == "debug"
+
     val version
         get() = BuildConfig.LAST_COMMIT
 
