@@ -622,8 +622,8 @@ class HoldemTournamentGameEngine(
         }
 
         val playerPosition = player.index
-        val dealerPosition = gameData.activePlayers.first { it.isDealer }.index
-        val bbPosition = gameData.activePlayers.first { it.isBigBlind }.index
+        val dealerPosition = gameData.allPlayers.first { it.isDealer }.index
+        val bbPosition = gameData.allPlayers.first { it.isBigBlind }.index
 
         if (bbPosition > dealerPosition && playerPosition > dealerPosition && playerPosition < bbPosition) {
             return false
