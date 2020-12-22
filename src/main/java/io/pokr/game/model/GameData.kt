@@ -18,11 +18,17 @@ class GameData constructor(
     }
 
     var gameState: State = State.CREATED
+
+    /**
+     * All game players. Do not add players directly, use `addPlayer` to maintain their order.
+     */
     var allPlayers = mutableListOf<Player>()
+
     var targetBet = 0
     var lastFullRaiseDiff = 0
     var previousStreetTargetBet = 0
     var minRaiseTo = 0
+
     var smallBlind = 0
     var bigBlind = 0
     var nextSmallBlind = 0
@@ -58,19 +64,8 @@ class GameData constructor(
     val currentDealer
         get() = allPlayers.first { it.isDealer }
 
-    val nextDealer
-        get() = (players + players).run {
-            // in 3+ players, players who just rebought cannot start playing on the button
-            if (players.size > 3) {
-                for (i in indexOf(currentDealer) + 1 until size) {
-                    if (!get(i).didRebuyThisRound) {
-                        return@run get(i)
-                    }
-                }
-            }
-
-            return@run get(indexOf(currentDealer) + 1)
-        }
+    val currentBigBlindPlayer
+        get() = allPlayers.first { it.isBigBlind }
 
     val currentPlayerOnMove
         get() = allPlayers.first { it.isOnMove }
@@ -78,8 +73,41 @@ class GameData constructor(
     val nextPlayerOnMove
         get() = nextActivePlayerFrom(currentPlayerOnMove)
 
-    fun nextActivePlayerFrom(player: Player) =
-        (players + players).run {
+    /**
+     * Adds a player and sorts them by index.
+     */
+    fun addPlayer(player: Player) {
+        allPlayers.add(player)
+        allPlayers.sortBy { it.index }
+    }
+
+    /**
+     * Returns the player who is currently small blind. It is possible for that to be no one.
+     */
+    fun currentSmallBlindPlayer(): Player? {
+        return allPlayers.firstOrNull { it.isSmallBlind }
+    }
+
+    /**
+     * Finds the closest active player that is next (clockwise) to the given player.
+     * @param includeRebuyingPlayers If present, the function will consider players who are about to rebuy
+     * as active.
+     */
+    fun nextActivePlayerFrom(player: Player, includeRebuyingPlayers: Boolean = false) =
+        (allPlayers + allPlayers).run {
+            for (i in indexOf(player) + 1 until size) {
+                if (get(i) in activePlayers || (includeRebuyingPlayers && get(i).isRebuyNextRound)) {
+                    return@run get(i)
+                }
+            }
+            return@run get(0)
+        }
+
+    /**
+     * Finds the closest active player that is previous (counter-clockwise) to the given player.
+     */
+    fun previousActivePlayerFrom(player: Player) =
+        (allPlayers + allPlayers).reversed().run {
             for (i in indexOf(player) + 1 until size) {
                 if (get(i) in activePlayers) {
                     return@run get(i)
