@@ -81,16 +81,9 @@ class GamePool {
 
         gameSessions[gameUuid] = gameSession
 
-        gameEngine.addPlayer(playerSession.uuid)
+        gameEngine.addPlayer(playerSession.uuid, playerName)
 
         logger.info("Added player ${playerSession.uuid} to ${gameSession.uuid}")
-
-        executePlayerAction(
-            playerSession.uuid, PlayerAction(
-                action = PlayerAction.Action.CHANGE_NAME,
-                textValue = playerName
-            )
-        )
 
         notifyPlayers(gameSession.uuid)
     }
@@ -114,20 +107,12 @@ class GamePool {
                 it.sessionId = playerSessionId
             } ?: PlayerSession(playerSessionId, TokenGenerator.nextPlayerToken()).also {
                 gameSession.playerSessions.add(it)
-                gameSession.gameEngine.addPlayer(it.uuid)
+                gameSession.gameEngine.addPlayer(it.uuid, playerName)
             }
 
             logger.info("Added player ${playerName} to ${gameSession.uuid}")
 
             gameSession.gameEngine.playerConnected(playerSession.uuid, true)
-
-            executePlayerAction(
-                playerSession.uuid,
-                PlayerAction(
-                    action = PlayerAction.Action.CHANGE_NAME,
-                    textValue = playerName
-                )
-            )
 
             notifyPlayers(gameUuid)
         } ?: throw GameException(20, "Invalid game UUID")

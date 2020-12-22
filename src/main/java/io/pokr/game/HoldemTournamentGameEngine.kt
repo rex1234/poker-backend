@@ -51,7 +51,7 @@ class HoldemTournamentGameEngine(
         get() = gameData.uuid
 
 
-    fun addPlayer(playerUUID: String) {
+    fun addPlayer(playerUUID: String, playerName: String) {
         if (gameData.allPlayers.size == 9) {
             throw GameException(10, "The game is already full")
         }
@@ -60,7 +60,7 @@ class HoldemTournamentGameEngine(
             throw GameException(11, "Late registration is not possible")
         }
 
-        gameData.addPlayer(Player(playerUUID).apply {
+        val player = Player(playerUUID).apply {
             // first connected player is an admin
             if (gameData.allPlayers.isEmpty()) {
                 isAdmin = true
@@ -72,7 +72,10 @@ class HoldemTournamentGameEngine(
                 isRebuyNextRound = true
                 connectedToRound = gameData.round
             }
-        })
+        }
+
+        gameData.addPlayer(player)
+        changeName(playerUUID, playerName)
     }
 
     private fun setDealerAndBlindPositions() {
