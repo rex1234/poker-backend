@@ -152,6 +152,7 @@ class SocketEngine(
 
         gamePool.gameDisbandedListener = this::sendGameDisbandedToPlayers
         gamePool.gameStateUpdatedListener = this::sendGameStateToPlayer
+        gamePool.sendChatMessageListener = this::sendChatMessageToPlayer
     }
 
     fun stop() {
@@ -164,32 +165,17 @@ class SocketEngine(
         }.forEach {
             it.sendEvent(Events.GAME_DISBANDED.key)
         }
-
     }
 
     private fun sendGameStateToPlayer(playerSessionId: String, gameState: GameResponse.GameState) {
-        server.allClients.filter {
+        server.allClients.firstOrNull {
             it.sessionId.toString() == playerSessionId
-        }.forEach {
-            it.sendEvent(Events.GAME_STATE.key, gameState)
-        }
+        }?.sendEvent(Events.GAME_STATE.key, gameState)
     }
 
-    /**
-     * Sends message to all players in a game session
-     */
-//    private fun sendMessage(client: SocketIOClient, message: String, flash: Boolean) {
-//        gamePool.getGroupSessions(client.sessionId.toString()).forEach { playerSession ->
-//            server.allClients.filter { it.sessionId == UUID.fromString(playerSession.sessionId) }.forEach {
-//                val playerData = gamePool.getGameDataForPlayerUuid(playerSession.uuid).second
-//                it.sendEvent(Events.CHAT_MESSAGE.key, ChatResponse(
-//                    StringEscapeUtils.escapeHtml4(playerData.name),
-//                    playerData.index.toString(),
-//                    System.currentTimeMillis(),
-//                    StringEscapeUtils.escapeHtml4(message),
-//                    flash
-//                ))
-//            }
-//        }
-//    }
+    private fun sendChatMessageToPlayer(playerSessionId: String, chatMessage: ChatResponse) {
+        server.allClients.firstOrNull {
+            it.sessionId.toString() == playerSessionId
+        }?.sendEvent(Events.CHAT_MESSAGE.key, chatMessage)
+    }
 }

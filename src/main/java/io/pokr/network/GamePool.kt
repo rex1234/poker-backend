@@ -1,6 +1,8 @@
 package io.pokr.network
 
 import io.pokr.database.*
+import io.pokr.chat.*
+import io.pokr.chat.model.*
 import io.pokr.game.*
 import io.pokr.game.exceptions.*
 import io.pokr.game.model.*
@@ -28,9 +30,14 @@ class GamePool {
     var gameDisbandedListener: ((playerSessionIds: List<String>) -> Unit)? = null
 
     /**
-     * Called when game state should be sent to connected clients
+     * Called when game state should be sent to a connected client
      */
     var gameStateUpdatedListener: ((playerSession: String, gameState: GameResponse.GameState) -> Unit)? = null
+
+    /**
+     * Called when a chat message should be sent to a connected client
+     */
+    var sendChatMessageListener: ((playerSession: String, chatMessage: ChatResponse) -> Unit)? = null
 
     init {
         serializationManager.restoreState(this)
@@ -81,16 +88,9 @@ class GamePool {
 
         gameSessions[gameUuid] = gameSession
 
-        gameEngine.addPlayer(playerSession.uuid)
+        gameEngine.addPlayer(playerSession.uuid, playerName)
 
         logger.info("Added player ${playerSession.uuid} to ${gameSession.uuid}")
-
-        executePlayerAction(
-            playerSession.uuid, PlayerAction(
-                action = PlayerAction.Action.CHANGE_NAME,
-                textValue = playerName
-            )
-        )
 
         notifyPlayers(gameSession.uuid)
     }
@@ -114,20 +114,12 @@ class GamePool {
                 it.sessionId = playerSessionId
             } ?: PlayerSession(playerSessionId, TokenGenerator.nextPlayerToken()).also {
                 gameSession.playerSessions.add(it)
-                gameSession.gameEngine.addPlayer(it.uuid)
+                gameSession.gameEngine.addPlayer(it.uuid, playerName)
             }
 
             logger.info("Added player ${playerName} to ${gameSession.uuid}")
 
             gameSession.gameEngine.playerConnected(playerSession.uuid, true)
-
-            executePlayerAction(
-                playerSession.uuid,
-                PlayerAction(
-                    action = PlayerAction.Action.CHANGE_NAME,
-                    textValue = playerName
-                )
-            )
 
             notifyPlayers(gameUuid)
         } ?: throw GameException(20, "Invalid game UUID")
@@ -192,9 +184,29 @@ class GamePool {
     /**
      * Sends given message to all other players in the same GameSession
      */
-    fun sendChatMessage(playerSessionId: String, message: String, isFlash: Boolean) =
+    fun sendChatMessage(playerSessionId: String, text: String, isFlash: Boolean) =
         getGameSessionByPlayerSession(playerSessionId)?.let {
-            notifyPlayers(it.uuid) // TODO: send chat message
+            if (isFlash && !ChatEngine.isValidReaction(text)) {
+                throw GameException(30, "Invalid reaction")
+            }
+
+            if(text.length > 256) {
+                throw GameException(31, "Message text is too long")
+            }
+
+            val playerSession = it.playerSessions.first {
+                it.sessionId == playerSessionId
+            }
+
+            val chatMessage = ChatMessage(
+                from = it.gameEngine.gameData.allPlayers.first {
+                    it.uuid == playerSession.uuid
+                }.uuid,
+                text = text,
+                isFlash = isFlash
+            )
+
+            sendChatMessageToPlayers(it.uuid, chatMessage)
         }
 
     /**
@@ -249,6 +261,13 @@ class GamePool {
                 removePlayerSession(gameEngine.gameData.uuid, player.uuid)
             },
 
+            messageLogListener = { gameEngine, message ->
+                sendChatMessageToPlayers(gameEngine.gameData.uuid, ChatMessage(
+                    from = null,
+                    text = message,
+                ))
+            },
+
             restorePointCreatedListener =  { serializationManager.storeState(this) }
         )
 
@@ -261,6 +280,25 @@ class GamePool {
                 gameStateUpdatedListener?.invoke(
                     it.sessionId,
                     GameResponse.GameStateFactory.from(gameSession.gameEngine.gameData, it.uuid)
+                )
+            }
+        }
+    }
+
+    /**
+     * Sends chat message to all players in a GameSession with given gameUuid
+     */
+    fun sendChatMessageToPlayers(gameUuid: String, chatMessage: ChatMessage) {
+        gameSessions[gameUuid]?.let { gameSession ->
+            gameSession.playerSessions.forEach {
+                sendChatMessageListener?.invoke(
+                    it.sessionId,
+                    ChatResponseFactory.fromChatMessage(
+                        gameSession.gameEngine.gameData.allPlayers.firstOrNull {
+                            it.uuid == chatMessage.from
+                        },
+                        chatMessage
+                    )
                 )
             }
         }

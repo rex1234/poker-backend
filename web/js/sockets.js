@@ -173,6 +173,13 @@ socket.on('gameState', function (data) {
 
     prevData = data;
     prevRoundState = data.roundState;
+
+    //reactions
+    if(data.roundState == 'finished') {
+        $(".reactions table").show();
+    } else {
+        // $(".reactions table").hide();
+    }
 });
 
 socket.on('error', function (data) {
@@ -224,18 +231,30 @@ socket.on('gameDisbanded', function () {
     localStorage.removeItem('player_uuid');
 });
 
-socket.on('chat', function (data) {
-    console.log(data);
+socket.on('chat', function (message) {
+    console.log(message);
 
-    const message = data.message;
-    const flash = data.flash; // if the message is a react or regular message
-
-    if (flash) {
-        console.log('[' + data.time + ']' + data.name + ': ' + message);
+    if (message.flash) {
+        react(getPlayerPosition(prevData, message.index), message.message);
     } else {
-        // TODO: add message to the chat window
+        addChatMessage(message);
     }
 });
+
+// chat / reacts
+
+function react(playerIndex, reaction) {
+    const reactDiv = $(`#player${playerIndex} .react`);
+    reactDiv.css('background-image', `url('../img/reacts/${reaction}.svg')`);
+    reactDiv.css('opacity', 1);
+    reactDiv.fadeTo(1500, 0, 'swing');
+}
+
+function addChatMessage(message) {
+    $('.chat-window').append(
+        `<p><b>${message.name}:</b> ${message.message}</p>`
+    );
+}
 
 
 // outbound events

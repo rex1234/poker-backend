@@ -10,7 +10,9 @@ import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.thymeleaf.*
+import io.pokr.chat.*
 import io.pokr.config.*
+import io.pokr.game.model.*
 import org.slf4j.*
 import org.thymeleaf.templateresolver.*
 import java.io.*
@@ -79,7 +81,7 @@ class WebEngine(
 
         install(Authentication) {
             basic(name = "admin") {
-                realm = "Ktor Server"
+                realm = "pokrio-admin"
                 validate { credentials ->
                     if (credentials.name == "admin" && credentials.password == PokrioConfig.adminPassword) {
                         UserIdPrincipal(credentials.name)
@@ -106,7 +108,7 @@ class WebEngine(
             authenticate("admin") {
                 route("admin") {
                     get("v") {
-                        call.respondText("v1.0")
+                        call.respondText(PokrioConfig.version)
                     }
 
                     get("log") {
@@ -124,6 +126,7 @@ class WebEngine(
                 call.respond(ThymeleafContent("game.html", mapOf(
                     "socketsPort" to PokrioConfig.socketsPort,
                     "version" to PokrioConfig.version,
+                    "reactions" to ChatEngine.validReactions,
                 )))
             }
 
