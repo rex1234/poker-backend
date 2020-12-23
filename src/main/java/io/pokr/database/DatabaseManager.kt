@@ -17,6 +17,7 @@ object DatabaseManager {
         }
     }
 
+    @Synchronized
     fun updateGame(gameData: GameData) {
         transaction {
             if(Games.select { Games.uuid eq gameData.uuid }.count() == 0L) {

@@ -27,6 +27,7 @@ class SerializationManager {
             }).create()
     }
 
+    @Synchronized
     fun storeState(gamePool: GamePool) {
         val serializedState = gson.toJson(GamePoolState(
             gamePool.gameSessions.values.filter { it.gameEngine.gameRestorePoint != null }.map {
@@ -45,7 +46,7 @@ class SerializationManager {
         }
 
         logger.info("Game state serialized into file $stateFile")
-        logger.debug(serializedState)
+        //logger.debug(serializedState)
     }
 
     fun restoreState(gamePool: GamePool) {

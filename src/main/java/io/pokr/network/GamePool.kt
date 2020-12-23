@@ -10,6 +10,7 @@ import io.pokr.network.responses.*
 import io.pokr.network.util.*
 import io.pokr.serialization.*
 import org.slf4j.*
+import java.util.*
 
 /**
  * Class holding player and game sessions and their respective mappings to Game objects
@@ -20,7 +21,7 @@ class GamePool {
 
     private val serializationManager = SerializationManager()
 
-    val gameSessions = mutableMapOf<String, GameSession>()
+    val gameSessions = Collections.synchronizedMap(mutableMapOf<String, GameSession>())
 
     /**
      * Called when a game should be discarded
@@ -99,20 +100,22 @@ class GamePool {
         playerName: String,
     ) {
         gameSessions[gameUuid]?.let { gameSession ->
-            validatePlayerName(playerName)
+            synchronized(gameSession.playerSessions) {
+                validatePlayerName(playerName)
 
-            val playerSession = gameSession.playerSessions.firstOrNull {
-                it.uuid == playerUuid
-            }?.also {
-                it.sessionId = playerSessionId
-            } ?: PlayerSession(playerSessionId, TokenGenerator.nextPlayerToken()).also {
-                gameSession.playerSessions.add(it)
-                gameSession.gameEngine.addPlayer(it.uuid, playerName)
+                val playerSession = gameSession.playerSessions.firstOrNull {
+                    it.uuid == playerUuid
+                }?.also {
+                    it.sessionId = playerSessionId
+                } ?: PlayerSession(playerSessionId, TokenGenerator.nextPlayerToken()).also {
+                    gameSession.playerSessions.add(it)
+                    gameSession.gameEngine.addPlayer(it.uuid, playerName)
+                }
+
+                logger.info("Added player ${playerName} to ${gameSession.uuid}")
+
+                gameSession.gameEngine.playerConnected(playerSession.uuid, true)
             }
-
-            logger.info("Added player ${playerName} to ${gameSession.uuid}")
-
-            gameSession.gameEngine.playerConnected(playerSession.uuid, true)
 
             notifyPlayers(gameUuid)
         } ?: throw GameException(20, "Invalid game UUID")
@@ -141,7 +144,7 @@ class GamePool {
             gameDisbandedListener?.invoke(it.playerSessions.map { it.sessionId })
             gameSessions.remove(it.uuid)
 
-            if(it.gameEngine.gameData.gameState != GameData.State.FINISHED) {
+            if (it.gameEngine.gameData.gameState != GameData.State.FINISHED) {
                 it.gameEngine.gameData.gameState = GameData.State.ABANDONED
             }
 
@@ -234,7 +237,7 @@ class GamePool {
                 removePlayerSession(gameEngine.gameData.uuid, player.uuid)
             },
 
-            restorePointCreatedListener =  { serializationManager.storeState(this) }
+            restorePointCreatedListener = { serializationManager.storeState(this) }
         )
 
     /**
@@ -242,11 +245,13 @@ class GamePool {
      */
     private fun notifyPlayers(gameUuid: String) {
         gameSessions[gameUuid]?.let { gameSession ->
-            gameSession.playerSessions.forEach {
-                gameStateUpdatedListener?.invoke(
-                    it.sessionId,
-                    GameResponse.GameStateFactory.from(gameSession.gameEngine.gameData, it.uuid)
-                )
+            synchronized(gameSession.playerSessions) {
+                gameSession.playerSessions.forEach {
+                    gameStateUpdatedListener?.invoke(
+                        it.sessionId,
+                        GameResponse.GameStateFactory.from(gameSession.gameEngine.gameData, it.uuid)
+                    )
+                }
             }
         }
     }
@@ -255,24 +260,32 @@ class GamePool {
      * Removes player from their player GameSession
      */
     private fun removePlayerSession(gameUuid: String, playerUuid: String) {
-        gameSessions[gameUuid]?.playerSessions?.removeIf {
-            if (it.uuid == playerUuid) {
-                logger.debug("Player $playerUuid removed from game session ${gameUuid}")
-                true
-            } else {
-                false
+        gameSessions[gameUuid]?.let { gameSession ->
+            synchronized(gameSession.playerSessions) {
+                gameSession.playerSessions?.removeIf {
+                    if (it.uuid == playerUuid) {
+                        logger.debug("Player $playerUuid removed from game session ${gameUuid}")
+                        true
+                    } else {
+                        false
+                    }
+                }
             }
         }
     }
 
     private fun getGameSessionByPlayerSession(playerSessionId: String) =
-        gameSessions.values.firstOrNull {
-            playerSessionId in it.playerSessions.map { it.sessionId }
+        synchronized(gameSessions) {
+            gameSessions.values.firstOrNull {
+                playerSessionId in it.playerSessions.map { it.sessionId }
+            }
         }
 
     private fun getGameSessionByPlayerUuid(playerUuid: String) =
-        gameSessions.values.firstOrNull {
-            playerUuid in it.playerSessions.map { it.uuid }
+        synchronized(gameSessions) {
+            gameSessions.values.firstOrNull {
+                playerUuid in it.playerSessions.map { it.uuid }
+            }
         }
 
 
