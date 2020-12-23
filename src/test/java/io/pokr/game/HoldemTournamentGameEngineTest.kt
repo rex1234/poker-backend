@@ -19,10 +19,10 @@ class HoldemTournamentGameEngineTest {
             restorePointCreatedListener = {}
         )
         if (nrOfPlayers > 0) {
-            engine.addPlayer(adminUuid)
+            engine.addPlayer(adminUuid, "Admin")
         }
         for (i in 2..nrOfPlayers) {
-            engine.addPlayer("player$i")
+            engine.addPlayer("player$i", "player$i")
         }
         return engine
     }
