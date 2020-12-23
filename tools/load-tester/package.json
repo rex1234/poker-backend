@@ -1,0 +1,14 @@
+{
+  "name": "pokrio-load-tester",
+  "version": "1.0.0",
+  "description": "Pokrio load tester",
+  "main": "index.js",
+  "repository": "https://github.com/rex1234/poker-backend",
+  "author": "Calling Station",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "dotenv": "8.2.0",
+    "socket.io-client": "2.3.0"
+  }
+}
