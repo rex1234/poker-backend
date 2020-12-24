@@ -55,32 +55,35 @@ class GamePool {
      * Created a new game game discarding any previous games with the same UUID (should not happen outside of debugging).
      * It contains the starting player as an admin.
      */
-    fun createGame(gameConfig: GameConfig, playerSessionId: String, playerName: String) {
-
+    fun createGame(
+        gameConfig: GameConfig,
+        playerSessionId: String,
+        playerUuid: String,
+        playerName: String
+    ) {
         if (!InputValidator.validateGameConfig(gameConfig)) {
             throw GameException(1, "Invalid game configuration", "Config: $gameConfig")
         }
 
         validatePlayerName(playerName)
 
-        val playerSession = PlayerSession(playerSessionId, TokenGenerator.nextPlayerToken())
-
         val gameUuid = TokenGenerator.nextGameToken()
 
         // clear previous session, if any
         discardGame(gameUuid)
 
-        logger.info("Created game session: ${gameUuid}")
-
         val gameEngine = createGameEngine(gameUuid, gameConfig)
-
         DatabaseManager.updateGame(gameEngine.gameData)
+
+        // TODO: discard other session with the same UUID
+        val playerSession = PlayerSession(playerSessionId, playerUuid)
 
         val gameSession = GameSession(gameUuid, gameEngine).apply {
             playerSessions.add(playerSession)
         }
 
         gameSessions[gameUuid] = gameSession
+        logger.info("Created game session: ${gameUuid}")
 
         gameEngine.addPlayer(playerSession.uuid, playerName)
 
@@ -95,10 +98,24 @@ class GamePool {
      */
     fun connectToGame(
         playerSessionId: String,
-        gameUuid: String,
-        playerUuid: String?,
+        _gameUuid: String?,
+        playerUuid: String,
         playerName: String,
     ) {
+        var gameUuid = _gameUuid
+
+        synchronized(gameSessions) {
+            if (_gameUuid == null) {
+                gameUuid = gameSessions.values.firstOrNull {
+                    playerUuid in it.playerSessions.map { it.uuid }
+                }?.uuid
+
+                if (gameUuid == null) {
+                    throw GameException(20, "Invalid game UUID")
+                }
+            }
+        }
+
         gameSessions[gameUuid]?.let { gameSession ->
             synchronized(gameSession.playerSessions) {
                 validatePlayerName(playerName)
@@ -107,7 +124,9 @@ class GamePool {
                     it.uuid == playerUuid
                 }?.also {
                     it.sessionId = playerSessionId
-                } ?: PlayerSession(playerSessionId, TokenGenerator.nextPlayerToken()).also {
+                } ?: PlayerSession(playerSessionId, playerUuid).also {
+                    // TODO: discard other session with the same UUID
+
                     gameSession.playerSessions.add(it)
                     gameSession.gameEngine.addPlayer(it.uuid, playerName)
                 }
@@ -117,8 +136,8 @@ class GamePool {
                 gameSession.gameEngine.playerConnected(playerSession.uuid, true)
             }
 
-            notifyPlayers(gameUuid)
-        } ?: throw GameException(20, "Invalid game UUID")
+            notifyPlayers(gameUuid!!)
+        }
     }
 
     /**
@@ -262,7 +281,7 @@ class GamePool {
     private fun removePlayerSession(gameUuid: String, playerUuid: String) {
         gameSessions[gameUuid]?.let { gameSession ->
             synchronized(gameSession.playerSessions) {
-                gameSession.playerSessions?.removeIf {
+                gameSession.playerSessions.removeIf {
                     if (it.uuid == playerUuid) {
                         logger.debug("Player $playerUuid removed from game session ${gameUuid}")
                         true

@@ -7,8 +7,11 @@ object InputValidator {
     const val PLAYER_NAME_PATTERN =
         "[.:%!?@#^$&*(),+|'_=\\-0-9a-zA-Z\\u00C0-\\u024F\\u1E00-\\u1EFF ]{1,10}"
 
-    fun validatePlayerName(str: String) =
-        str.isNotBlank() && PLAYER_NAME_PATTERN.toRegex().matches(str)
+    fun validatePlayerName(playerName: String) =
+        playerName.isNotBlank() && PLAYER_NAME_PATTERN.toRegex().matches(playerName)
+
+    fun validatePlayerUUID(playerUuid: String?) =
+        playerUuid?.length == 32
 
     // @formatter:off
 

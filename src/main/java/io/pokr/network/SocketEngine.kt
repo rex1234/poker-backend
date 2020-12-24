@@ -5,6 +5,7 @@ import io.netty.channel.*
 import io.pokr.config.*
 import io.pokr.game.exceptions.*
 import io.pokr.game.model.*
+import io.pokr.game.tools.*
 import io.pokr.network.requests.*
 import io.pokr.network.responses.*
 import org.slf4j.*
@@ -22,6 +23,7 @@ class SocketEngine(
     ) {
         // inbound
         ACTION("action"),
+        CREATE_GAME("createGame"),
         CONNECT("connectGame"),
         GAME_REQUEST("gameRequest"),
         ERROR("error"),
@@ -92,27 +94,39 @@ class SocketEngine(
         server = SocketIOServer(config).apply {
 
             // called when players connects to the server (after sending CONNECT event)
+            addEventListener(Events.CREATE_GAME.key, ConnectionRequest::class.java) { client, data, ackRequest ->
+                logger.info("{}", data)
+
+                if (!InputValidator.validatePlayerUUID(data.playerUUID)) {
+                    throw GameException(30, "Invalid playerUUID")
+                }
+
+                if (data.gameConfig == null) {
+                    throw GameException(30, "Missing data.gameConfig")
+                }
+
+                gamePool.createGame(
+                    data.gameConfig,
+                    client.sessionId.toString(),
+                    data.playerUUID!!,
+                    data.name
+                )
+            }
+
+            // called when players connects to the server (after sending CONNECT event)
             addEventListener(Events.CONNECT.key, ConnectionRequest::class.java) { client, data, ackRequest ->
                 logger.info("{}", data)
 
-                if (data.gameUUID == null) {
-                    if (data.gameConfig == null) {
-                        throw GameException(30, "Missing game config param")
-                    }
-
-                    gamePool.createGame(
-                        data.gameConfig!!,
-                        client.sessionId.toString(),
-                        data.name
-                    )
-                } else {
-                    gamePool.connectToGame(
-                        client.sessionId.toString(),
-                        data.gameUUID.toUpperCase(),
-                        data.playerUUID,
-                        data.name
-                    )
+                if (!InputValidator.validatePlayerUUID(data.playerUUID)) {
+                    throw GameException(30, "Invalid playerUUID")
                 }
+
+                gamePool.connectToGame(
+                    client.sessionId.toString(),
+                    data.gameUUID?.toUpperCase(),
+                    data.playerUUID!!,
+                    data.name
+                )
             }
 
             addEventListener(Events.ACTION.key, PlayerActionRequest::class.java) { client, data, ackRequest ->
