@@ -30,8 +30,11 @@ let cardsSettings = '';
 
 let showCardsInProgress = false;
 
+var responseTimer;
+
 // inbound events
 socket.on('gameState', function (data) {
+    clearTimeout(responseTimer)
     setStreet(data);
 
     if (shouldRefreshView(data)) {
@@ -242,6 +245,7 @@ socket.on('chat', function (data) {
 
 function createGame(nickname, gameConfig) {
     localStorage.setItem('gameStarted', true)
+    responseTimer = setTimeout(requestGameState, 3000)
 
     socket.emit('createGame', {
         name: nickname,
@@ -254,6 +258,7 @@ function createGame(nickname, gameConfig) {
 
 function connectToGame(nickname, gameUuid) {
     localStorage.setItem('gameStarted', true)
+    responseTimer = setTimeout(requestGameState, 3000)
 
     socket.emit('connectGame', {
         name: nickname,
@@ -265,6 +270,9 @@ function connectToGame(nickname, gameUuid) {
 }
 
 function requestGameState() {
+    // TODO: differentiate between calls from connect / create game and automatic requests during the game
+    ga('send', 'event', 'System', 'Manual state request');
+
     socket.emit('gameRequest');
 }
 

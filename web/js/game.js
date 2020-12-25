@@ -221,7 +221,7 @@ $(document).ready(function () {
     const gameConfig = localStorage.getItem('gameConfig');
     const gameStarted = localStorage.getItem('gameStarted');
 
-    if(playerUuid == null) {
+    if(playerUuid == null || playerUuid.length != 32) {
         playerUuid = randomString(32)
         localStorage.setItem("player_uuid", playerUuid);
     }
@@ -531,7 +531,7 @@ function gameIdValidation(selector) {
 const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
 function randomString(length) {
-    let result = ' ';
+    let result = '';
     const charactersLength = characters.length;
     for ( let i = 0; i < length; i++ ) {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
