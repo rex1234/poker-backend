@@ -77,7 +77,10 @@ class GameData constructor(
      * Adds a player and sorts them by index.
      */
     fun addPlayer(player: Player) {
-        allPlayers.add(player)
+        allPlayers.add(player.apply {
+            // assign random table index for a player
+            index = ((1..9).toList() - allPlayers.map { it.index }).shuffled().first()
+        })
         allPlayers.sortBy { it.index }
     }
 

@@ -61,9 +61,6 @@ class HoldemTournamentGameEngine(
         }
 
         gameData.addPlayer(Player(playerUUID).apply {
-            // assign random table index for a player
-            index = ((1..9).toList() - gameData.allPlayers.map { it.index }).shuffled().first()
-
             // first connected player is an admin
             if (gameData.allPlayers.isEmpty()) {
                 isAdmin = true
