@@ -90,7 +90,7 @@ class HoldemTournamentGameEngine(
         }
 
         val previousDealer = gameData.currentDealer
-        val previousSmallBlind = gameData.currentSmallBlindPlayer()
+        val previousSmallBlind = gameData.currentSmallBlindPlayer
         val previousBigBlind = gameData.currentBigBlindPlayer
 
         val doesButtonGoBackwards = previousDealer.isFinished && previousSmallBlind != null && previousSmallBlind.isFinished
@@ -205,7 +205,7 @@ class HoldemTournamentGameEngine(
             rebuyPlayers()
         }
 
-        val currentSmallBlindPlayer = gameData.currentSmallBlindPlayer()
+        val currentSmallBlindPlayer = gameData.currentSmallBlindPlayer
 
         currentSmallBlindPlayer?.postBlind(gameData.smallBlind)
         if (gameData.activePlayers.size == 2 && currentSmallBlindPlayer != null && currentSmallBlindPlayer.isAllIn) {

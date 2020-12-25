@@ -64,6 +64,12 @@ class GameData constructor(
     val currentDealer
         get() = allPlayers.first { it.isDealer }
 
+    /**
+     * The player who is currently small blind. It is possible for that to be no one.
+     */
+    val currentSmallBlindPlayer
+        get() = allPlayers.firstOrNull { it.isSmallBlind }
+
     val currentBigBlindPlayer
         get() = allPlayers.first { it.isBigBlind }
 
@@ -82,13 +88,6 @@ class GameData constructor(
             index = ((1..9).toList() - allPlayers.map { it.index }).shuffled().first()
         })
         allPlayers.sortBy { it.index }
-    }
-
-    /**
-     * Returns the player who is currently small blind. It is possible for that to be no one.
-     */
-    fun currentSmallBlindPlayer(): Player? {
-        return allPlayers.firstOrNull { it.isSmallBlind }
     }
 
     /**
