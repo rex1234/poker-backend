@@ -95,7 +95,7 @@ class SocketEngine(
 
             // called when players connects to the server (after sending CONNECT event)
             addEventListener(Events.CREATE_GAME.key, ConnectionRequest::class.java) { client, data, ackRequest ->
-                logger.info("{}", data)
+                logger.info("${Events.CREATE_GAME.key} - {}", data)
 
                 if (!InputValidator.validatePlayerUUID(data.playerUUID)) {
                     throw GameException(30, "Invalid playerUUID")
@@ -115,7 +115,7 @@ class SocketEngine(
 
             // called when players connects to the server (after sending CONNECT event)
             addEventListener(Events.CONNECT.key, ConnectionRequest::class.java) { client, data, ackRequest ->
-                logger.info("{}", data)
+                logger.info("${Events.CONNECT.key} - {}", data)
 
                 if (!InputValidator.validatePlayerUUID(data.playerUUID)) {
                     throw GameException(30, "Invalid playerUUID")

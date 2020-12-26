@@ -52,7 +52,7 @@ class GamePool {
         }
 
     /**
-     * Created a new game game discarding any previous games with the same UUID (should not happen outside of debugging).
+     * Creates a new game game discarding any previous games with the same UUID (should not happen outside of debugging).
      * It contains the starting player as an admin.
      */
     fun createGame(
