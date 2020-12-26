@@ -257,7 +257,7 @@ function createGame(nickname, gameConfig) {
     ga('send', 'event', 'Action', 'Game created');
 }
 
-function connectToGame(nickname, gameUuid) {
+function connectToGame(nickname, gameUuid = null) {
     localStorage.setItem('gameStarted', 'true');
     responseTimer = setTimeout(requestGameState, 3000);
 

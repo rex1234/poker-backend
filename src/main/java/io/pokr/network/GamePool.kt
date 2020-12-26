@@ -74,7 +74,6 @@ class GamePool {
         discardGame(gameUuid)
 
         val gameEngine = createGameEngine(gameUuid, gameConfig)
-        DatabaseManager.updateGame(gameEngine.gameData)
 
         val playerSession = PlayerSession(playerSessionId, playerUuid)
 
@@ -89,6 +88,7 @@ class GamePool {
 
         logger.info("Added player ${playerSession.uuid} to ${gameSession.uuid}")
 
+        DatabaseManager.updateGame(gameEngine.gameData)
         notifyPlayers(gameSession.uuid)
     }
 
