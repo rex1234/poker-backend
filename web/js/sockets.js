@@ -30,11 +30,12 @@ let cardsSettings = '';
 
 let showCardsInProgress = false;
 
-var responseTimer;
+let responseTimer;
 
 // inbound events
 socket.on('gameState', function (data) {
-    clearTimeout(responseTimer)
+    clearTimeout(responseTimer);
+    responseTimer = setTimeout(requestGameState, data.config.playerMoveTime * 1000 * 0.8);
     setStreet(data);
 
     if (shouldRefreshView(data)) {
@@ -244,8 +245,8 @@ socket.on('chat', function (data) {
 // outbound events
 
 function createGame(nickname, gameConfig) {
-    localStorage.setItem('gameStarted', true)
-    responseTimer = setTimeout(requestGameState, 3000)
+    localStorage.setItem('gameStarted', true);
+    responseTimer = setTimeout(requestGameState, 3000);
 
     socket.emit('createGame', {
         name: nickname,
@@ -257,8 +258,8 @@ function createGame(nickname, gameConfig) {
 }
 
 function connectToGame(nickname, gameUuid) {
-    localStorage.setItem('gameStarted', true)
-    responseTimer = setTimeout(requestGameState, 3000)
+    localStorage.setItem('gameStarted', true);
+    responseTimer = setTimeout(requestGameState, 3000);
 
     socket.emit('connectGame', {
         name: nickname,
