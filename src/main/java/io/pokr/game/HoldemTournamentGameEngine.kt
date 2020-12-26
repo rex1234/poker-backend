@@ -60,7 +60,7 @@ class HoldemTournamentGameEngine(
             throw GameException(11, "Late registration is not possible")
         }
 
-        val player = Player(playerUUID).apply {
+        val player = Player(playerUUID, playerName).apply {
             // first connected player is an admin
             if (gameData.allPlayers.isEmpty()) {
                 isAdmin = true
@@ -75,7 +75,6 @@ class HoldemTournamentGameEngine(
         }
 
         gameData.addPlayer(player)
-        changeName(playerUUID, playerName)
     }
 
     private fun setDealerAndBlindPositions() {

@@ -186,7 +186,7 @@ socket.on('error', function (data) {
     $('#loader').hide();
 
     if (data.code === 20) { // invalid game UUID
-        localStorage.setItem('gameStarted', false);
+        localStorage.setItem('gameStarted', 'false');
         localStorage.removeItem('game_uuid');
         if ($('#gameid').val().length > 0) {
             joinInputValidated[1] = false;
@@ -225,7 +225,7 @@ socket.on('error', function (data) {
 socket.on('gameDisbanded', function () {
     gameState = 'finished';
 
-    localStorage.setItem('gameStarted', false);
+    localStorage.setItem('gameStarted', 'false');
 });
 
 socket.on('chat', function (data) {
@@ -245,7 +245,7 @@ socket.on('chat', function (data) {
 // outbound events
 
 function createGame(nickname, gameConfig) {
-    localStorage.setItem('gameStarted', true);
+    localStorage.setItem('gameStarted', 'true');
     responseTimer = setTimeout(requestGameState, 3000);
 
     socket.emit('createGame', {
@@ -258,7 +258,7 @@ function createGame(nickname, gameConfig) {
 }
 
 function connectToGame(nickname, gameUuid) {
-    localStorage.setItem('gameStarted', true);
+    localStorage.setItem('gameStarted', 'true');
     responseTimer = setTimeout(requestGameState, 3000);
 
     socket.emit('connectGame', {
@@ -292,7 +292,7 @@ function leave() {
         sendAction('leave');
     }
 
-    localStorage.setItem('gameStarted', false);
+    localStorage.setItem('gameStarted', 'false');
     localStorage.removeItem('game_uuid');
 
     ga('send', 'event', 'Action', 'Leave');

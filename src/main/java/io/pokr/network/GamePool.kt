@@ -70,12 +70,12 @@ class GamePool {
         val gameUuid = TokenGenerator.nextGameToken()
 
         // clear previous session, if any
+        deletePlayerSession(playerUuid)
         discardGame(gameUuid)
 
         val gameEngine = createGameEngine(gameUuid, gameConfig)
         DatabaseManager.updateGame(gameEngine.gameData)
 
-        // TODO: discard other session with the same UUID
         val playerSession = PlayerSession(playerSessionId, playerUuid)
 
         val gameSession = GameSession(gameUuid, gameEngine).apply {
@@ -102,24 +102,19 @@ class GamePool {
         playerUuid: String,
         playerName: String,
     ) {
+        validatePlayerName(playerName)
+
         var gameUuid = _gameUuid
 
-        synchronized(gameSessions) {
-            if (_gameUuid == null) {
-                gameUuid = gameSessions.values.firstOrNull {
-                    playerUuid in it.playerSessions.map { it.uuid }
-                }?.uuid
-
-                if (gameUuid == null) {
-                    throw GameException(20, "Invalid game UUID")
-                }
-            }
+        // if the player is already in a game we will connect him to that game, disregarding send gameUUID
+        // we will avoid having multiple player sessions with the same playerUUID
+        val existingGameUuid = getGameSessionByPlayerUuid(playerUuid)?.uuid
+        if (existingGameUuid != null) {
+            gameUuid = existingGameUuid
         }
 
         gameSessions[gameUuid]?.let { gameSession ->
             synchronized(gameSession.playerSessions) {
-                validatePlayerName(playerName)
-
                 val playerSession = gameSession.playerSessions.firstOrNull {
                     it.uuid == playerUuid
                 }?.also {
@@ -137,7 +132,7 @@ class GamePool {
             }
 
             notifyPlayers(gameUuid!!)
-        }
+        } ?: throw GameException(20, "Invalid game UUID")
     }
 
     /**
@@ -307,11 +302,16 @@ class GamePool {
             }
         }
 
-
     private fun validatePlayerName(playerName: String) {
         if (!InputValidator.validatePlayerName(playerName)) {
             throw GameException(7, "Invalid name", "Name: $playerName")
         }
     }
 
+    private fun deletePlayerSession(playerUuid: String) =
+        synchronized(gameSessions) {
+            getGameSessionByPlayerUuid(playerUuid)?.let {
+                it.playerSessions.removeIf { it.uuid == playerUuid }
+            }
+        }
 }

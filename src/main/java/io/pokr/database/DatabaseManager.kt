@@ -61,6 +61,7 @@ object DatabaseManager {
     private fun insertPlayer(player: Player, gameId: Int) {
         Players.insert {
             it[name] = player.name
+            it[uuid] = player.uuid
             it[rank] = player.finalRank
             it[rebuyCount] = player.rebuyCount
             it[hasLeft] = if(player.isKicked) 1 else 0

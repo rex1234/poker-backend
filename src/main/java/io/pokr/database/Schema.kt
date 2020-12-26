@@ -27,6 +27,7 @@ object Games : Table() {
 
 object Players : Table() {
     val id = integer("id").autoIncrement()
+    val uuid = varchar("uuid", 32)
     val gameId = integer("game_id") references Games.id
     val name = varchar("name", 255)
 
