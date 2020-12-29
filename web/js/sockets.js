@@ -209,7 +209,8 @@ socket.on('error', function (data) {
         $('#join-err').html('Game is already full.').show();
     } else if (data.code === 11) {
         $('#join-err').html('Late registration is not possible.').show();
-    } else {
+    } else if (!(data instanceof Error)) {
+        // show only messages from the game server, don't bother users with underlying errors (e.g. "xhr poll error")
         $.toast({
             heading: 'Error',
             text: `${data.message}.`,
