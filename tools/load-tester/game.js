@@ -25,7 +25,7 @@ const createGame = async (gameNumber, socketServerUrl) => {
   let gameCreatedCallback = async (gameUuid) => {
     for (let i = 1; i < PLAYERS_PER_GAME; i++) {
       await sleep(DELAY_BETWEEN_PLAYER_ADDITIONS);
-      players.push(addPlayer(i, socketServerUrl, gameUuid, undefined, createPlayerLogger(i), onMoveCallback));
+      players.push(addPlayer(i, randomString(32), false, socketServerUrl, gameUuid, undefined, createPlayerLogger(i), onMoveCallback));
     }
     gameLogger('Created');
   }
@@ -34,7 +34,7 @@ const createGame = async (gameNumber, socketServerUrl) => {
     playerOnMove = playerOnMoveName;
   }
 
-  players.push(addPlayer(0, socketServerUrl, undefined, GAME_CONFIG, createPlayerLogger(0), onMoveCallback, gameCreatedCallback));
+  players.push(addPlayer(0,  randomString(32), true, socketServerUrl, undefined, GAME_CONFIG, createPlayerLogger(0), onMoveCallback, gameCreatedCallback));
 
   const start = () => players[0].startGame();
 
@@ -51,6 +51,19 @@ const createGame = async (gameNumber, socketServerUrl) => {
     disconnectPlayers,
   })
 };
+
+function randomString(length) {
+  // declare all characters
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+  let result = '';
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+
+  return result;
+}
 
 module.exports = {
   createGame: createGame,

@@ -1,11 +1,14 @@
-const addPlayer = (name, socketServerUrl, gameUuid, gameConfig, logger, onMoveCallback, gameCreatedCallback) => {
+const addPlayer = (name, playerUuid, isCreator, socketServerUrl, gameUuid, gameConfig, logger, onMoveCallback, gameCreatedCallback) => {
   let gameCreatedCallbackCalled = false;
 
   const socket = require('socket.io-client')(socketServerUrl);
 
   socket.on('connect', () => {
-    socket.emit('connectGame', {
+    let action = isCreator ? 'createGame' : 'connectGame';
+
+    socket.emit(action, {
       name,
+      playerUUID: playerUuid,
       gameUUID: gameUuid,
       gameConfig,
     });

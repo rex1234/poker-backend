@@ -9,8 +9,8 @@ import io.pokr.game.tools.*
  */
 data class Player(
     val uuid: String,
-    var index: Int = 0, // player's position on the table
     var name: String = "Nameless",
+    var index: Int = 0, // player's position on the table
     var isAdmin: Boolean = false,
     var isConnected: Boolean = true,
     var isFinished: Boolean = false, // whether the player already lost

@@ -216,17 +216,23 @@ function playerCountdown(start, playerPosition, limit, serverTime) {
 
 $(document).ready(function () {
     const gameUuid = localStorage.getItem('game_uuid');
-    const playerUuid = localStorage.getItem('player_uuid');
+    let playerUuid = localStorage.getItem('player_uuid');
     const playerNick = localStorage.getItem('nick');
     const gameConfig = localStorage.getItem('gameConfig');
+    const gameStarted = localStorage.getItem('gameStarted');
+
+    if (!playerUuid || playerUuid.length !== 32) {
+        playerUuid = randomString(32)
+        localStorage.setItem("player_uuid", playerUuid);
+    }
 
     // restore game
-    if (gameUuid && playerUuid && playerNick) {
+    if (gameStarted === "true") {
         $('#loader .wrapper .text').html('Reconnecting…');
         $('#loader').show();
         reconnected = true;
         console.log('reconnecting to an existing game');
-        connectToGame(playerNick, gameUuid);
+        connectToGame(playerNick);
     }
 
     if (playerNick) {
@@ -519,4 +525,17 @@ function gameIdValidation(selector) {
         $('#join-err').hide();
         return true;
     }
+}
+
+function randomString(length) {
+    // declare all characters
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+    let result = '';
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+
+    return result;
 }

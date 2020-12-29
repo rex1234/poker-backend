@@ -1,5 +1,7 @@
 const socket = io.connect(location.protocol + '//' + window.location.hostname + ':' + socketsPort);
 
+let disconnectedToast;
+
 //reconnection variable
 let reconnected = false;
 
@@ -30,8 +32,50 @@ let cardsSettings = '';
 
 let showCardsInProgress = false;
 
+let responseTimer;
+
+socket.on('connect', () => {
+    if (disconnectedToast) {
+        disconnectedToast.reset();
+        disconnectedToast = null;
+
+        $.toast({
+            heading: 'Reconnected',
+            text: 'Reconnected to the game server.',
+            loader: false,
+            bgColor: '#55AA00',
+            textColor: 'white',
+            icon: 'success',
+        });
+
+        const nick = localStorage.getItem('nick');
+        if (nick && localStorage.getItem('gameStarted') === 'true') {
+            connectToGame(nick);
+        }
+    }
+});
+
+socket.on('disconnect', () => {
+    if (disconnectedToast) {
+        disconnectedToast.reset();
+    }
+    disconnectedToast = $.toast({
+        heading: 'Disconnected',
+        text: 'Disconnected from the game server.',
+        loader: false,
+        allowToastClose: false,
+        hideAfter: false,
+        bgColor: '#FF5500',
+        textColor: 'white',
+        icon: 'error',
+    });
+});
+
 // inbound events
 socket.on('gameState', function (data) {
+    clearTimeout(responseTimer);
+    responseTimer = setTimeout(requestGameState, data.config.playerMoveTime * 1000 * 0.8);
+
     setStreet(data);
 
     if (shouldRefreshView(data)) {
@@ -178,11 +222,13 @@ socket.on('gameState', function (data) {
 socket.on('error', function (data) {
     console.log(data);
 
+    clearTimeout(responseTimer);
+
     //hide loader if err
     $('#loader').hide();
 
     if (data.code === 20) { // invalid game UUID
-        localStorage.removeItem('player_uuid');
+        localStorage.setItem('gameStarted', 'false');
         localStorage.removeItem('game_uuid');
         if ($('#gameid').val().length > 0) {
             joinInputValidated[1] = false;
@@ -202,10 +248,20 @@ socket.on('error', function (data) {
         $('#join-err').html('Some of the fields do not have correct value.').show();
         $('#create-err').html('Some of the fields do not have correct value.').show();
     } else if (data.code === 10) {
-        $('#join-err').html('Game is already full.').show();
+        $('#join-err').html('The game is already full.').show();
     } else if (data.code === 11) {
         $('#join-err').html('Late registration is not possible.').show();
-    } else {
+    } else if (data.code === 21) { // No such player in any game session
+        $.toast({
+            heading: 'Error',
+            text: 'Couldn\'t get game state. Try refreshing.',
+            loader: false,
+            bgColor: '#FF5500',
+            textColor: 'white',
+            icon: 'error',
+        });
+      } else if (!(data instanceof Error)) {
+        // show only messages from the game server, don't bother users with underlying errors (e.g. "xhr poll error")
         $.toast({
             heading: 'Error',
             text: `${data.message}.`,
@@ -213,15 +269,14 @@ socket.on('error', function (data) {
             bgColor: '#FF5500',
             textColor: 'white',
             icon: 'error',
-        })
+        });
     }
-
 });
 
 socket.on('gameDisbanded', function () {
+    clearTimeout(responseTimer);
     gameState = 'finished';
-
-    localStorage.removeItem('player_uuid');
+    localStorage.setItem('gameStarted', 'false');
 });
 
 socket.on('chat', function (data) {
@@ -241,24 +296,35 @@ socket.on('chat', function (data) {
 // outbound events
 
 function createGame(nickname, gameConfig) {
-    socket.emit('connectGame', {
+    localStorage.setItem('gameStarted', 'true');
+    responseTimer = setTimeout(requestGameState, 3000);
+
+    socket.emit('createGame', {
         name: nickname,
         playerUUID: localStorage.getItem('player_uuid'),
         gameConfig: gameConfig,
     });
+
     ga('send', 'event', 'Action', 'Game created');
 }
 
-function connectToGame(nickname, gameUuid) {
+function connectToGame(nickname, gameUuid = null) {
+    localStorage.setItem('gameStarted', 'true');
+    responseTimer = setTimeout(requestGameState, 3000);
+
     socket.emit('connectGame', {
         name: nickname,
         gameUUID: gameUuid,
         playerUUID: localStorage.getItem('player_uuid'),
     });
+
     ga('send', 'event', 'Action', 'Connected to game');
 }
 
 function requestGameState() {
+    // TODO: differentiate between calls from connect / create game and automatic requests during the game
+    ga('send', 'event', 'System', 'Manual state request');
+
     socket.emit('gameRequest');
 }
 
@@ -277,8 +343,8 @@ function leave() {
         sendAction('leave');
     }
 
+    localStorage.setItem('gameStarted', 'false');
     localStorage.removeItem('game_uuid');
-    localStorage.removeItem('player_uuid');
 
     ga('send', 'event', 'Action', 'Leave');
 
