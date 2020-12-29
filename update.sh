@@ -33,7 +33,22 @@ case $DIRECTORY in
     ;;
 esac
 
-echo "Updating ${SERVICE} in ${DIRECTORY}"
+echo "Last 20 log lines of ${SERVICE}.service:"
+echo
+
+journalctl -u ${SERVICE}.service -n 20 --no-pager
+
+echo
+echo "^^ Please check that there are no games in progress. Do you want to continue with the update? (y/n)"
+
+read CONTINUE
+
+if [ "$CONTINUE" != "y" ]; then
+  echo "Aborted"
+  exit 0
+fi
+
+log_progress "Updating ${SERVICE} in ${DIRECTORY}"
 
 log_progress "Pulling new sources"
 git checkout .
