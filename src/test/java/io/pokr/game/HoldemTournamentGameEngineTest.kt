@@ -347,16 +347,24 @@ class HoldemTournamentGameEngineTest {
 
         val players = listOf(
             Player("rebought").apply {
+                index = 4
                 isFinished = true
                 isRebuyNextRound = true
+                isBigBlind = true
             },
-            Player("1").apply { isDealer = true },
-            Player("2"),
+            Player("1").apply {
+                index = 7
+                isDealer = true
+            },
+            Player("2").apply {
+                index = 8
+                isSmallBlind = true
+            },
         )
 
         engine.gameData.allPlayers.addAll(players)
 
-        Assert.assertTrue(engine.canPlayerJoinNextRound(players.get(0)))
+        Assert.assertTrue(engine.canPlayerJoinNextRound(players[0]))
     }
 
     @Test
@@ -365,39 +373,59 @@ class HoldemTournamentGameEngineTest {
 
         val players = listOf(
             Player("rebought").apply {
+                index = 1
                 isFinished = true
                 isRebuyNextRound = true
             },
-            Player("1").apply { isDealer = true },
-            Player("2"),
-            Player("3"),
-            Player("4"),
-            Player("5"),
+            Player("1").apply {
+                index = 3
+                isDealer = true
+            },
+            Player("2").apply {
+                index = 5
+                isSmallBlind = true
+            },
+            Player("3").apply {
+                index = 6
+                isBigBlind = true
+            },
+            Player("4").apply { index = 7 },
+            Player("5").apply { index = 9 },
         )
 
         engine.gameData.allPlayers.addAll(players)
 
-        Assert.assertTrue(engine.canPlayerJoinNextRound(players.get(0)))
+        Assert.assertTrue(engine.canPlayerJoinNextRound(players[0]))
     }
 
     @Test
-    fun canPlayerJoinNextRoundAsSmallBlindTest() {
+    fun canPlayerJoinNextRoundBetweenSmallAndBigBlindsTest() {
         val engine = initEngine(nrOfPlayers = 0)
 
         val players = listOf(
             Player("rebought").apply {
+                index = 1
                 isFinished = true
                 isRebuyNextRound = true
             },
-            Player("1"),
-            Player("2"),
-            Player("3"),
-            Player("4").apply { isDealer = true },
-            Player("5"),
+            Player("1").apply {
+                index = 3
+                isBigBlind = true
+            },
+            Player("2").apply { index = 5 },
+            Player("3").apply { index = 6 },
+            Player("4").apply {
+                index = 7
+                isDealer = true
+            },
+            Player("5").apply {
+                index = 9
+                isSmallBlind = true
+            },
         )
 
         engine.gameData.allPlayers.addAll(players)
 
-        Assert.assertFalse(engine.canPlayerJoinNextRound(players.get(0)))
+        Assert.assertFalse(engine.canPlayerJoinNextRound(players[0]))
     }
 }

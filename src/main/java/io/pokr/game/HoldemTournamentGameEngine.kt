@@ -60,10 +60,7 @@ class HoldemTournamentGameEngine(
             throw GameException(11, "Late registration is not possible")
         }
 
-        gameData.allPlayers.add(Player(playerUUID).apply {
-            // assign random table index for a player
-            index = ((1..9).toList() - gameData.allPlayers.map { it.index }).shuffled().first()
-
+        gameData.addPlayer(Player(playerUUID).apply {
             // first connected player is an admin
             if (gameData.allPlayers.isEmpty()) {
                 isAdmin = true
@@ -76,8 +73,60 @@ class HoldemTournamentGameEngine(
                 connectedToRound = gameData.round
             }
         })
+    }
 
-        gameData.allPlayers.sortBy { it.index }
+    private fun setDealerAndBlindPositions() {
+        if (gameData.round == 1) {
+            val randomDealer = gameData.allPlayers.shuffled().first()
+
+            // by Texas HoldEm rules, if there are just two players, the dealer is also SB
+            val smallBlind = if (gameData.allPlayers.size == 2) randomDealer else gameData.nextActivePlayerFrom(randomDealer)
+
+            randomDealer.isDealer = true
+            smallBlind.isSmallBlind = true
+            gameData.nextActivePlayerFrom(smallBlind).isBigBlind = true
+
+            return
+        }
+
+        val previousDealer = gameData.currentDealer
+        val previousSmallBlind = gameData.currentSmallBlindPlayer
+        val previousBigBlind = gameData.currentBigBlindPlayer
+
+        val doesButtonGoBackwards = previousDealer.isFinished && previousSmallBlind != null && previousSmallBlind.isFinished
+        val doesButtonStay = !previousDealer.isFinished && (previousSmallBlind == null || previousSmallBlind.isFinished)
+
+        val newDealer = when {
+            gameData.players.size == 2 -> gameData.nextActivePlayerFrom(previousDealer)
+            doesButtonGoBackwards -> gameData.previousActivePlayerFrom(previousDealer)
+            doesButtonStay -> previousDealer
+            else -> gameData.nextActivePlayerFrom(previousDealer)
+        }
+        val newSmallBlind = when {
+            gameData.players.size == 2 -> newDealer
+            previousBigBlind.isFinished -> null // only big blind in the next round
+            else -> gameData.nextActivePlayerFrom(newDealer)
+        }
+        val newBigBlind = when {
+            gameData.players.size == 2 || previousBigBlind.isFinished -> gameData.nextActivePlayerFrom(newDealer, true)
+            else -> gameData.nextActivePlayerFrom(newSmallBlind!!, true)
+        }
+
+        newDealer.isDealer = true
+        if (newSmallBlind != null) {
+            newSmallBlind.isSmallBlind = true
+        }
+        newBigBlind.isBigBlind = true
+
+        if (previousDealer != newDealer) {
+            previousDealer.isDealer = false
+        }
+        if (previousSmallBlind != null && previousSmallBlind != newSmallBlind) {
+            previousSmallBlind.isSmallBlind = false
+        }
+        if (previousBigBlind != newBigBlind) {
+            previousBigBlind.isBigBlind = false
+        }
     }
 
     fun startGame(playerUuid: String) {
@@ -102,8 +151,6 @@ class HoldemTournamentGameEngine(
         gameData.nextSmallBlind = BlindCalculator.nextBlind(gameData.smallBlind)
         gameData.bigBlind = gameData.smallBlind * 2
         gameData.nextBlindsChangeAt = gameData.gameStart + gameData.config.blindIncreaseTime * 1000
-
-        gameData.allPlayers.shuffled().first().isDealer = true // chose random dealer
 
         // add chips to the players
         gameData.allPlayers.forEach {
@@ -148,24 +195,27 @@ class HoldemTournamentGameEngine(
             it.canRaise = true
             it.isWinner = false
             it.chipsAtStartOfTheRound = it.chips
-            it.didRebuyThisRound = false
         }
 
-        // we will add chips to players that rebought
-        gameData.allPlayers.filter { it.isRebuyNextRound }.forEach { player ->
+        if (gameData.activePlayers.size <= 2) {
+            rebuyPlayers()
+            setDealerAndBlindPositions()
+        } else {
+            setDealerAndBlindPositions()
+            rebuyPlayers()
+        }
 
-            if (canPlayerJoinNextRound(player)) {
-                // adjust ranks of other players
-                gameData.allPlayers.filter { it.finalRank != 0 && it.finalRank < player.finalRank }.forEach {
-                    it.finalRank++
-                }
+        val currentSmallBlindPlayer = gameData.currentSmallBlindPlayer
 
-                player.isFinished = false
-                player.isRebuyNextRound = false
-                player.didRebuyThisRound = true
-                player.finalRank = 0
-                player.chips = gameData.config.startingChips
+        currentSmallBlindPlayer?.postBlind(gameData.smallBlind)
+        if (gameData.activePlayers.size == 2 && currentSmallBlindPlayer != null && currentSmallBlindPlayer.isAllIn) {
+            // in just 2 players, the blind made SB go all in -> BB bets whatever SB bet and we go straight to showdown
+            gameData.currentBigBlindPlayer.apply {
+                postBlind(currentSmallBlindPlayer.currentBet)
+                pendingAction = false
             }
+        } else {
+            gameData.currentBigBlindPlayer.postBlind(gameData.bigBlind)
         }
 
         // draw cards for each non-finished player
@@ -173,47 +223,7 @@ class HoldemTournamentGameEngine(
             it.cards = gameData.cardStack.drawCards(2)
         }
 
-        // move dealer to the next position
-        nextDealer()
-
-        // assign blinds and players on move
-        (gameData.players + gameData.players).apply {
-            // we have to merge arrays so the order can be "cyclic"
-
-            // special case if there are only 2 players
-            // dealer is SB and is on move, the other player is BB
-            if (gameData.activePlayers.size == 2) {
-                gameData.currentDealer.apply {
-                    postBlind(gameData.smallBlind)
-                    startMove()
-                }
-
-                get(indexOf(gameData.currentDealer) + 1).apply {
-                    if (gameData.currentDealer.isAllIn) {
-                        // if the blind made SB go all in, BB bets whatever SB bet and we go straight to showdown
-                        postBlind(gameData.currentDealer.currentBet)
-                        pendingAction = false
-                    } else {
-                        postBlind(gameData.bigBlind)
-                    }
-                }
-            } else {
-                // otherwise, the next player to the dealer is SB
-                get(indexOf(gameData.currentDealer) + 1).apply {
-                    postBlind(gameData.smallBlind)
-                }
-
-                // the next one is BB
-                get(indexOf(gameData.currentDealer) + 2).apply {
-                    postBlind(gameData.bigBlind)
-                }
-
-                // and the next one is on move
-                get(indexOf(gameData.currentDealer) + 3).apply {
-                    startMove()
-                }
-            }
-        }
+        gameData.nextActivePlayerFrom(gameData.currentBigBlindPlayer).startMove()
 
         // check players that are all in after cards are dealt (so we can showdown automatically)
         gameData.players.filter { it.isAllIn }.forEach {
@@ -555,15 +565,6 @@ class HoldemTournamentGameEngine(
         nextPlayerOnMove.startMove()
     }
 
-    // moves dealer token to the next player
-    fun nextDealer() {
-        val currentDealer = gameData.currentDealer
-        val nextDealer = gameData.nextDealer
-
-        currentDealer.isDealer = false
-        nextDealer.isDealer = true
-    }
-
     private fun increaseBlinds() {
         if (System.currentTimeMillis() > gameData.nextBlindsChangeAt) {
             val sb = BlindCalculator.nextBlind(gameData.smallBlind)
@@ -603,22 +604,48 @@ class HoldemTournamentGameEngine(
         }
     }
 
-    // if a player joins the game or rebuys in a position between the current SB and BB, they have to wait another round
+    /**
+     * Determines whether a player can join the game in the next round.
+     *
+     * If a player joins the game or rebuys in a position between the current dealer and BB,
+     * they have to wait another round.
+     *
+     * Important: the function assumes that the dealer, small blind and big blind
+     * have already been assigned for the round.
+     */
     fun canPlayerJoinNextRound(player: Player): Boolean {
-        // unless there are just two players in the game, in that case, they can join at any position
-        if (gameData.players.size <= 2) {
+        if (gameData.players.size <= 2 || player.isBigBlind) {
             return true
         }
 
-        val potentialNextRoundPlayers = gameData.allPlayers.filter { it == player || (!it.isFinished && !it.isKicked) }
-        val playerIndex = potentialNextRoundPlayers.indexOf(player)
-        val prevPositionPlayer = if (playerIndex > 0) playerIndex - 1 else potentialNextRoundPlayers.size - 1
+        val playerPosition = player.index
+        val dealerPosition = gameData.allPlayers.first { it.isDealer }.index
+        val bbPosition = gameData.allPlayers.first { it.isBigBlind }.index
 
-        if (potentialNextRoundPlayers[prevPositionPlayer] == gameData.nextDealer) {
+        if (bbPosition > dealerPosition && playerPosition > dealerPosition && playerPosition < bbPosition) {
+            return false
+        }
+        if (bbPosition < dealerPosition && (playerPosition > dealerPosition || playerPosition < bbPosition)) {
             return false
         }
 
         return true
+    }
+
+    fun rebuyPlayers() {
+        gameData.allPlayers.filter { it.isRebuyNextRound }.forEach { player ->
+            if (canPlayerJoinNextRound(player)) {
+                // adjust ranks of other players
+                gameData.allPlayers.filter { it.finalRank != 0 && it.finalRank < player.finalRank }.forEach {
+                    it.finalRank++
+                }
+
+                player.isFinished = false
+                player.isRebuyNextRound = false
+                player.finalRank = 0
+                player.chips = gameData.config.startingChips
+            }
+        }
     }
 
     fun rebuy(playerUuid: String) =

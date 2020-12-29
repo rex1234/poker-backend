@@ -16,6 +16,8 @@ data class Player(
     var isFinished: Boolean = false, // whether the player already lost
     var isKicked: Boolean = false, // like isFinished but permanent (cannot rebuy)
     var isDealer: Boolean = false,
+    var isSmallBlind: Boolean = false,
+    var isBigBlind: Boolean = false,
     var isOnMove: Boolean = false,
     var moveStart: Long = 0L, // time when the player's action began
     var action: PlayerAction.Action = PlayerAction.Action.NONE,
@@ -28,7 +30,6 @@ data class Player(
     var finalRank: Int = 0, // final game rank
 
     var isRebuyNextRound: Boolean = false,
-    var didRebuyThisRound: Boolean = false,
     var rebuyCount: Int = 0,
 
     var connectedToRound: Int = 0, // to which round the player has connected
