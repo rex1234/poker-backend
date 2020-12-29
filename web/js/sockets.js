@@ -182,6 +182,8 @@ socket.on('gameState', function (data) {
 socket.on('error', function (data) {
     console.log(data);
 
+    clearTimeout(responseTimer);
+
     //hide loader if err
     $('#loader').hide();
 
@@ -220,12 +222,11 @@ socket.on('error', function (data) {
             icon: 'error',
         })
     }
-
 });
 
 socket.on('gameDisbanded', function () {
+    clearTimeout(responseTimer);
     gameState = 'finished';
-
     localStorage.setItem('gameStarted', 'false');
 });
 
