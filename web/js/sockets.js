@@ -1,5 +1,7 @@
 const socket = io.connect(location.protocol + '//' + window.location.hostname + ':' + socketsPort);
 
+let disconnectedToast;
+
 //reconnection variable
 let reconnected = false;
 
@@ -32,10 +34,48 @@ let showCardsInProgress = false;
 
 let responseTimer;
 
+socket.on('connect', () => {
+    if (disconnectedToast) {
+        disconnectedToast.reset();
+        disconnectedToast = null;
+
+        $.toast({
+            heading: 'Reconnected',
+            text: 'Reconnected to the game server.',
+            loader: false,
+            bgColor: '#55AA00',
+            textColor: 'white',
+            icon: 'success',
+        });
+
+        const nick = localStorage.getItem('nick');
+        if (nick && localStorage.getItem('gameStarted') === 'true') {
+            connectToGame(nick);
+        }
+    }
+});
+
+socket.on('disconnect', () => {
+    if (disconnectedToast) {
+        disconnectedToast.reset();
+    }
+    disconnectedToast = $.toast({
+        heading: 'Disconnected',
+        text: 'Disconnected from the game server.',
+        loader: false,
+        allowToastClose: false,
+        hideAfter: false,
+        bgColor: '#FF5500',
+        textColor: 'white',
+        icon: 'error',
+    });
+});
+
 // inbound events
 socket.on('gameState', function (data) {
     clearTimeout(responseTimer);
     responseTimer = setTimeout(requestGameState, data.config.playerMoveTime * 1000 * 0.8);
+
     setStreet(data);
 
     if (shouldRefreshView(data)) {
@@ -208,10 +248,19 @@ socket.on('error', function (data) {
         $('#join-err').html('Some of the fields do not have correct value.').show();
         $('#create-err').html('Some of the fields do not have correct value.').show();
     } else if (data.code === 10) {
-        $('#join-err').html('Game is already full.').show();
+        $('#join-err').html('The game is already full.').show();
     } else if (data.code === 11) {
         $('#join-err').html('Late registration is not possible.').show();
-    } else if (!(data instanceof Error)) {
+    } else if (data.code === 21) { // No such player in any game session
+        $.toast({
+            heading: 'Error',
+            text: 'Couldn\'t get game state. Try refreshing.',
+            loader: false,
+            bgColor: '#FF5500',
+            textColor: 'white',
+            icon: 'error',
+        });
+      } else if (!(data instanceof Error)) {
         // show only messages from the game server, don't bother users with underlying errors (e.g. "xhr poll error")
         $.toast({
             heading: 'Error',
@@ -220,7 +269,7 @@ socket.on('error', function (data) {
             bgColor: '#FF5500',
             textColor: 'white',
             icon: 'error',
-        })
+        });
     }
 });
 

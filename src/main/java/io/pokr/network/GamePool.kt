@@ -189,7 +189,7 @@ class GamePool {
     fun requestGameState(playerSessionId: String) =
         getGameSessionByPlayerSession(playerSessionId)?.let {
             notifyPlayers(it.uuid)
-        }
+        } ?: throw GameException(21, "No such player in any game session", "Player session ID: $playerSessionId")
 
     /**
      * Sends given message to all other players in the same GameSession
