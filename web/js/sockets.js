@@ -61,7 +61,7 @@ socket.on('disconnect', () => {
     }
     disconnectedToast = $.toast({
         heading: 'Disconnected',
-        text: 'Disconnected from the game server.',
+        text: 'Trying to reconnect...',
         loader: false,
         allowToastClose: false,
         hideAfter: false,
