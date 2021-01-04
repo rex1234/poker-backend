@@ -47,7 +47,7 @@ class HandComparator {
         val CardList.highestHand
             get() = Hand.values().map { hand -> hand.evalFunction(this) }.lastIndexOf(true)
 
-        val CardList.evalHand
+        val CardList.handValue
             get() = EvalHand.evaluate(EvalHand.fromString(toString().replace("0", "T")))
     }
 
@@ -66,11 +66,20 @@ class HandComparator {
         STRAIGHT_FLUSH("Straight flush", { it.hasStraightFlush }),
     }
 
+    class CardCombination(
+        val playerCards: CardList,
+        val tableCards: CardList,
+    ) {
+
+        val all
+            get() = playerCards.with(tableCards)
+    }
+
     class PlayerHandComparisonResult(
         var rank: Int,
         var player: Player,
         var hand: Hand? = null,
-        var bestCards: Pair<CardList, CardList>? = null,
+        var bestCards: CardCombination? = null,
         var winnings: Int = 0,
     )
 
@@ -78,55 +87,63 @@ class HandComparator {
         Hand.values()[cardList.highestHand]
 
     fun compareHands(c1: CardList, c2: CardList) =
-        c2.evalHand - c1.evalHand
-
-
-    private fun getAllCardCombinations(playerCards: CardList, tableCards: CardList): List<Pair<CardList, CardList>> {
-        val allCards = playerCards.with(tableCards).cards
-
-        if (allCards.size == 5) {
-            return listOf(Pair(playerCards, tableCards))
-        } else {
-            val discardCards = allCards.size - 5
-
-            val result =
-                if (discardCards == 1) {
-                    (0..5).map { allCards - allCards[it] }
-                } else {
-                    (0..6).map { i -> (0..6).map { j -> Pair(i, j) } }.flatten().filter { it.first != it.second }.map {
-                        allCards - allCards[it.first] - allCards[it.second]
-                    }
-                }
-
-            return result.map {
-                val losingCards = allCards - it
-                Pair(CardList(playerCards.cards - losingCards), CardList(tableCards.cards - losingCards))
-            }
-        }
-    }
+        c2.handValue - c1.handValue
 
     fun findHighestHand(playerCards: CardList, tableCards: CardList) =
         getAllCardCombinations(playerCards, tableCards).minBy {
-            it.first.with(it.second).evalHand
+            it.all.handValue
         }!!.let {
-            findHighestHand(it.first.with(it.second))
+            findHighestHand(it.all)
         }
-
 
     fun evalPlayers(players: List<Player>, tableCards: CardList) =
         players.map { player ->
             getAllCardCombinations(player.cards, tableCards).minBy {
-                it.first.with(it.second).evalHand
+                it.all.handValue
             }!!.let {
                 PlayerHandComparisonResult(
                     rank = if (player.action == PlayerAction.Action.FOLD)
                         Integer.MAX_VALUE
                     else
-                        it.first.with(it.second).evalHand,
+                        it.all.handValue,
                     player = player,
-                    hand = findHighestHand(it.first.with(it.second)),
+                    hand = findHighestHand(it.all),
                     bestCards = it
                 )
             }
         }.sortedBy { it.rank }
+
+    // returns all possible combinations by merging players cards with the cards on the table
+    private fun getAllCardCombinations(playerCards: CardList, tableCards: CardList): List<CardCombination> {
+        val allCards = playerCards.with(tableCards).cards
+
+        val cardsToDiscard = allCards.size - 5
+
+        if (cardsToDiscard == 0) {
+            return listOf(CardCombination(playerCards, tableCards))
+        } else {
+
+            val combinations =
+                if (cardsToDiscard == 1) {
+                    (0..5).map { allCards - allCards[it] }
+                } else {
+                    (0..6).distinctPairs()
+                        .map {
+                            allCards - allCards[it.first] - allCards[it.second]
+                        }
+                }
+
+            return combinations.map {
+                val discardedCards = allCards - it
+
+                CardCombination(
+                    CardList(playerCards.cards - discardedCards),
+                    CardList(tableCards.cards - discardedCards)
+                )
+            }
+        }
+    }
+
+    private fun IntRange.distinctPairs() =
+        flatMap { i -> map { j -> Pair(i, j) } }.filter { it.first != it.second }
 }

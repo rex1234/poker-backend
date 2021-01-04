@@ -519,8 +519,8 @@ class HoldemTournamentGameEngine(
             // calculate winning after regular round
             // TODO: put PlayerHandComparisonResult directly to Player (we need it there anyway)
             val ranks = handComparator.evalPlayers(gameData.players, gameData.tableCards)
-            ranks.forEach { it.player.bestCards = it.bestCards!!.first }
-            gameData.bestCards = ranks[0].bestCards!!.second
+            ranks.forEach { it.player.bestCards = it.bestCards!!.playerCards }
+            gameData.bestCards = ranks[0].bestCards!!.tableCards
 
             ranks.filter { it.rank == ranks[0].rank }.forEach { it.player.isWinner = true }
 

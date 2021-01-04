@@ -1,22 +1,27 @@
 package io.pokr.game.model
 
+import io.pokr.game.model.CardList.Companion.toCardList
+
 /**
  * Shuffled stack from which cards can be drawn
  */
 class CardStack(
-    var stack: List<Card>, // TODO: use CardList instead
+    var stack: CardList,
 ) {
+
+    val cards
+        get() = stack.cards
 
     companion object {
         fun create() = CardStack(
             Card.Color.values().flatMap { color ->
                 Card.Value.values().map { value -> Card(color, value) }
-            }.shuffled().toMutableList()
+            }.shuffled().toCardList()
         )
     }
 
     fun drawCards(n: Int = 1) = CardList(
-        stack.take(n).also {
-            stack = stack.drop(n)
+        cards.take(n).also {
+            stack = stack.cards.drop(n).toCardList()
         })
 }

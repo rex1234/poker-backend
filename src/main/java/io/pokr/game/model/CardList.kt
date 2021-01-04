@@ -14,8 +14,7 @@ class CardList(
                 code.replace(" ", "").chunked(2).map { Card.parse(it) }
             )
 
-        fun fromCardStack(cardStack: CardStack) =
-            CardList(cardStack.stack)
+        fun List<Card>.toCardList() = CardList(toMutableList())
     }
 
     val size
