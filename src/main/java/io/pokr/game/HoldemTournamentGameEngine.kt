@@ -67,7 +67,7 @@ class HoldemTournamentGameEngine(
             }
 
             // if we connect to an active game we set a player's rebuy flag to true and he will be added next round
-            if (gameData.gameState == GameData.State.ACTIVE) {
+            if (gameData.gameState == GameData.State.ACTIVE || gameData.gameState == GameData.State.PAUSED) {
                 isFinished = true
                 isRebuyNextRound = true
                 connectedToRound = gameData.round
@@ -476,8 +476,8 @@ class HoldemTournamentGameEngine(
             } else {
                 startNewRound()
                 updateStateListener(this)
-
             }
+
             isRoundEndThreadRunning = false
         }
     }
@@ -528,7 +528,7 @@ class HoldemTournamentGameEngine(
         }
     }
 
-    fun finishGame() {
+    private fun finishGame() {
         logger.info(
             "Game ${gameData.uuid} finished. {}",
             gameData.allPlayers.sortedBy { it.finalRank }.joinToString(" ") {
@@ -634,9 +634,11 @@ class HoldemTournamentGameEngine(
         return true
     }
 
-    fun rebuyPlayers() {
+    private fun rebuyPlayers() {
         gameData.allPlayers.filter { it.isRebuyNextRound }.forEach { player ->
             if (canPlayerJoinNextRound(player)) {
+                logger.debug("Rebuying player ${player.name}")
+
                 // adjust ranks of other players
                 gameData.allPlayers.filter { it.finalRank != 0 && it.finalRank < player.finalRank }.forEach {
                     it.finalRank++
@@ -646,6 +648,8 @@ class HoldemTournamentGameEngine(
                 player.isRebuyNextRound = false
                 player.finalRank = 0
                 player.chips = gameData.config.startingChips
+            } else {
+                logger.debug("Cannot rebuy player ${player.name} in this round")
             }
         }
     }
