@@ -49,6 +49,8 @@ class GamePool {
             }
 
             gameSessions[it.uuid] = gameSession
+
+            logger.debug("Game session ${it.uuid} restored")
         }
 
     /**
@@ -106,7 +108,7 @@ class GamePool {
 
         var gameUuid = _gameUuid
 
-        // if the player is already in a game we will connect him to that game, disregarding send gameUUID
+        // if the player is already in a game we will connect him to that game, disregarding sent gameUUID
         // we will avoid having multiple player sessions with the same playerUUID
         val existingGameUuid = getGameSessionByPlayerUuid(playerUuid)?.uuid
         if (existingGameUuid != null) {
@@ -120,8 +122,6 @@ class GamePool {
                 }?.also {
                     it.sessionId = playerSessionId
                 } ?: PlayerSession(playerSessionId, playerUuid).also {
-                    // TODO: discard other session with the same UUID
-
                     gameSession.playerSessions.add(it)
                     gameSession.gameEngine.addPlayer(it.uuid, playerName)
                 }
@@ -222,8 +222,6 @@ class GamePool {
                 gameEngine.kickPlayer(playerUuid, action.numericValue!!)
             PlayerAction.Action.LEAVE ->
                 gameEngine.leave(playerUuid)
-            PlayerAction.Action.DISCARD_GAME ->
-                null // TODO
             PlayerAction.Action.REBUY ->
                 gameEngine.rebuy(playerUuid)
             PlayerAction.Action.PAUSE ->

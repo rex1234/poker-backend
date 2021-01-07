@@ -6,6 +6,7 @@ import io.pokr.game.model.*
 import io.pokr.network.*
 import org.slf4j.*
 import java.io.*
+import kotlin.concurrent.*
 
 class SerializationManager {
 
@@ -27,26 +28,29 @@ class SerializationManager {
             }).create()
     }
 
-    @Synchronized
     fun storeState(gamePool: GamePool) {
-        val serializedState = gson.toJson(GamePoolState(
-            gamePool.gameSessions.values.filter { it.gameEngine.gameRestorePoint != null }.map {
-                GamePoolState.GameSessionState(
-                    uuid = it.uuid,
-                    gameRestorePoint = it.gameEngine.gameRestorePoint!!,
-                    playerSessions = it.playerSessions.map { it.copy(sessionId = "") },
-                    created = it.created
-                )
+        thread {
+            synchronized(this) {
+                val serializedState = gson.toJson(GamePoolState(
+                    gamePool.gameSessions.values.filter { it.gameEngine.gameRestorePoint != null }.map {
+                        GamePoolState.GameSessionState(
+                            uuid = it.uuid,
+                            gameRestorePoint = it.gameEngine.gameRestorePoint!!,
+                            playerSessions = it.playerSessions.map { it.copy(sessionId = "") },
+                            created = it.created
+                        )
+                    }
+                ))
+
+                File(stateFile).also {
+                    File(it.parent).mkdirs()
+                    it.writeText(serializedState)
+                }
+
+                logger.info("Game state serialized into file $stateFile")
+                //logger.debug(serializedState)
             }
-        ))
-
-        File(stateFile).also {
-            File(it.parent).mkdirs()
-            it.writeText(serializedState)
         }
-
-        logger.info("Game state serialized into file $stateFile")
-        //logger.debug(serializedState)
     }
 
     fun restoreState(gamePool: GamePool) {
