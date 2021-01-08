@@ -24,7 +24,6 @@ data class PlayerAction(
         SHOW_CARDS("showCards"),
 
         // admin actions
-        DISCARD_GAME("discardGame"),
         KICK("kickPlayer"),
         PAUSE("pause"),
         START_GAME("startGame"),

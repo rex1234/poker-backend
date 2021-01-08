@@ -8,7 +8,7 @@ class CardStackTest {
     fun cardStackCreateTest() {
         val cardStack = CardStack.create()
 
-        println(CardList.fromCardStack(cardStack))
+        println(cardStack.stack)
 
         Assert.assertEquals(
             cardStack.stack.size,
@@ -20,7 +20,7 @@ class CardStackTest {
     fun cardStackDrawTest() {
         val cardStack = CardStack.create()
 
-        val firstThreeCards = CardList(cardStack.stack.take(3))
+        val firstThreeCards = CardList(cardStack.cards.take(3))
         val taken = cardStack.drawCards(3)
 
         Assert.assertEquals(

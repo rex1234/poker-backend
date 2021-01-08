@@ -67,7 +67,7 @@ class HoldemTournamentGameEngine(
             }
 
             // if we connect to an active game we set a player's rebuy flag to true and he will be added next round
-            if (gameData.gameState == GameData.State.ACTIVE) {
+            if (gameData.gameState == GameData.State.ACTIVE || gameData.gameState == GameData.State.PAUSED) {
                 isFinished = true
                 isRebuyNextRound = true
                 connectedToRound = gameData.round
@@ -379,7 +379,6 @@ class HoldemTournamentGameEngine(
         }
     }
 
-
     private fun tryShowdown(): Boolean {
         val pendingActionPlayersCount = gameData.players.count { it.pendingAction }
         val allInPlayersCount = gameData.players.count { it.isAllIn }
@@ -411,10 +410,8 @@ class HoldemTournamentGameEngine(
                 else -> 1700L
             }
 
-            gameData.tableCards =
-                gameData.tableCards.with(gameData.cardStack.drawCards(5 - gameData.tableCards.cards.size))
+            drawCards(5 - gameData.tableCards.cards.size)
             gameData.players.filter { it.action != PlayerAction.Action.FOLD }.forEach { it.showCards = true }
-
             finishRound()
 
             return true
@@ -453,21 +450,24 @@ class HoldemTournamentGameEngine(
         // switch to the FINISHED state, no actions can be performed anymore and the results of the round are shown
         gameData.roundState = GameData.RoundState.FINISHED
 
+        calculateFinalRanks()
+
+        gameRestorePoint = GameRestorePoint.fromGameData(gameData)
+        restorePointCreatedListener(this)
+
         thread {
             // we will wait some time and start a new round
             // there can be bug when a player unpauses before this time limit (and startNewRound will be called 2x)
             // isRoundEndThreadRunning prevents this
-
             isRoundEndThreadRunning = true
-            // recap timer - the more cards there are, the longer we will show the recap
-            Thread.sleep(2_000 + min(3_000 + max((gameData.players.count { it.showCards } - 1), 0) * 1500L,
-                6000L) + extraRoundTime)
+
+            // recap timer - the more players there are, the longer we will show the recap
+            val delay = 2_000 + extraRoundTime +
+                    min(3_000 + max((gameData.players.count { it.showCards } - 1), 0) * 1500L, 6000L)
+            Thread.sleep(delay)
+
             extraRoundTime = 0L
 
-            calculateFinalRanks()
-
-            gameRestorePoint = GameRestorePoint.fromGameData(gameData)
-            restorePointCreatedListener(this)
 
             // if there is only one player with chips we will finish the game
             if (gameData.allPlayers.count { it.chips > 0 || it.isRebuyNextRound } == 1) {
@@ -476,8 +476,8 @@ class HoldemTournamentGameEngine(
             } else {
                 startNewRound()
                 updateStateListener(this)
-
             }
+
             isRoundEndThreadRunning = false
         }
     }
@@ -517,10 +517,9 @@ class HoldemTournamentGameEngine(
             winner.chips += pot
         } else {
             // calculate winning after regular round
-            // TODO: put PlayerHandComparisonResult directly to Player (we need it there anyway)
             val ranks = handComparator.evalPlayers(gameData.players, gameData.tableCards)
-            ranks.forEach { it.player.bestCards = it.bestCards!!.first }
-            gameData.bestCards = ranks[0].bestCards!!.second
+            ranks.forEach { it.player.bestCards = it.bestCards!!.playerCards }
+            gameData.bestCards = ranks[0].bestCards!!.tableCards
 
             ranks.filter { it.rank == ranks[0].rank }.forEach { it.player.isWinner = true }
 
@@ -528,7 +527,7 @@ class HoldemTournamentGameEngine(
         }
     }
 
-    fun finishGame() {
+    private fun finishGame() {
         logger.info(
             "Game ${gameData.uuid} finished. {}",
             gameData.allPlayers.sortedBy { it.finalRank }.joinToString(" ") {
@@ -550,11 +549,15 @@ class HoldemTournamentGameEngine(
         checkCurrentPlayerMoveTimeLimit()
     }
 
-    private fun drawCards() {
-        if (gameData.tableCards.cards.size == 0) {
-            gameData.tableCards = gameData.tableCards.with(gameData.cardStack.drawCards(3))
-        } else if (gameData.tableCards.cards.size < 5) {
-            gameData.tableCards = gameData.tableCards.with(gameData.cardStack.drawCards(1))
+    private fun drawCards(count: Int? = null) {
+        if (count != null) {
+            gameData.tableCards = gameData.tableCards.with(gameData.cardStack.drawCards(count))
+        } else {
+            if (gameData.tableCards.cards.size == 0) {
+                gameData.tableCards = gameData.tableCards.with(gameData.cardStack.drawCards(3))
+            } else if (gameData.tableCards.cards.size < 5) {
+                gameData.tableCards = gameData.tableCards.with(gameData.cardStack.drawCards(1))
+            }
         }
     }
 
@@ -634,9 +637,11 @@ class HoldemTournamentGameEngine(
         return true
     }
 
-    fun rebuyPlayers() {
+    private fun rebuyPlayers() {
         gameData.allPlayers.filter { it.isRebuyNextRound }.forEach { player ->
             if (canPlayerJoinNextRound(player)) {
+                logger.debug("Rebuying player ${player.name}")
+
                 // adjust ranks of other players
                 gameData.allPlayers.filter { it.finalRank != 0 && it.finalRank < player.finalRank }.forEach {
                     it.finalRank++
@@ -646,6 +651,8 @@ class HoldemTournamentGameEngine(
                 player.isRebuyNextRound = false
                 player.finalRank = 0
                 player.chips = gameData.config.startingChips
+            } else {
+                logger.debug("Cannot rebuy player ${player.name} in this round")
             }
         }
     }

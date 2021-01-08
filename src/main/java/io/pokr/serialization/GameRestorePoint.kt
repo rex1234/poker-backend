@@ -29,7 +29,7 @@ data class GameRestorePoint(
            GameRestorePoint(
                uuid = gameData.uuid,
                gameConfig = gameData.config,
-               cardStack = CardList.fromCardStack(gameData.cardStack),
+               cardStack = gameData.cardStack.stack,
                tableCards = gameData.tableCards,
                gameState = GameData.State.PAUSED,
                allPlayers = gameData.allPlayers.map { it.copy() },
@@ -54,7 +54,7 @@ data class GameRestorePoint(
             it.config = gameConfig
             it.gameState = gameState
             it.tableCards = tableCards
-            it.cardStack = CardStack(cardStack.cards)
+            it.cardStack = CardStack(cardStack)
             it.allPlayers.addAll(allPlayers)
             it.targetBet = targetBet
             it.lastFullRaiseDiff = lastFullRaiseDiff
