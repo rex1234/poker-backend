@@ -122,8 +122,9 @@ class GamePool {
                 } ?: PlayerSession(playerSessionId, playerUuid).also {
                     // TODO: discard other session with the same UUID
 
-                    gameSession.playerSessions.add(it)
+                    // order of the additions is important - if addPlayer throws, we don't want to add the session
                     gameSession.gameEngine.addPlayer(it.uuid, playerName)
+                    gameSession.playerSessions.add(it)
                 }
 
                 logger.info("Added player ${playerName} to ${gameSession.uuid}")

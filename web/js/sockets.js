@@ -247,10 +247,10 @@ socket.on('error', function (data) {
         $('#userid-join').addClass('invalid');
         $('#join-err').html('Some of the fields do not have correct value.').show();
         $('#create-err').html('Some of the fields do not have correct value.').show();
-    } else if (data.code === 10) {
-        $('#join-err').html('The game is already full.').show();
-    } else if (data.code === 11) {
-        $('#join-err').html('Late registration is not possible.').show();
+    } else if ([10, 11, 22].includes(data.code)) {
+        localStorage.setItem('gameStarted', 'false');
+        localStorage.removeItem('game_uuid');
+        $('#join-err').html(`${data.message}.`).show();
     } else if (data.code === 21) { // No such player in any game session
         $.toast({
             heading: 'Error',
@@ -1579,7 +1579,7 @@ function assignChipsImg(chipcount, player, data) {
 
             function assignColor(chipNomination) {
                 const colors = ['BBCFFF', '176AFC', '00CF75', 'FFCC00', 'FFA329', 'F492F4'];
-                //var colors = ["B13BE2", "F492F4", "FF5500", "FFA329", "FFCC00", "00CF75", "3AEEFC", "2F06FC"];
+                //const colors = ['B13BE2', 'F492F4', 'FF5500', 'FFA329', 'FFCC00', '00CF75', '3AEEFC', '2F06FC'];
                 const c = jQuery.inArray(chipNomination, blinds);
                 if (c < blinds.length) {
                     return colors[c % colors.length];

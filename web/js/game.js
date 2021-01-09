@@ -223,11 +223,11 @@ $(document).ready(function () {
 
     if (!playerUuid || playerUuid.length !== 32) {
         playerUuid = randomString(32)
-        localStorage.setItem("player_uuid", playerUuid);
+        localStorage.setItem('player_uuid', playerUuid);
     }
 
     // restore game
-    if (gameStarted === "true") {
+    if (gameStarted === 'true') {
         $('#loader .wrapper .text').html('Reconnecting…');
         $('#loader').show();
         reconnected = true;

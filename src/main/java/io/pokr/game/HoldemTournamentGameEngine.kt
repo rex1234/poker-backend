@@ -52,6 +52,10 @@ class HoldemTournamentGameEngine(
 
 
     fun addPlayer(playerUUID: String, playerName: String) {
+        if (gameData.allPlayers.firstOrNull { it.uuid == playerUUID } != null) {
+            throw GameException(22, "Cannot rejoin a game you have left or been kicked from")
+        }
+
         if (gameData.allPlayers.size == 9) {
             throw GameException(10, "The game is already full")
         }
