@@ -225,7 +225,7 @@ class HoldemTournamentGameEngine(
         }
 
         // draw cards for each non-finished player
-        gameData.activePlayers.forEach {
+        gameData.players.forEach {
             it.cards = gameData.cardStack.drawCards(2)
         }
 
