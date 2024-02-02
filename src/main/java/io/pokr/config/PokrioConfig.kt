@@ -36,6 +36,9 @@ object PokrioConfig {
     val socketsPort
         get() = dotenv()["SOCKETS_PORT"]!!.toInt()
 
+    val socketsOutsidePort
+        get() = dotenv()["SOCKETS_PORT_OUTSIDE"] ?: socketsPort
+
     val adminPassword
         get() = dotenv()["ADMIN_PW"]
 }

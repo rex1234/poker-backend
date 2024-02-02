@@ -122,7 +122,7 @@ class WebEngine(
                 }
                 
                 call.respond(ThymeleafContent("game.html", mapOf(
-                    "socketsPort" to PokrioConfig.socketsPort,
+                    "socketsPort" to PokrioConfig.socketsOutsidePort,
                     "version" to PokrioConfig.version,
                 )))
             }

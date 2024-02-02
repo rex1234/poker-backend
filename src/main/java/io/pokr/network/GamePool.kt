@@ -52,7 +52,7 @@ class GamePool {
         }
 
     /**
-     * Creates a new game game discarding any previous games with the same UUID (should not happen outside of debugging).
+     * Creates a new game discarding any previous games with the same UUID (should not happen outside of debugging).
      * It contains the starting player as an admin.
      */
     fun createGame(
@@ -224,7 +224,7 @@ class GamePool {
             PlayerAction.Action.LEAVE ->
                 gameEngine.leave(playerUuid)
             PlayerAction.Action.DISCARD_GAME ->
-                null // TODO
+                Unit // TODO
             PlayerAction.Action.REBUY ->
                 gameEngine.rebuy(playerUuid)
             PlayerAction.Action.PAUSE ->

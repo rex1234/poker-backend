@@ -4,7 +4,7 @@ import io.pokr.game.model.*
 
 object InputValidator {
 
-    const val PLAYER_NAME_PATTERN =
+    private const val PLAYER_NAME_PATTERN =
         "[.:%!?@#^$&*(),+|'_=\\-0-9a-zA-Z\\u00C0-\\u024F\\u1E00-\\u1EFF ]{1,10}"
 
     fun validatePlayerName(playerName: String) =

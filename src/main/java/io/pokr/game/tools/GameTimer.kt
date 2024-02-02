@@ -6,7 +6,7 @@ class GameTimer(
     val tickListener: () -> Unit,
 ) {
 
-    var running = false
+    private var running = false
 
     fun start() {
         running = true

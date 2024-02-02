@@ -24,11 +24,7 @@ class HoldemTournamentGameEngine(
     var gameRestorePoint: GameRestorePoint? = null
 
     init {
-        if(initialGameData != null) {
-            gameData = initialGameData
-        } else {
-            gameData = GameData(gameUuid)
-        }
+        gameData = initialGameData ?: GameData(gameUuid)
 
         gameData.config = gameConfig
     }
