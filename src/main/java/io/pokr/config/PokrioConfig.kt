@@ -21,6 +21,9 @@ object PokrioConfig {
     val webUrl
         get() = dotenv()["WEB_URL"]!!
 
+    val socketUrl
+        get() = dotenv()["SOCKET_URL"] ?: webUrl
+
     val webPort
         get() = dotenv()["WEB_PORT"]!!.toInt()
 

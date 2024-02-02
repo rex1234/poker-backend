@@ -44,7 +44,7 @@ class SocketEngine(
         val config = Configuration().apply {
             hostname = "0.0.0.0"
             port = PokrioConfig.socketsPort
-            origin = if (PokrioConfig.isDebug) null else PokrioConfig.webUrl
+            origin = if (PokrioConfig.isDebug) null else PokrioConfig.socketUrl
             socketConfig.isReuseAddress = true
 
             val keyStoreFile = File(PokrioConfig.keyStorePath ?: "")
