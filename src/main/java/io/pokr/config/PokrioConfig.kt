@@ -16,7 +16,7 @@ object PokrioConfig {
         get() = "1.1"
 
     val webDir
-        get() = dotenv()["WEB_DIR"]!!
+        get() = "web"
 
     val webUrl
         get() = dotenv()["WEB_URL"]!!
