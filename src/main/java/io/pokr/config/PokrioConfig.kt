@@ -27,21 +27,9 @@ object PokrioConfig {
     val webPort
         get() = dotenv()["WEB_PORT"]!!.toInt()
 
-    val keyStorePath
-        get() = dotenv()["KEYSTORE_PATH"]
-
-    val keyStoreAlias
-        get() = dotenv()["KEYSTORE_ALIAS"]!!
-
-    val keyStorePassword
-        get() = dotenv()["KEYSTORE_PASSWORD"]!!
-
     val socketsPort
         get() = dotenv()["SOCKETS_PORT"]!!.toInt()
 
     val socketsPortOutside
         get() = dotenv()["SOCKETS_PORT_OUTSIDE"] ?: socketsPort
-
-    val adminPassword
-        get() = dotenv()["ADMIN_PW"]
 }

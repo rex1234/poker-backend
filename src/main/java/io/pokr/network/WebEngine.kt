@@ -42,19 +42,6 @@ class WebEngine(
     }
 
     fun Application.main() {
-        install(Authentication) {
-            basic(name = "admin") {
-                realm = "Ktor Server"
-                validate { credentials ->
-                    if (credentials.name == "admin" && credentials.password == PokrioConfig.adminPassword) {
-                        UserIdPrincipal(credentials.name)
-                    } else {
-                        null
-                    }
-                }
-            }
-        }
-
         install(Thymeleaf) {
             setTemplateResolver(ClassLoaderTemplateResolver().apply {
                 prefix = "web/"
@@ -67,18 +54,6 @@ class WebEngine(
         routing {
             route("api") {
                 get("/game_state") {
-                }
-            }
-
-            authenticate("admin") {
-                route("admin") {
-                    get("v") {
-                        call.respondText("v1.0")
-                    }
-
-                    get("log") {
-                        call.respondFile(File("logs/pokrio.log"))
-                    }
                 }
             }
 

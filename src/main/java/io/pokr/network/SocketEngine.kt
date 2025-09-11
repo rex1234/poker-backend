@@ -47,16 +47,6 @@ class SocketEngine(
             origin = if (PokrioConfig.isDebug) null else PokrioConfig.socketUrl
             socketConfig.isReuseAddress = true
 
-            val keyStoreFile = File(PokrioConfig.keyStorePath ?: "")
-            if (keyStoreFile.exists()) {
-                keyStore = FileInputStream(keyStoreFile)
-                keyStorePassword = PokrioConfig.keyStorePassword
-
-                logger.info("Socket.io server with SSL")
-            } else {
-                logger.info("Socket.io server without SSL")
-            }
-
             exceptionListener = object : com.corundumstudio.socketio.listener.ExceptionListener {
                 override fun onConnectException(e: Exception, client: SocketIOClient?) {
                     e.printStackTrace()
