@@ -19,19 +19,7 @@ JAR_NAME="pokrio.jar"
 RUN_SCRIPT_NAME="run.sh"
 
 DIRECTORY=$(pwd)
-
-case $DIRECTORY in
-  "/root/projects/poker-backend")
-    SERVICE="pokrio"
-    ;;
-  "/root/projects/poker-backend-dev")
-    SERVICE="pokriodev"
-    ;;
-  *)
-    echo "Not in a deployment directory, doing nothing"
-    exit 1
-    ;;
-esac
+SERVICE="pokrio"
 
 echo "Last 20 log lines of ${SERVICE}.service:"
 echo
