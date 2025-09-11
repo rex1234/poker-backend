@@ -22,14 +22,11 @@ object PokrioConfig {
         get() = dotenv()["WEB_URL"]!!
 
     val socketUrl
-        get() = dotenv()["SOCKET_URL"] ?: webUrl
+        get() = dotenv()["SOCKET_ADDRESS"] ?: webUrl
 
     val webPort
         get() = dotenv()["WEB_PORT"]!!.toInt()
 
     val socketsPort
         get() = dotenv()["SOCKETS_PORT"]!!.toInt()
-
-    val socketsPortOutside
-        get() = dotenv()["SOCKETS_PORT_OUTSIDE"] ?: socketsPort
 }

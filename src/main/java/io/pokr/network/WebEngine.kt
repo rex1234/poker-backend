@@ -66,7 +66,7 @@ class WebEngine(
                 }
 
                 call.respond(ThymeleafContent("game.html", mapOf(
-                    "socketsPort" to PokrioConfig.socketsPortOutside,
+                    "socketUrl" to PokrioConfig.socketUrl,
                     "version" to PokrioConfig.version,
                 )))
             }

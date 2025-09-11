@@ -1,4 +1,4 @@
-const socket = io.connect(location.protocol + '//' + window.location.hostname + ':' + socketsPort);
+const socket = io.connect(socketsUrl);
 
 let disconnectedToast;
 
