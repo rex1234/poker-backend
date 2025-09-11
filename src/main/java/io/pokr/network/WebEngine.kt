@@ -1,67 +1,36 @@
 package io.pokr.network
 
-import io.ktor.application.*
-import io.ktor.auth.*
-import io.ktor.features.*
-import io.ktor.http.content.*
-import io.ktor.request.*
-import io.ktor.response.*
-import io.ktor.routing.*
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.http.content.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import io.ktor.thymeleaf.*
+import io.ktor.server.thymeleaf.*
 import io.pokr.config.*
 import org.slf4j.*
 import org.thymeleaf.templateresolver.*
+import org.thymeleaf.templatemode.*
 import java.io.*
-import java.security.KeyStore.*
 import kotlin.concurrent.*
 
 class WebEngine(
     private val gamePool: GamePool,
 ) {
 
-    lateinit var engine: NettyApplicationEngine
+    lateinit var engine: EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration>
 
     val logger = LoggerFactory.getLogger(WebEngine::class.java)
 
     fun start() {
-        engine = embeddedServer(Netty, applicationEngineEnvironment {
-            module {
-                main()
-            }
+        engine = embeddedServer(Netty, port = PokrioConfig.webPort) {
+            main()
+        }
 
-            connector {
-                port = PokrioConfig.webPort
-            }
-
-            val keyStoreFile = File(PokrioConfig.keyStorePath ?: "")
-
-            if (keyStoreFile.exists()) {
-                val keystorePw = PokrioConfig.keyStorePassword.toCharArray()
-                val keyStoreAlias = PokrioConfig.keyStoreAlias
-
-                val keyStore = getInstance("JKS").apply {
-                    FileInputStream(keyStoreFile).use {
-                        load(it, keystorePw)
-                    }
-                }
-
-                sslConnector(
-                    keyStore = keyStore,
-                    keyAlias = keyStoreAlias,
-                    keyStorePassword = { keystorePw },
-                    privateKeyPassword = { keystorePw }) {
-                    port = 443
-                    keyStorePath = keyStoreFile
-                }
-
-                logger.info("WebEngine initialized with SSL")
-            } else {
-                logger.info("WebEngine initialized without SSL")
-            }
-            logger.info("Server deployed at " + PokrioConfig.webUrl)
-        })
+        logger.info("WebEngine initialized without SSL")
+        logger.info("Server deployed at " + PokrioConfig.webUrl)
 
         thread {
             engine.start(wait = true)
@@ -73,10 +42,6 @@ class WebEngine(
     }
 
     fun Application.main() {
-        if (File(PokrioConfig.keyStorePath ?: "").exists()) {
-            install(HttpsRedirect)
-        }
-
         install(Authentication) {
             basic(name = "admin") {
                 realm = "Ktor Server"
@@ -91,9 +56,11 @@ class WebEngine(
         }
 
         install(Thymeleaf) {
-            setTemplateResolver(FileTemplateResolver().apply {
-                prefix = "${PokrioConfig.webDir}/"
+            setTemplateResolver(ClassLoaderTemplateResolver().apply {
+                prefix = "web/"
                 suffix = ".html"
+                characterEncoding = "UTF-8"
+                templateMode = TemplateMode.HTML
             })
         }
 
@@ -115,20 +82,18 @@ class WebEngine(
                 }
             }
 
+            staticResources("/", PokrioConfig.webDir)
+
             get("/") {
                 if(PokrioConfig.webUrl.contains("www.") && !call.request.host().startsWith("www.")) {
                     call.respondRedirect(PokrioConfig.webUrl)
                     return@get
                 }
-                
+
                 call.respond(ThymeleafContent("game.html", mapOf(
                     "socketsPort" to PokrioConfig.socketsPortOutside,
                     "version" to PokrioConfig.version,
                 )))
-            }
-
-            static {
-                files(PokrioConfig.webDir)
             }
         }
 

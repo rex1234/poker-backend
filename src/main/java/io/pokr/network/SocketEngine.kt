@@ -80,6 +80,13 @@ class SocketEngine(
                     e.printStackTrace()
                 }
 
+                override fun onPongException(
+                    p0: java.lang.Exception?,
+                    p1: SocketIOClient?
+                ) {
+                    TODO("Not yet implemented")
+                }
+
                 override fun onDisconnectException(e: Exception, client: SocketIOClient?) {
                     e.printStackTrace()
                 }
@@ -87,6 +94,10 @@ class SocketEngine(
                 override fun exceptionCaught(ctx: ChannelHandlerContext?, e: Throwable): Boolean {
                     e.printStackTrace()
                     return false
+                }
+
+                override fun onAuthException(p0: Throwable?, p1: SocketIOClient?) {
+                    TODO("Not yet implemented")
                 }
             }
         }
@@ -123,7 +134,7 @@ class SocketEngine(
 
                 gamePool.connectToGame(
                     client.sessionId.toString(),
-                    data.gameUUID?.toUpperCase(),
+                    data.gameUUID?.uppercase(),
                     data.playerUUID!!,
                     data.name
                 )

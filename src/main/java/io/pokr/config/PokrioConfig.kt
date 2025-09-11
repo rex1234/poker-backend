@@ -13,7 +13,7 @@ object PokrioConfig {
         get() = dotenv()["ENV"] == null || dotenv()["ENV"] == "debug"
 
     val version
-        get() = BuildConfig.LAST_COMMIT
+        get() = "1.1"
 
     val webDir
         get() = dotenv()["WEB_DIR"]!!

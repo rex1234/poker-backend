@@ -66,10 +66,10 @@ class GameResponse(
                 time = System.currentTimeMillis(),
                 uuid = game.uuid,
                 config = game.config,
-                state = game.gameState.toString().toLowerCase(),
+                state = game.gameState.toString().lowercase(),
                 gameStart = if (game.gameState == State.ACTIVE) game.gameStart else null,
                 round = game.round,
-                roundState = game.roundState.toString().toLowerCase(),
+                roundState = game.roundState.toString().lowercase(),
                 user = game.allPlayers.first {
                     it.uuid == currentPlayerUuid
                 }.playerState(true, game),
@@ -101,7 +101,7 @@ class GameResponse(
                 isRebuyNextRound = isRebuyNextRound,
                 rebuyCount = rebuyCount,
                 moveStart = moveStart,
-                action = action.toString().toLowerCase(),
+                action = action.toString().lowercase(),
                 cards = if (forSelf || (game.roundState == RoundState.FINISHED && showCards)) cards.toString() else null,
                 hand = if (forSelf || (game.roundState == RoundState.FINISHED && showCards)) hand?.handName else null,
                 bestCards = if (forSelf || (game.roundState == RoundState.FINISHED && showCards)) bestCards?.toString() else null,

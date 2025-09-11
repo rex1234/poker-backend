@@ -8,8 +8,8 @@ data class Card(
     companion object {
         fun parse(code: String) =
             Card(
-                Color.values().first { it.code == code[1].toString().toUpperCase() },
-                Value.values().first { it.code == code[0].toString().toUpperCase() }
+                Color.entries.first { it.code == code[1].toString().uppercase() },
+                Value.entries.first { it.code == code[0].toString().uppercase() }
             )
     }
 
