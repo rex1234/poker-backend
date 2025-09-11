@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.io.ByteArrayOutputStream
 
 plugins {
     java
@@ -64,8 +63,13 @@ tasks.register<Jar>("fatJar") {
         )
     }
     archiveBaseName.set("pokrio")
+
+    // Include all runtime dependencies
     from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
-    with(tasks.jar.get())
+
+    // Explicitly include all source sets (main source code and resources)
+    from(sourceSets.main.get().output)
+
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
